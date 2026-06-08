@@ -16,6 +16,16 @@
           "index",
           "quickstart"
         ]
+      },
+      {
+        "group": "API Reference",
+        "openapi": [
+          "openapi/nimbo_api.yml",
+          "openapi/nimbo_erp.yml",
+          "openapi/nimbo_facturacion.yml",
+          "openapi/nimbo_patient_web_app.yml",
+          "openapi/nimbo_webhooks.yml"
+        ]
       }
     ],
     "global": {

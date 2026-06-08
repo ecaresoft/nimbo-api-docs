@@ -1,0 +1,541 @@
+openapi: 3.0.0
+info:
+  title: Nimbo Facturación
+  version: 1.0.0
+  description: ''
+servers:
+  - url: https://api-staging.nimbo.app/api/v1/
+paths:
+  /invoices/{id}/sign:
+    post:
+      summary: Generate Invoice
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: ''
+      responses:
+        '200':
+          description: Generate Invoice
+          headers:
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-XSS-Protection:
+              schema:
+                type: string
+              example: 1; mode=block
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            ETag:
+              schema:
+                type: string
+              example: W/"f0470bb6c954b17735da62b7d313b94e"
+            Cache-Control:
+              schema:
+                type: string
+              example: max-age=0, private, must-revalidate
+            X-Request-Id:
+              schema:
+                type: string
+              example: 9cb8f33e-18b3-459a-bda3-ec46717f60d7
+            X-Runtime:
+              schema:
+                type: number
+              example: 28.160414
+            Transfer-Encoding:
+              schema:
+                type: string
+              example: chunked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      payment_type:
+                        type: string
+                      encounter_id:
+                        type: integer
+                      person_id:
+                        type: integer
+                      discount_rate:
+                        nullable: true
+                      discount_amount:
+                        nullable: true
+                      tax_rate:
+                        nullable: true
+                      tax_amount:
+                        nullable: true
+                      total_cents:
+                        type: integer
+                      total_discount_cents:
+                        type: integer
+                      total_tax_cents:
+                        type: integer
+                      links:
+                        type: object
+                        properties:
+                          consultation:
+                            type: string
+                          consultation_invoice_items:
+                            type: string
+                          consultation_schedule:
+                            type: string
+                          encounter:
+                            type: string
+                      tax_attributes:
+                        type: object
+                        properties:
+                          use_cfdi:
+                            type: string
+                          payment_form:
+                            type: string
+                            format: utc-millisec
+                          payment_method:
+                            type: string
+                      signed_at:
+                        type: string
+                        format: date-time
+                      globally_invoiced:
+                        type: boolean
+                      cause:
+                        type: string
+                      starts_at:
+                        type: string
+                        format: date-time
+              example:
+                invoice:
+                  id: 95663
+                  payment_type: cash
+                  encounter_id: 1556164
+                  person_id: 1029211
+                  discount_rate: null
+                  discount_amount: null
+                  tax_rate: null
+                  tax_amount: null
+                  total_cents: 110200
+                  total_discount_cents: 0
+                  total_tax_cents: 15200
+                  links:
+                    consultation: /api/v1/encounters/1556164/consultation
+                    consultation_invoice_items: /api/v1/invoices/95663/consultation_invoice_items
+                    consultation_schedule: /api/v1/encounters/1556164/consultation_schedule
+                    encounter: /api/v1/encounters/1556164
+                  tax_attributes:
+                    use_cfdi: S01
+                    payment_form: '01'
+                    payment_method: PUE
+                  signed_at: '2025-03-10T15:46:09.647-06:00'
+                  globally_invoiced: false
+                  cause: Dolor de espalda
+                  starts_at: '2025-03-10T15:43:02.342-06:00'
+      security:
+        - BearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: >-
+          Identificador del registro que se desea facturar, se obtiene de la
+          lista de items al listar facturas, parametro: invoice_id
+        schema:
+          type: integer
+        example: 95662
+  /reports/consultation_invoice_items:
+    get:
+      summary: Consultation Invoice Items
+      parameters:
+        - name: start
+          in: query
+          description: Filtro fecha inicial de busqueda de registros (opcional)
+          schema:
+            type: string
+          example: '2025-03-01'
+        - name: end
+          in: query
+          description: Filtro fecha final de busqueda de registros (opcional)
+          schema:
+            type: string
+          example: '2025-03-31'
+        - name: status
+          in: query
+          description: Filtro estatus actual del registro (opcional)
+          schema:
+            type: string
+          example: invoiced
+        - name: person
+          in: query
+          description: Filtro id de paciente (opcional)
+          schema:
+            type: integer
+          example: 1029211
+      responses:
+        '200':
+          description: Consultation Invoice Items
+          headers:
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-XSS-Protection:
+              schema:
+                type: string
+              example: 1; mode=block
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            ETag:
+              schema:
+                type: string
+              example: W/"ccf24f37cc0bfcc245fee43d0b256d54"
+            Cache-Control:
+              schema:
+                type: string
+              example: max-age=0, private, must-revalidate
+            X-Request-Id:
+              schema:
+                type: string
+              example: 0191c7f6-5f7c-4fbd-b48d-20f2f797c40d
+            X-Runtime:
+              schema:
+                type: number
+              example: 0.111454
+            Transfer-Encoding:
+              schema:
+                type: string
+              example: chunked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  encounters:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+                        cause:
+                          type: string
+                        invoice_id:
+                          type: integer
+                        total_discount_cents:
+                          type: integer
+                        total_tax_cents:
+                          type: integer
+                        total_cents:
+                          type: integer
+                        signed_at:
+                          type: string
+                          format: date-time
+                        charges_count:
+                          type: integer
+                        full_name:
+                          type: string
+                        payment_type:
+                          type: string
+                        subtotal:
+                          type: integer
+                        payment:
+                          type: integer
+                        physician_name:
+                          type: string
+                        status:
+                          type: string
+                  invoice_metrics:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          nullable: true
+                        total_cents:
+                          type: integer
+                        total_items:
+                          type: integer
+                        total_items_payments:
+                          type: integer
+                        average:
+                          type: integer
+                        total_payments:
+                          type: string
+                          format: utc-millisec
+              example:
+                encounters:
+                  - id: 1556163
+                    created_at: '2025-03-10T14:51:42.000-06:00'
+                    cause: Dolor
+                    invoice_id: 95662
+                    total_discount_cents: 0
+                    total_tax_cents: 15200
+                    total_cents: 110200
+                    signed_at: '2025-03-10T21:03:50.391Z'
+                    charges_count: 2
+                    full_name: Maria Villafuerte
+                    payment_type: cash
+                    subtotal: 95000
+                    payment: 110200
+                    physician_name: Alberto Villafuerte
+                    status: invoiced
+                  - id: 1556162
+                    created_at: '2025-03-10T14:10:47.000-06:00'
+                    cause: Dolor de estomago
+                    invoice_id: 95661
+                    total_discount_cents: 0
+                    total_tax_cents: 15200
+                    total_cents: 110200
+                    signed_at: '2025-03-10T20:13:51.381Z'
+                    charges_count: 2
+                    full_name: Maria Villafuerte
+                    payment_type: cash
+                    subtotal: 95000
+                    payment: 110200
+                    physician_name: Alberto Villafuerte
+                    status: invoiced
+                invoice_metrics:
+                  - id: null
+                    total_cents: 220400
+                    total_items: 2
+                    total_items_payments: 2
+                    average: 110200
+                    total_payments: '220400.0'
+      security:
+        - BearerAuth: []
+  /invoices/{id}/download_cfdi.pdf:
+    get:
+      summary: 'Download PDF '
+      parameters:
+        - name: token
+          in: query
+          schema:
+            type: string
+          example: '{{nimbo_token}}'
+      responses:
+        '200':
+          description: OK
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ''
+  /invoices/{id}/download_cfdi.xml:
+    get:
+      summary: Download XML
+      parameters:
+        - name: token
+          in: query
+          description: token bearer generado al iniciar una sesion
+          schema:
+            type: string
+          example: '{{nimbo_token}}'
+      responses:
+        '200':
+          description: Download XML
+          headers:
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-XSS-Protection:
+              schema:
+                type: string
+              example: 1; mode=block
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            Content-Disposition:
+              schema:
+                type: string
+              example: attachment; filename="95663.xml"
+            Content-Transfer-Encoding:
+              schema:
+                type: string
+              example: binary
+            Cache-Control:
+              schema:
+                type: string
+              example: private
+            ETag:
+              schema:
+                type: string
+              example: W/"37b41f681285d90b19772d9bf00d9950"
+            X-Request-Id:
+              schema:
+                type: string
+              example: 7f0e2dee-db06-4d95-a4fa-7495f6fbd45a
+            X-Runtime:
+              schema:
+                type: number
+              example: 1.664111
+            Transfer-Encoding:
+              schema:
+                type: string
+              example: chunked
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador de la factura que se desea descargar en formato XML
+        schema:
+          type: integer
+        example: 95663
+  /invoices/{id}/email_invoice:
+    post:
+      summary: Send by Email
+      responses:
+        '200':
+          description: Send to Email
+          headers:
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-XSS-Protection:
+              schema:
+                type: string
+              example: 1; mode=block
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            ETag:
+              schema:
+                type: string
+              example: W/"f0470bb6c954b17735da62b7d313b94e"
+            Cache-Control:
+              schema:
+                type: string
+              example: max-age=0, private, must-revalidate
+            X-Request-Id:
+              schema:
+                type: string
+              example: f510dfe4-0dbe-44b3-942b-de891d95b876
+            X-Runtime:
+              schema:
+                type: number
+              example: 0.140537
+            Transfer-Encoding:
+              schema:
+                type: string
+              example: chunked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      payment_type:
+                        type: string
+                      encounter_id:
+                        type: integer
+                      person_id:
+                        type: integer
+                      discount_rate:
+                        nullable: true
+                      discount_amount:
+                        nullable: true
+                      tax_rate:
+                        nullable: true
+                      tax_amount:
+                        nullable: true
+                      total_cents:
+                        type: integer
+                      total_discount_cents:
+                        type: integer
+                      total_tax_cents:
+                        type: integer
+                      links:
+                        type: object
+                        properties:
+                          consultation:
+                            type: string
+                          consultation_invoice_items:
+                            type: string
+                          consultation_schedule:
+                            type: string
+                          encounter:
+                            type: string
+                      tax_attributes:
+                        type: object
+                        properties:
+                          use_cfdi:
+                            type: string
+                          payment_form:
+                            type: string
+                            format: utc-millisec
+                          payment_method:
+                            type: string
+                      signed_at:
+                        type: string
+                        format: date-time
+                      globally_invoiced:
+                        type: boolean
+                      cause:
+                        type: string
+                      starts_at:
+                        type: string
+                        format: date-time
+              example:
+                invoice:
+                  id: 95663
+                  payment_type: cash
+                  encounter_id: 1556164
+                  person_id: 1029211
+                  discount_rate: null
+                  discount_amount: null
+                  tax_rate: null
+                  tax_amount: null
+                  total_cents: 110200
+                  total_discount_cents: 0
+                  total_tax_cents: 15200
+                  links:
+                    consultation: /api/v1/encounters/1556164/consultation
+                    consultation_invoice_items: /api/v1/invoices/95663/consultation_invoice_items
+                    consultation_schedule: /api/v1/encounters/1556164/consultation_schedule
+                    encounter: /api/v1/encounters/1556164
+                  tax_attributes:
+                    use_cfdi: S01
+                    payment_form: '01'
+                    payment_method: PUE
+                  signed_at: '2025-03-10T15:46:09.647-06:00'
+                  globally_invoiced: false
+                  cause: Dolor de espalda
+                  starts_at: '2025-03-10T15:43:02.342-06:00'
+      security:
+        - BearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: >-
+          Identificador de la factura que sera enviada por correo electronico al
+          correo que tenga configurado el paciente
+        schema:
+          type: integer
+        example: 95663
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

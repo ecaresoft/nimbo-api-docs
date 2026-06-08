@@ -1,0 +1,854 @@
+openapi: 3.0.0
+info:
+  title: Nimbo Webhooks API
+  version: 1.0.0
+  description: >-
+    Esta API permite configurar los webhooks de Nimbo para que, a través de
+    solicitudes HTTP/Json, recibas en tu servidor notificaciones cuando ocurran
+    eventos en Nimbo relacionados a cuentas de usuarios, pacientes, notas de
+    remisión, recetas, citas y consultas.
+
+
+    Este es el listado detallado de los eventos que emitimos hasta el momento:
+
+
+    ## Topico: canadian-38729.account
+
+
+    Eventos para las cuentas de usuario (medicos ó asistentes)
+
+
+    ### Evento: created
+
+
+    Se dispara cuando se crea una nueva cuenta de médico ó asistente.
+
+
+    ### Evento: updated
+
+
+    Se dispara cuando se actualiza una cuenta de médico ó asistente.
+
+
+    ## Topico: canadian-38729.invoice-item
+
+
+    Eventos para los productos en una nota de remisión
+
+
+    ### Evento: invoice-item-created
+
+
+    Se dispara cuando se agrega un producto a una nota de remisión
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+      {
+        "value":{
+          "consultation_invoice_item_id":51244,  // id de la partida
+          "account_id":17512,  // id de la cuenta que agrego la partida
+          "invoice_id":94135,  // id de la nota de remisión
+          "encounter_id":1003108,  // id del encuentro en que se genera la nota de remisión
+          "person_id":681919,  // id del paciente al que se genera la nota de remisión
+          "consultation_id":844450  // id de la consulta en que se genera la nota de remisión | si la nota se genero desde el módulo de cargos este campo será null
+        }
+      }
+
+     ```
+
+    ### Evento: invoice-item-deleted
+
+
+    Se dispara cuando se elimina un producto de una nota de remisión
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+      {
+        "value":{
+          "consultation_invoice_item_id":51244,  // id de la partida
+          "account_id":17512,  // id de la cuenta que eliminó la partida
+          "invoice_id":94135,  // id de la nota de remisión
+          "encounter_id":1003108,  // id del encuentro al que pertenece la nota de remisión
+          "person_id":681919,  // id del paciente al que pertenece la nota de remisión
+          "consultation_id":844450  // id de la consulta a la que pertenece la nota de remisión | si la nota se genero desde el módulo de cargos este campo será null
+        }
+      }
+
+     ```
+
+    ### Evento: invoice-item-updated
+
+
+    Se dispara cuando se edita un producto de una nota de remisión
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+      {
+        "value":{
+          "consultation_invoice_item_id":51244,  // id de la partida
+          "account_id":17512,  // id de la cuenta que eliminó la partida
+          "invoice_id":94135,  // id de la nota de remisión
+          "encounter_id":1003108,  // id del encuentro al que pertenece la nota de remisión
+          "person_id":681919,  // id del paciente al que pertenece la nota de remisión
+          "consultation_id":844450  // id de la consulta a la que pertenece la nota de remisión | si la nota se genero desde el módulo de cargos este campo será null
+        }
+      }
+
+     ```
+
+    ## Topico: canadian-38729.prescription
+
+
+    Eventos sobre la cabecera de una receta
+
+
+    ### Evento: prescription-created
+
+
+    Se dispara cuando se guarda una receta medica
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+      {
+        "prescription_id": 1, // identificador de la receta
+        "consultation_id": 1, // identificador de la consulta
+        "account_id": 1 // identificador de la cuenta que creo la receta
+      }
+
+     ```
+
+    ### Evento: prescription-cancel
+
+
+    Se dispara cuando se edita/cancela una receta medica
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+      {
+        "prescription_id": 1, // identificador de la receta
+        "consultation_id": 1, // identificador de la consulta
+        "account_id": 1 // identificador de la cuenta que creo la receta
+      }
+
+     ```
+
+    ### Evento: prescription-deleted
+
+
+    Se dispara cuando se elimina una receta medica
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+      {
+        "prescription_id": 1, // identificador de la receta
+        "consultation_id": 1, // identificador de la consulta
+        "account_id": 1 // identificador de la cuenta que creo la receta
+      }
+
+     ```
+
+    ## Topico: canadian-38729.consultation
+
+
+    Eventos sobre consultas
+
+
+    ### Evento: consultation-created
+
+
+    ``` json
+
+    {
+        "consultation_id":1234,
+        "account_id":567,
+        "encounter_id":890
+    }
+
+     ```
+
+    ### Evento: consultation-updated
+
+
+    ### Evento: consultation-finished
+
+
+    ``` json
+
+    {
+        "consultation_id":123456,
+        "account_id":7890,
+        "encounter_id":456789
+    }
+
+     ```
+
+    ### Evento: consultation-deleted
+
+
+    ## Topico: canadian-38729.invoice-item-catalog
+
+
+    Eventos sobre el catálogo de productos
+
+
+    ### Evento: invoice-item-catalog-created
+
+
+    ### Evento: invoice-item-catalog-updated
+
+
+    ### Evento: invoice-item-catalog-deleted
+
+
+    ## Topico: canadian-38729.invoice
+
+
+    Eventos sobre Notas de remisión
+
+
+    ### Evento: invoice-created
+
+
+    ### Evento: invoice-updated
+
+
+    ## Topico: canadian-38729.patient
+
+
+    Eventos sobre Pacientes
+
+
+    ### Evento: patient-created
+
+
+    ### Evento: patient-updated
+
+
+    ### Evento: patient-deleted
+
+
+    #### Ejemplo de datos enviados al webhook
+
+
+    ``` json
+
+    {
+      "value": {
+        "id": 6757925,  //id autogenerado del paciente en Nimbo
+        "account_id": 64655, //id del médico tratante
+        "creator_id": 69305, //id de la cuenta que creo al paciente
+        "updater_id": 69305 //id de la última cuenta que realizo un cambio
+      }
+    }
+
+     ```
+
+    ## Topico: canadian-38729.waiting-room
+
+
+    Eventos sobre Pacientes en la sala de espera
+
+
+    ### Evento: patient-joined-twr
+
+
+    ## Topico: canadian-38729.consultation-schedule
+
+
+    Eventos sobre Citas
+
+
+    ### Evento: consultation-schedule-create
+
+
+    ### Evento: consultation-schedule-updated
+servers:
+  - url: https://webhooks-staging.nimbo.app
+paths:
+  /oauth/token:
+    post:
+      summary: Obtener Token de Nimbo API
+      responses:
+        '200':
+          description: Obtener Token
+          headers:
+            Server:
+              schema:
+                type: string
+              example: Cowboy
+            Date:
+              schema:
+                type: string
+              example: Mon, 13 Jan 2025 23:47:30 GMT
+            Report-To:
+              schema:
+                type: string
+              example: >-
+                {"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1736812050&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=ZGMc2GV1RQJFctrVw%2FQkzycDiCtTB5pqEnJQE7cMbJ0%3D"}]}
+            Reporting-Endpoints:
+              schema:
+                type: string
+              example: >-
+                heroku-nel=https://nel.heroku.com/reports?ts=1736812050&sid=1b10b0ff-8a76-4548-befa-353fc6c6c045&s=ZGMc2GV1RQJFctrVw%2FQkzycDiCtTB5pqEnJQE7cMbJ0%3D
+            Nel:
+              schema:
+                type: string
+              example: >-
+                {"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            X-Frame-Options:
+              schema:
+                type: string
+              example: SAMEORIGIN
+            X-Xss-Protection:
+              schema:
+                type: string
+              example: 1; mode=block
+            X-Content-Type-Options:
+              schema:
+                type: string
+              example: nosniff
+            Cache-Control:
+              schema:
+                type: string
+              example: no-store
+            Pragma:
+              schema:
+                type: string
+              example: no-cache
+            Etag:
+              schema:
+                type: string
+              example: W/"bd494bc38573ccf022493ab5ce15f06e"
+            X-Request-Id:
+              schema:
+                type: string
+              example: 8f3bba8b-94d4-4269-881d-7d48eb90e187
+            X-Runtime:
+              schema:
+                type: number
+              example: 0.142735
+            Transfer-Encoding:
+              schema:
+                type: string
+              example: chunked
+            Via:
+              schema:
+                type: string
+              example: 1.1 vegur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  created_at:
+                    type: integer
+              example:
+                access_token: 0b71eef6f3...c693bca3
+                token_type: bearer
+                expires_in: 86400
+                refresh_token: 1b7f4cb2dd...ad2fd4698
+                created_at: 1736812050
+      description: >-
+        Para usar el API de Nimbo Webhooks es necesario obtener primero un Token
+        de Nimbo API.
+
+
+        Es importante notar que el host utilizado para obtener el Token de Nimbo
+        API es diferente al host del API de Nimbo Webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                grant_type:
+                  type: string
+            example:
+              username: '{{nimbo_user_email}}'
+              password: '{{nimbo_user_password}}'
+              grant_type: password
+  /webhooks:
+    post:
+      summary: Registrar nuevo webhook
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                topic:
+                  type: string
+                event_name:
+                  type: string
+                authentication_data:
+                  type: object
+                  properties:
+                    secret:
+                      type: string
+                nimbo_access_token:
+                  type: string
+            example:
+              url: '{{webhook_target}}'
+              topic: '{{webhook_topic}}'
+              event_name: '{{webhook_event_name}}'
+              authentication_data:
+                secret: '{{webhook_secret}}'
+              nimbo_access_token: '{{bearer_token}}'
+    get:
+      summary: Obtener listado de webhooks registrados
+      responses:
+        '200':
+          description: Get /webooks
+          headers:
+            Server:
+              schema:
+                type: string
+              example: openresty
+            Date:
+              schema:
+                type: string
+              example: Tue, 09 Apr 2024 15:55:59 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 504
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            X-Powered-By:
+              schema:
+                type: string
+              example: Express
+            ETag:
+              schema:
+                type: string
+              example: W/"1f8-UOOIKVWu4d49cnJLMDukHImla54"
+            X-Served-By:
+              schema:
+                type: string
+              example: webhooks-staging.nimbo.app
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  webhooks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        organization_id:
+                          type: integer
+                        url:
+                          type: string
+                          format: uri
+                        event_topic:
+                          type: string
+                        event_name:
+                          type: string
+                        authentication_data:
+                          type: object
+                          properties:
+                            secret:
+                              type: string
+                        status:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        deleted_at:
+                          nullable: true
+              example:
+                webhooks:
+                  - id: 29
+                    organization_id: 14956
+                    url: https://mean-pens-press.loca.lt
+                    event_topic: canadian-38729.patient
+                    event_name: patient-created
+                    authentication_data:
+                      secret: wertyhjhgfdsxcvbnm
+                    status: enabled
+                    created_at: '2023-05-25T18:16:57.772Z'
+                    deleted_at: null
+      security:
+        - BearerAuth: []
+  /events:
+    get:
+      summary: Consultar Eventos
+      responses:
+        '200':
+          description: Consultar Eventos
+          headers:
+            Server:
+              schema:
+                type: string
+              example: openresty
+            Date:
+              schema:
+                type: string
+              example: Thu, 06 Jul 2023 20:59:41 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 488891
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            X-Powered-By:
+              schema:
+                type: string
+              example: Express
+            ETag:
+              schema:
+                type: string
+              example: W/"775bb-DyYLU3yEIjSbOtealU7alERk7/U"
+            X-Served-By:
+              schema:
+                type: string
+              example: webhooks-staging.nimbo.app
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    topic:
+                      type: string
+                    name:
+                      type: string
+                    source:
+                      type: string
+                    behaviour:
+                      type: string
+                    compensating_event:
+                      type: object
+                    previous_event:
+                      type: string
+                    root_event:
+                      type: string
+                    event_schema_version:
+                      type: string
+                      format: utc-millisec
+                    value:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        first_name:
+                          type: string
+                        last_name:
+                          type: string
+                        telephone:
+                          nullable: true
+                        email:
+                          type: string
+                          format: email
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                        born_at:
+                          type: string
+                          format: date
+                        gender:
+                          type: string
+                        avatar_file_name:
+                          nullable: true
+                        avatar_content_type:
+                          nullable: true
+                        avatar_file_size:
+                          nullable: true
+                        avatar_updated_at:
+                          nullable: true
+                        telephone2:
+                          type: string
+                          format: utc-millisec
+                        person_attributes:
+                          type: object
+                          properties:
+                            send_reminders:
+                              type: boolean
+                        account_id:
+                          type: integer
+                        address_state_id:
+                          type: integer
+                        organization_id:
+                          type: integer
+                        notes:
+                          nullable: true
+                        deleted_at:
+                          nullable: true
+                        phone_country_id:
+                          type: integer
+                        creator_id:
+                          type: integer
+                        updater_id:
+                          type: integer
+                        is_migrated:
+                          type: boolean
+                        without_cellphone:
+                          type: boolean
+                        nimbochat_invitation_date:
+                          nullable: true
+                        admission_form:
+                          type: boolean
+                        cirrus_patient_id:
+                          nullable: true
+                        person_token_id:
+                          nullable: true
+                        medical_record:
+                          type: string
+                          format: utc-millisec
+                        send_welcome_email:
+                          type: boolean
+                    key:
+                      type: string
+                    domain:
+                      type: string
+                      format: style
+                    organization_id:
+                      type: integer
+                    tries_left:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
+                    logs:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          target_url:
+                            type: string
+                            format: uri
+                          authentication_data:
+                            type: object
+                            properties:
+                              secret:
+                                type: string
+                          request:
+                            type: string
+                            format: style
+                          response:
+                            type: string
+                            format: style
+                          event_id:
+                            type: string
+                          response_code:
+                            nullable: true
+                          retries_left:
+                            type: integer
+                          created_at:
+                            type: string
+                            format: date-time
+              example:
+                - id: 399
+                  topic: canadian-38729.patient
+                  name: patient-created
+                  source: nimbox-api
+                  behaviour: forward
+                  compensating_event: {}
+                  previous_event: ''
+                  root_event: 650aebc1-c8f6-46a7-aa0b-63d5af34b4d2
+                  event_schema_version: '1.0'
+                  value:
+                    id: 681100
+                    first_name: a
+                    last_name: a
+                    telephone: null
+                    email: a@a.a
+                    created_at: '2023-05-25T11:55:31.859-06:00'
+                    updated_at: '2023-05-25T11:55:31.859-06:00'
+                    born_at: '2000-01-01'
+                    gender: f
+                    avatar_file_name: null
+                    avatar_content_type: null
+                    avatar_file_size: null
+                    avatar_updated_at: null
+                    telephone2: '4949494949'
+                    person_attributes:
+                      send_reminders: true
+                    account_id: 16046
+                    address_state_id: 7
+                    organization_id: 14956
+                    notes: null
+                    deleted_at: null
+                    phone_country_id: 142
+                    creator_id: 16046
+                    updater_id: 16046
+                    is_migrated: false
+                    without_cellphone: false
+                    nimbochat_invitation_date: null
+                    admission_form: false
+                    cirrus_patient_id: null
+                    person_token_id: null
+                    medical_record: '49'
+                    send_welcome_email: true
+                  key: 650aebc1-c8f6-46a7-aa0b-63d5af34b4d2
+                  domain: '{"organization_id":14956,"account_id":16046}'
+                  organization_id: 14956
+                  tries_left: 1
+                  created_at: '2023-05-25T17:55:33.286Z'
+                  logs:
+                    - id: 536
+                      target_url: https://crazy-birds-switch-177-227-68-113.loca.lt
+                      authentication_data:
+                        secret: wertyhjhgfdsxcvbnm
+                      request: >-
+                        {"value":{"id":681100,"first_name":"a","last_name":"a","telephone":null,"email":"a@a.a","created_at":"2023-05-25T11:55:31.859-06:00","updated_at":"2023-05-25T11:55:31.859-06:00","born_at":"2000-01-01","gender":"f","avatar_file_name":null,"avatar_content_type":null,"avatar_file_size":null,"avatar_updated_at":null,"telephone2":"4949494949","person_attributes":{"send_reminders":true},"account_id":16046,"address_state_id":7,"organization_id":14956,"notes":null,"deleted_at":null,"phone_country_id":142,"creator_id":16046,"updater_id":16046,"is_migrated":false,"without_cellphone":false,"nimbochat_invitation_date":null,"admission_form":false,"cirrus_patient_id":null,"person_token_id":null,"medical_record":"49","send_welcome_email":true}}
+                      response: >-
+                        {"message":"Request failed with status code
+                        404","name":"AxiosError","stack":"AxiosError: Request
+                        failed with status code 404\n    at settle
+                        (file:///home/ec2-user/microservicios-ecs/webhooks/node_modules/axios/lib/core/settle.js:19:12)\n   
+                        at IncomingMessage.handleStreamEnd
+                        (file:///home/ec2-user/microservicios-ecs/webhooks/node_modules/axios/lib/adapters/http.js:505:11)\n   
+                        at IncomingMessage.emit (node:events:525:35)\n    at
+                        endReadableNT
+                        (node:internal/streams/readable:1358:12)\n    at
+                        processTicksAndRejections
+                        (node:internal/process/task_queues:83:21)","config":{"transitional":{"silentJSONParsing":true,"forcedJSONParsing":true,"clarifyTimeoutError":false},"adapter":["xhr","http"],"transformRequest":[null],"transformResponse":[null],"timeout":0,"xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN","maxContentLength":-1,"maxBodyLength":-1,"env":{"Blob":null},"headers":{"Accept":"application/json,
+                        text/plain,
+                        */*","Content-Type":"application/json","signature":"4690b22239a17908f3e0898fb3a86642626e3cd0003edacf9402e69ec87338f6","User-Agent":"axios/1.2.1","Content-Length":"739","Accept-Encoding":"gzip,
+                        compress, deflate,
+                        br"},"method":"post","url":"https://crazy-birds-switch-177-227-68-113.loca.lt","data":"{\"value\":{\"id\":681100,\"first_name\":\"a\",\"last_name\":\"a\",\"telephone\":null,\"email\":\"a@a.a\",\"created_at\":\"2023-05-25T11:55:31.859-06:00\",\"updated_at\":\"2023-05-25T11:55:31.859-06:00\",\"born_at\":\"2000-01-01\",\"gender\":\"f\",\"avatar_file_name\":null,\"avatar_content_type\":null,\"avatar_file_size\":null,\"avatar_updated_at\":null,\"telephone2\":\"4949494949\",\"person_attributes\":{\"send_reminders\":true},\"account_id\":16046,\"address_state_id\":7,\"organization_id\":14956,\"notes\":null,\"deleted_at\":null,\"phone_country_id\":142,\"creator_id\":16046,\"updater_id\":16046,\"is_migrated\":false,\"without_cellphone\":false,\"nimbochat_invitation_date\":null,\"admission_form\":false,\"cirrus_patient_id\":null,\"person_token_id\":null,\"medical_record\":\"49\",\"send_welcome_email\":true}}"},"code":"ERR_BAD_REQUEST","status":404}
+                      event_id: 650aebc1-c8f6-46a7-aa0b-63d5af34b4d2
+                      response_code: null
+                      retries_left: 3
+                      created_at: '2023-05-25T17:55:34.555Z'
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                offset:
+                  type: integer
+                limit:
+                  type: integer
+                topic:
+                  type: string
+                name:
+                  type: string
+            example:
+              offset: 0
+              limit: 10
+              topic: '{{webhook_topic}}'
+              name: '{{webhook_event_name}}'
+  /webhooks/182:
+    delete:
+      summary: Eliminar un webhook
+      responses:
+        '200':
+          description: Delete /webhooks/id
+          headers:
+            Server:
+              schema:
+                type: string
+              example: openresty
+            Date:
+              schema:
+                type: string
+              example: Tue, 09 Apr 2024 15:56:31 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: 24
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+            X-Powered-By:
+              schema:
+                type: string
+              example: Express
+            ETag:
+              schema:
+                type: string
+              example: W/"18-9vZERyzGSLnLYaUjctxkicKm9z8"
+            X-Served-By:
+              schema:
+                type: string
+              example: webhooks-staging.nimbo.app
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+              example:
+                deleted:
+                  - id: 182
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nimbo_access_token:
+                  type: string
+            example:
+              nimbo_access_token: nimbo_token
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
