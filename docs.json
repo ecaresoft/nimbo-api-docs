@@ -1,82 +1,35 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
-  },
+  "theme": "almond",
+  "name": "Nimbo API",
+  "description": "Developer documentation for Nimbo integrations, API contracts, and webhooks.",
+  "colors": { "primary": "#1f87ff", "light": "#4da3ff", "dark": "#0d6efd" },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      },
-      {
-        "group": "API Reference",
-        "openapi": [
-          "openapi/nimbo_api.yml",
-          "openapi/nimbo_erp.yml",
-          "openapi/nimbo_facturacion.yml",
-          "openapi/nimbo_patient_web_app.yml",
-          "openapi/nimbo_webhooks.yml"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
+  "logo": { "light": "/logo/light.svg", "dark": "/logo/dark.svg", "href": "/" },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
+    "links": [{ "label": "Contact Nimbo", "href": "https://www.nimbo-x.com/contacto" }],
+    "primary": { "type": "button", "label": "Open Nimbo", "href": "https://app.nimbo-x.com" }
+  },
+  "navigation": {
+    "tabs": [
+      { "tab": "Guides", "groups": [
+        { "group": "Get started", "pages": ["index", "quickstart", "authentication"] },
+        { "group": "Using the reference", "pages": ["reference/overview"] }
+      ] },
+      { "tab": "Public contract preview", "groups": [
+        { "group": "About this preview", "pages": ["reference/public-preview"] },
+        { "group": "Endpoints", "openapi": "openapi/nimbo_public.yml" }
+      ] },
+      { "tab": "Legacy API", "groups": [
+        { "group": "Nimbo API", "openapi": "openapi/nimbo_api.yml" },
+        { "group": "ERP", "openapi": "openapi/nimbo_erp.yml" },
+        { "group": "Billing", "openapi": "openapi/nimbo_facturacion.yml" },
+        { "group": "Webhooks", "openapi": "openapi/nimbo_webhooks.yml" }
+      ] }
     ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
-    }
+    "global": { "anchors": [{ "anchor": "Nimbo help center", "href": "https://help.nimbo-x.com", "icon": "book-open" }] }
   },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
+  "api": { "playground": { "display": "simple" } },
+  "contextual": { "options": ["copy", "view"] },
+  "footer": { "socials": { "x": "https://twitter.com/nimbo_x", "linkedin": "https://www.linkedin.com/company/ecaresoft-inc." } }
 }

@@ -1,0 +1,2049 @@
+---
+openapi: 3.1.0
+x-nimbo-publication:
+  audience: public
+  availability: contract_snapshot
+info:
+  title: Nimbo API public contract
+  version: 0.1.0
+  description: Public-audience contract snapshot. Inclusion does not establish production
+    availability or legacy compatibility.
+servers:
+- url: https://api.example.test
+  description: Reference only; not a live API host
+tags:
+- name: Countries
+- name: Catalogs
+- name: SAT Catalogs
+- name: Sites
+- name: Public Portals
+- name: Telehealth
+paths:
+  "/api/v1/countries":
+    get:
+      tags:
+      - Countries
+      operationId: listCountries
+      summary: List countries
+      description: Public catalog of active countries used by current patient-app
+        flows outside the patient portal namespace. Inactive countries are excluded
+        to preserve the legacy model scope.
+      responses:
+        '200':
+          description: Active countries with the legacy response root and state links.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - countries
+                additionalProperties: false
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - abbrv
+                      - country_code
+                      - default_locale
+                      - default_vademecum
+                      - id
+                      - links
+                      - name_en
+                      - name_es
+                      - nationality_en
+                      - nationality_es
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name_en:
+                          type: string
+                          example: Mexico
+                        name_es:
+                          type: string
+                          example: Mexico
+                        abbrv:
+                          type: string
+                          example: MX
+                        links:
+                          type: object
+                          required:
+                          - states
+                          additionalProperties: false
+                          properties:
+                            states:
+                              type: string
+                              example: "/api/v1/countries/1/states"
+                        country_code:
+                          type:
+                          - string
+                          - 'null'
+                          example: '52'
+                        default_locale:
+                          type:
+                          - string
+                          - 'null'
+                          example: es
+                        nationality_es:
+                          type:
+                          - string
+                          - 'null'
+                          example: Mexicana
+                        nationality_en:
+                          type:
+                          - string
+                          - 'null'
+                          example: Mexican
+                        default_vademecum:
+                          type:
+                          - boolean
+                          - 'null'
+                          example: true
+              examples:
+                countries:
+                  value:
+                    countries:
+                    - id: 1
+                      name_en: Mexico
+                      name_es: Mexico
+                      abbrv: MX
+                      links:
+                        states: "/api/v1/countries/1/states"
+                      country_code: '52'
+                      default_locale: es
+                      nationality_es: Mexicana
+                      nationality_en: Mexican
+                      default_vademecum: MX
+  "/api/v1/countries/{id}":
+    get:
+      tags:
+      - Countries
+      operationId: getCountry
+      summary: Get a country
+      description: Returns an active country. Inactive countries are treated as not
+        found to preserve the legacy model scope.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Country with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - country
+                additionalProperties: false
+                properties:
+                  country:
+                    type: object
+                    required:
+                    - abbrv
+                    - country_code
+                    - default_locale
+                    - default_vademecum
+                    - id
+                    - links
+                    - name_en
+                    - name_es
+                    - nationality_en
+                    - nationality_es
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name_en:
+                        type: string
+                        example: Mexico
+                      name_es:
+                        type: string
+                        example: Mexico
+                      abbrv:
+                        type: string
+                        example: MX
+                      links:
+                        type: object
+                        required:
+                        - states
+                        additionalProperties: false
+                        properties:
+                          states:
+                            type: string
+                            example: "/api/v1/countries/1/states"
+                      country_code:
+                        type:
+                        - string
+                        - 'null'
+                        example: '52'
+                      default_locale:
+                        type:
+                        - string
+                        - 'null'
+                        example: es
+                      nationality_es:
+                        type:
+                        - string
+                        - 'null'
+                        example: Mexicana
+                      nationality_en:
+                        type:
+                        - string
+                        - 'null'
+                        example: Mexican
+                      default_vademecum:
+                        type:
+                        - boolean
+                        - 'null'
+                        example: true
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/countries/{id}/states":
+    get:
+      tags:
+      - Countries
+      operationId: listCountryStates
+      summary: List states for a country
+      description: Lists states for an active country in legacy id-ascending order.
+        Inactive countries are treated as not found to preserve the legacy model scope.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: States with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - states
+                additionalProperties: false
+                properties:
+                  states:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - abbrv
+                      - id
+                      - links
+                      - name
+                      additionalProperties: false
+                      example:
+                        id: 9001
+                        name: Ciudad de Mexico
+                        abbrv: CDMX
+                        links:
+                          country: "/api/v1/countries/484"
+                          counties: "/api/v1/states/9001/counties"
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type:
+                          - string
+                          - 'null'
+                        abbrv:
+                          type:
+                          - string
+                          - 'null'
+                        links:
+                          type: object
+                          required:
+                          - country
+                          - counties
+                          additionalProperties: false
+                          properties:
+                            country:
+                              type: string
+                            counties:
+                              type: string
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/states/{id}":
+    get:
+      tags:
+      - Catalogs
+      operationId: getState
+      summary: Get a state
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: State with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - state
+                additionalProperties: false
+                properties:
+                  state:
+                    type: object
+                    required:
+                    - abbrv
+                    - id
+                    - links
+                    - name
+                    additionalProperties: false
+                    example:
+                      id: 9001
+                      name: Ciudad de Mexico
+                      abbrv: CDMX
+                      links:
+                        country: "/api/v1/countries/484"
+                        counties: "/api/v1/states/9001/counties"
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type:
+                        - string
+                        - 'null'
+                      abbrv:
+                        type:
+                        - string
+                        - 'null'
+                      links:
+                        type: object
+                        required:
+                        - country
+                        - counties
+                        additionalProperties: false
+                        properties:
+                          country:
+                            type: string
+                          counties:
+                            type: string
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/states/{id}/counties":
+    get:
+      tags:
+      - Catalogs
+      operationId: listStateCounties
+      summary: List counties for a state
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Counties with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - counties
+                additionalProperties: false
+                properties:
+                  counties:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - code
+                      - id
+                      - links
+                      - name
+                      - state_id
+                      additionalProperties: false
+                      example:
+                        id: 9101
+                        state_id: 9001
+                        code: COY
+                        name: Coyoacan
+                        links:
+                          state: "/api/v1/states/9001"
+                      properties:
+                        id:
+                          type: integer
+                        state_id:
+                          type:
+                          - integer
+                          - 'null'
+                        code:
+                          type:
+                          - string
+                          - 'null'
+                        name:
+                          type:
+                          - string
+                          - 'null'
+                        links:
+                          type: object
+                          required:
+                          - state
+                          additionalProperties: false
+                          properties:
+                            state:
+                              type: string
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/specialties":
+    get:
+      tags:
+      - Catalogs
+      operationId: listSpecialties
+      summary: List specialties
+      responses:
+        '200':
+          description: Specialties with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - specialties
+                additionalProperties: false
+                properties:
+                  specialties:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - name_en
+                      - name_es
+                      additionalProperties: false
+                      example:
+                        id: 3001
+                        name_en: General Medicine
+                        name_es: Medicina General
+                      properties:
+                        id:
+                          type: integer
+                        name_en:
+                          type:
+                          - string
+                          - 'null'
+                        name_es:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/specialties/{id}":
+    get:
+      tags:
+      - Catalogs
+      operationId: getSpecialty
+      summary: Get a specialty
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Specialty with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - specialty
+                additionalProperties: false
+                properties:
+                  specialty:
+                    type: object
+                    required:
+                    - id
+                    - name_en
+                    - name_es
+                    additionalProperties: false
+                    example:
+                      id: 3001
+                      name_en: General Medicine
+                      name_es: Medicina General
+                    properties:
+                      id:
+                        type: integer
+                      name_en:
+                        type:
+                        - string
+                        - 'null'
+                      name_es:
+                        type:
+                        - string
+                        - 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/currencies":
+    get:
+      tags:
+      - Catalogs
+      operationId: listCurrencies
+      summary: List currencies
+      responses:
+        '200':
+          description: Currencies with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - currencies
+                additionalProperties: false
+                properties:
+                  currencies:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - code
+                      - id
+                      - min_value
+                      - name_en
+                      - name_es
+                      - symbol
+                      additionalProperties: false
+                      example:
+                        id: 9201
+                        name_es: Peso Mexicano
+                        name_en: Mexican Peso
+                        symbol: "$"
+                        code: MXN
+                        min_value: '0.01'
+                      properties:
+                        id:
+                          type: integer
+                        name_es:
+                          type:
+                          - string
+                          - 'null'
+                        name_en:
+                          type:
+                          - string
+                          - 'null'
+                        symbol:
+                          type:
+                          - string
+                          - 'null'
+                        code:
+                          type:
+                          - string
+                          - 'null'
+                        min_value:
+                          type:
+                          - number
+                          - string
+                          - 'null'
+  "/api/v1/languages":
+    get:
+      tags:
+      - Catalogs
+      operationId: listLanguages
+      summary: List languages
+      responses:
+        '200':
+          description: Languages with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - languages
+                additionalProperties: false
+                properties:
+                  languages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - abbrv
+                      - default_locale
+                      - id
+                      - name
+                      additionalProperties: false
+                      example:
+                        id: 9301
+                        name: Espanol
+                        default_locale: es
+                        abbrv: es
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type:
+                          - string
+                          - 'null'
+                        default_locale:
+                          type:
+                          - string
+                          - 'null'
+                        abbrv:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/relationships":
+    get:
+      tags:
+      - Catalogs
+      operationId: listRelationships
+      summary: List relationships
+      responses:
+        '200':
+          description: Relationships with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - relationships
+                additionalProperties: false
+                properties:
+                  relationships:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - exme_parentesco_id
+                      - id
+                      - name
+                      additionalProperties: false
+                      example:
+                        id: 9401
+                        exme_parentesco_id: 1
+                        name: Madre
+                      properties:
+                        id:
+                          type: integer
+                        exme_parentesco_id:
+                          type:
+                          - integer
+                          - 'null'
+                        name:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/identification_types/by_organizational_portal":
+    get:
+      tags:
+      - Catalogs
+      operationId: listOrganizationalPortalIdentificationTypes
+      summary: List identification types for an organizational portal
+      parameters:
+      - name: organization_id
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Identification types with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - identification_types
+                additionalProperties: false
+                properties:
+                  identification_types:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - name
+                      additionalProperties: false
+                      example:
+                        id: '5'
+                        name: CURP
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type:
+                          - string
+                          - 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/sat/cfdi_uses":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatCfdiUses
+      summary: List SAT CFDI uses
+      responses:
+        '200':
+          description: SAT CFDI use catalog items wrapped in the legacy `cfdi_uses`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - cfdi_uses
+                additionalProperties: false
+                properties:
+                  cfdi_uses:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      - key
+                      additionalProperties: false
+                      example:
+                        id: 1
+                        key: '01'
+                        description: Efectivo
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        key:
+                          type:
+                          - string
+                          - 'null'
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/measurement_units":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatMeasurementUnits
+      summary: Search SAT measurement units
+      description: Rows are returned in legacy id-ascending order with the full legacy
+        column set, including timestamps rendered in the legacy application time zone
+        (`America/Monterrey`).
+      parameters:
+      - name: query
+        in: query
+        required: false
+        description: Literal, case-insensitive substring matched against the key or
+          unaccented description. SQL wildcard characters such as `%` and `_` are
+          treated literally. Omitted or blank input uses `servicio`.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: SAT measurement units wrapped in the legacy `measurement_units`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - measurement_units
+                additionalProperties: false
+                properties:
+                  measurement_units:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - active
+                      - created_at
+                      - description
+                      - id
+                      - key
+                      - updated_at
+                      additionalProperties: false
+                      example:
+                        id: 9501
+                        key: '86121600'
+                        description: Servicios hospitalarios de emergencia
+                        active: true
+                        created_at: '2022-03-01T20:46:11.467-06:00'
+                        updated_at: '2022-03-01T20:46:11.467-06:00'
+                      properties:
+                        id:
+                          type: integer
+                        key:
+                          type:
+                          - string
+                          - 'null'
+                        description:
+                          type:
+                          - string
+                          - 'null'
+                        active:
+                          type:
+                          - boolean
+                          - 'null'
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+  "/api/v1/sat/key_of_products_and_services":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatKeyOfProductsAndServices
+      summary: Search SAT product and service keys
+      description: Rows are returned in legacy id-ascending order with the full legacy
+        column set, including timestamps rendered in the legacy application time zone
+        (`America/Monterrey`).
+      parameters:
+      - name: query
+        in: query
+        required: false
+        description: Literal, case-insensitive substring matched against the key or
+          unaccented description. SQL wildcard characters such as `%` and `_` are
+          treated literally. Omitted or blank input uses `hospital`.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: SAT product and service keys wrapped in the legacy `key_of_products_and_services`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - key_of_products_and_services
+                additionalProperties: false
+                properties:
+                  key_of_products_and_services:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - active
+                      - created_at
+                      - description
+                      - id
+                      - key
+                      - updated_at
+                      additionalProperties: false
+                      example:
+                        id: 9501
+                        key: '86121600'
+                        description: Servicios hospitalarios de emergencia
+                        active: true
+                        created_at: '2022-03-01T20:46:11.467-06:00'
+                        updated_at: '2022-03-01T20:46:11.467-06:00'
+                      properties:
+                        id:
+                          type: integer
+                        key:
+                          type:
+                          - string
+                          - 'null'
+                        description:
+                          type:
+                          - string
+                          - 'null'
+                        active:
+                          type:
+                          - boolean
+                          - 'null'
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+  "/api/v1/sat/payment_forms":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatPaymentForms
+      summary: List SAT payment forms
+      responses:
+        '200':
+          description: SAT payment form catalog items wrapped in the legacy `payment_forms`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - payment_forms
+                additionalProperties: false
+                properties:
+                  payment_forms:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      additionalProperties: false
+                      example:
+                        id: G03
+                        description: Gastos en general
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/payment_methods":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatPaymentMethods
+      summary: List SAT payment methods
+      responses:
+        '200':
+          description: SAT payment method catalog items wrapped in the legacy `payment_methods`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - payment_methods
+                additionalProperties: false
+                properties:
+                  payment_methods:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      - key
+                      additionalProperties: false
+                      example:
+                        id: 1
+                        key: '01'
+                        description: Efectivo
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        key:
+                          type:
+                          - string
+                          - 'null'
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/tax_types":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatTaxTypes
+      summary: List SAT tax types
+      responses:
+        '200':
+          description: SAT tax type catalog items wrapped in the legacy `tax_types`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - tax_types
+                additionalProperties: false
+                properties:
+                  tax_types:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      additionalProperties: false
+                      example:
+                        id: G03
+                        description: Gastos en general
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/factor_types":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatFactorTypes
+      summary: List SAT factor types
+      responses:
+        '200':
+          description: SAT factor type catalog items wrapped in the legacy `factor_types`
+            root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - factor_types
+                additionalProperties: false
+                properties:
+                  factor_types:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      - key
+                      additionalProperties: false
+                      example:
+                        id: 1
+                        key: '01'
+                        description: Efectivo
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        key:
+                          type:
+                          - string
+                          - 'null'
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/rates_or_fees":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatRatesOrFees
+      summary: List SAT rates or fees
+      responses:
+        '200':
+          description: SAT rates or fees wrapped in the legacy `rates_or_fees` root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - rates_or_fees
+                additionalProperties: false
+                properties:
+                  rates_or_fees:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - factor
+                      - id
+                      - tax
+                      - tax_type
+                      - tax_type_description
+                      - value
+                      additionalProperties: false
+                      example:
+                        id: 1
+                        value: '0.160000'
+                        tax: IVA
+                        factor: Tasa
+                        tax_type: '002'
+                        tax_type_description: IVA
+                      properties:
+                        id:
+                          type: integer
+                        value:
+                          type:
+                          - number
+                          - string
+                        tax:
+                          type:
+                          - string
+                          - 'null'
+                        factor:
+                          type:
+                          - string
+                          - 'null'
+                        tax_type:
+                          type:
+                          - string
+                          - 'null'
+                        tax_type_description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/tax_regime":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatTaxRegime
+      summary: List SAT tax regimes
+      responses:
+        '200':
+          description: SAT tax regimes wrapped in the legacy `tax_regime` root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - tax_regime
+                additionalProperties: false
+                properties:
+                  tax_regime:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      additionalProperties: false
+                      example:
+                        id: G03
+                        description: Gastos en general
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sat/periodicities":
+    get:
+      tags:
+      - SAT Catalogs
+      operationId: listSatPeriodicities
+      summary: List SAT periodicities
+      responses:
+        '200':
+          description: SAT periodicities wrapped in the legacy `periodicities` root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - periodicities
+                additionalProperties: false
+                properties:
+                  periodicities:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - description
+                      - id
+                      - key
+                      additionalProperties: false
+                      example:
+                        id: 1
+                        key: '01'
+                        description: Efectivo
+                      properties:
+                        id:
+                          type:
+                          - integer
+                          - string
+                        key:
+                          type:
+                          - string
+                          - 'null'
+                        description:
+                          type:
+                          - string
+                          - 'null'
+  "/api/v1/sites/organizations/{id}":
+    get:
+      tags:
+      - Sites
+      operationId: showSiteOrganization
+      summary: Show public organization branding
+      description: Resolves public organization branding by encoded slug or encoded
+        custom domain. The additive plain slug/host fallback is an approved, documented
+        divergence retained for the current patient-app branding consumer. Account
+        relationship linkage is ordered by account ID.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Public organization branding payload.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                additionalProperties: false
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - id
+                    - type
+                    - attributes
+                    - relationships
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: string
+                        example: '123'
+                      type:
+                        type: string
+                        enum:
+                        - organization
+                      attributes:
+                        type: object
+                        required:
+                        - agenda
+                        - agenda_pro
+                        - email
+                        - image_url
+                        - landing_page_info
+                        - logo
+                        - main_color
+                        - name
+                        - office_address
+                        - office_city
+                        - office_country
+                        - office_state
+                        - office_telephone
+                        - office_zipcode
+                        - slug
+                        - slug_organization_portal
+                        - telehealth_request_slug
+                        - template
+                        - title
+                        - description
+                        - header
+                        - subheader
+                        - disclaimer
+                        - header_img
+                        - phone
+                        - telehealth_description
+                        - telehealth_image
+                        - schedule
+                        - services
+                        - about_us_practice
+                        - photo
+                        - about_organization_info
+                        - social_networks
+                        - configuration
+                        - secondary_color
+                        - clinic_gallery
+                        - latitud
+                        - longitud
+                        - header_services
+                        additionalProperties: false
+                        properties:
+                          name:
+                            type: string
+                            example: Demo Clinic
+                          slug:
+                            type: string
+                            example: demo-clinic
+                          landing_page_info:
+                            type: object
+                            additionalProperties: true
+                          telehealth_request_slug:
+                            type:
+                            - string
+                            - 'null'
+                            example: demo-video
+                          agenda:
+                            type:
+                            - boolean
+                            - 'null'
+                            example: true
+                          agenda_pro:
+                            type:
+                            - boolean
+                            - 'null'
+                            example: false
+                          email:
+                            type:
+                            - string
+                            - 'null'
+                            example: doctor@example.test
+                          image_url:
+                            type: string
+                            example: https://s3.amazonaws.com/synthetic-assets/accounts/logos/000/000/456/original/doctor-logo.png
+                          office_address:
+                            type:
+                            - string
+                            - 'null'
+                            example: 123 Synthetic Avenue
+                          office_city:
+                            type:
+                            - string
+                            - 'null'
+                            example: Test City
+                          office_country:
+                            type:
+                            - string
+                            - 'null'
+                            example: MX
+                          office_state:
+                            type:
+                            - string
+                            - 'null'
+                            example: Synthetic State
+                          office_telephone:
+                            type:
+                            - string
+                            - 'null'
+                            example: "+52 555 0100"
+                          office_zipcode:
+                            type:
+                            - string
+                            - 'null'
+                            example: '01000'
+                          slug_organization_portal:
+                            type: string
+                            example: c/demo-doctor
+                          template:
+                            type: integer
+                            example: 1
+                          logo:
+                            type: string
+                            example: https://s3.amazonaws.com/synthetic-assets/images/images/000/000/789/medium/clinic-logo.png
+                          main_color:
+                            type:
+                            - string
+                            - 'null'
+                            example: "#1166aa"
+                          title:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          description:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          header:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          subheader:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          disclaimer:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          header_img:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          phone:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          telehealth_description:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          telehealth_image:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          schedule:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          services:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          about_us_practice:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          photo:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          about_organization_info:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          social_networks:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          configuration:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          secondary_color:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          clinic_gallery:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          latitud:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          longitud:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                          header_services:
+                            anyOf:
+                            - type: object
+                            - type: array
+                            - type: string
+                            - type: number
+                            - type: boolean
+                            - type: 'null'
+                      relationships:
+                        type: object
+                        required:
+                        - accounts
+                        additionalProperties: false
+                        properties:
+                          accounts:
+                            type: object
+                            required:
+                            - data
+                            additionalProperties: false
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  type: object
+                                  required:
+                                  - id
+                                  - type
+                                  additionalProperties: false
+                                  properties:
+                                    id:
+                                      type: string
+                                      example: '456'
+                                    type:
+                                      type: string
+                                      enum:
+                                      - account
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/sites/accounts/{id}":
+    get:
+      tags:
+      - Sites
+      operationId: showSiteAccount
+      summary: Show a public clinician site profile
+      description: Resolves the non-deleted account by its public slug. The response
+        preserves the legacy JSON:API root and exposes only the site-profile contract.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Public site account profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                additionalProperties: false
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - id
+                    - type
+                    - attributes
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: string
+                        example: '456'
+                      type:
+                        type: string
+                        enum:
+                        - account
+                      attributes:
+                        type: object
+                        required:
+                        - name
+                        - slug
+                        - cellphone
+                        - bio
+                        - specialty_names
+                        - location
+                        - avatar_url
+                        - availability
+                        - username
+                        - available_hour
+                        additionalProperties: false
+                        properties:
+                          name:
+                            type:
+                            - string
+                            - 'null'
+                            example: Demo Doctor
+                          slug:
+                            type:
+                            - string
+                            - 'null'
+                            example: demo-doctor-profile
+                          cellphone:
+                            type:
+                            - string
+                            - 'null'
+                            example: "+525550100"
+                          bio:
+                            type:
+                            - string
+                            - 'null'
+                            example: Synthetic public profile
+                          specialty_names:
+                            anyOf:
+                            - type: object
+                              required:
+                              - name_es
+                              - name_en
+                              additionalProperties: false
+                              properties:
+                                name_es:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: Medicina general
+                                name_en:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: General medicine
+                            - type: 'null'
+                          location:
+                            anyOf:
+                            - type: object
+                              required:
+                              - id
+                              - name
+                              - organization_id
+                              - created_at
+                              - updated_at
+                              - office_attributes
+                              - state_id
+                              - deleted_at
+                              - metadata
+                              - active
+                              - google_booking_enabled
+                              additionalProperties: false
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 789
+                                name:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: Main Office
+                                organization_id:
+                                  type:
+                                  - integer
+                                  - 'null'
+                                  example: 123
+                                created_at:
+                                  type: string
+                                  example: '2026-07-17T12:00:00.000Z'
+                                updated_at:
+                                  type: string
+                                  example: '2026-07-17T12:00:00.000Z'
+                                office_attributes:
+                                  type: object
+                                  additionalProperties: true
+                                  example:
+                                    office_city: Test City
+                                state_id:
+                                  type:
+                                  - integer
+                                  - 'null'
+                                  example: 321
+                                deleted_at:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example:
+                                metadata:
+                                  type: object
+                                  additionalProperties: true
+                                active:
+                                  type:
+                                  - boolean
+                                  - 'null'
+                                  example: true
+                                google_booking_enabled:
+                                  type: boolean
+                                  example: false
+                            - type: 'null'
+                          avatar_url:
+                            type: string
+                            example: https://s3.amazonaws.com/synthetic-assets/accounts/avatars/000/000/456/original/avatar.png
+                          availability:
+                            type:
+                            - object
+                            - 'null'
+                            additionalProperties: true
+                            example:
+                              mon:
+                              - '08:00-12:00'
+                              consultation_duration: 30
+                          username:
+                            type:
+                            - string
+                            - 'null'
+                            example: demo-doctor
+                          available_hour:
+                            type: 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/portals/locations/agenda":
+    get:
+      tags:
+      - Public Portals
+      operationId: showPortalAgendaLocation
+      summary: Resolve the location for a public booking agenda
+      description: Resolves organization-schedule or personal-account locations within
+        the requested organization. Missing or unmatched slugs fall back to that organization's
+        owner location, matching the legacy booking flow.
+      parameters:
+      - name: organization_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        example: 123
+      - name: agenda_type
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - organization
+          - personal
+        example: personal
+      - name: slug
+        in: query
+        required: false
+        schema:
+          type: string
+        example: demo-doctor
+      responses:
+        '200':
+          description: Public booking location.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                additionalProperties: false
+                properties:
+                  location:
+                    type: object
+                    required:
+                    - id
+                    - name
+                    - state_id
+                    - office_city
+                    - office_name
+                    - office_address
+                    - office_telephone
+                    - office_zipcode
+                    - optional_charge
+                    - metadata
+                    - state_name
+                    - google_booking_enabled
+                    - google_business_name
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                        example: 789
+                      name:
+                        type:
+                        - string
+                        - 'null'
+                        example: Main Office
+                      state_id:
+                        type:
+                        - integer
+                        - 'null'
+                        example: 321
+                      office_city:
+                        type:
+                        - string
+                        - 'null'
+                      office_name:
+                        type:
+                        - string
+                        - 'null'
+                      office_address:
+                        type:
+                        - string
+                        - 'null'
+                      office_telephone:
+                        type:
+                        - string
+                        - 'null'
+                      office_zipcode:
+                        type:
+                        - string
+                        - 'null'
+                      optional_charge:
+                        type: boolean
+                        example: false
+                      metadata:
+                        type: object
+                        additionalProperties: true
+                      state_name:
+                        type:
+                        - string
+                        - 'null'
+                      google_booking_enabled:
+                        type: boolean
+                        example: false
+                      google_business_name:
+                        type:
+                        - string
+                        - 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/waiting_rooms/waiting_room_slug":
+    get:
+      tags:
+      - Public Portals
+      - Telehealth
+      operationId: showWaitingRoomBySlug
+      summary: Show a public waiting room by slug
+      description: Preserves the legacy public lookup, including visibility of inactive
+        rows; callers use the room configuration to render the telehealth entry page.
+      parameters:
+      - name: slug
+        in: query
+        required: true
+        schema:
+          type: string
+        example: demo-video-room
+      responses:
+        '200':
+          description: Waiting-room configuration.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - waiting_room
+                additionalProperties: false
+                properties:
+                  waiting_room:
+                    type: object
+                    required:
+                    - id
+                    - organization_id
+                    - name
+                    - slug
+                    - schedule_configuration
+                    - waiting_room_configuration
+                    - created_at
+                    - updated_at
+                    - selected_accounts
+                    - custom_field_ids
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                        example: 901
+                      organization_id:
+                        type:
+                        - integer
+                        - 'null'
+                        example: 123
+                      name:
+                        type:
+                        - string
+                        - 'null'
+                      slug:
+                        type:
+                        - string
+                        - 'null'
+                      schedule_configuration:
+                        type: object
+                        additionalProperties: true
+                      waiting_room_configuration:
+                        type: object
+                        additionalProperties: true
+                      created_at:
+                        type: string
+                        example: '2026-07-17T12:00:00.000Z'
+                      updated_at:
+                        type: string
+                        example: '2026-07-17T12:00:00.000Z'
+                      selected_accounts:
+                        type: array
+                        items:
+                          type: integer
+                        example:
+                        - 456
+                      custom_field_ids:
+                        type: array
+                        items:
+                          type: integer
+                        example: []
+        '404':
+          description: No waiting room has the requested slug. The legacy response
+            body is empty.
+x-nimbo-source:
+  repository: ecaresoft/nimbo-api
+  revision: 27768e9673f6f8b714594d6f64186b2632626a26
+  path: docs/api/generated/openapi.public.yaml
+  sha256: aab9bb65f8f1af93da4819ff2de2fdf55b98544fa71cbb0ddf397c0eff56b094

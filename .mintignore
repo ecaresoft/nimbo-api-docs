@@ -5,3 +5,11 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Maintainer tooling is not website content.
+scripts/
+test/
+AGENTS.md
+skills-lock.json
+package.json
+package-lock.json

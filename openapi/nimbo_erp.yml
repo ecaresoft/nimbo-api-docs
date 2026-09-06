@@ -1,66 +1,19 @@
+---
 openapi: 3.0.0
 info:
   title: Invoice Items e Invoices
   version: 1.0.0
-  description: ''
+  description: Legacy Nimbo integration reference. Captured examples have been removed.
+    Confirm host, credentials, and supported behavior with Nimbo.
 servers:
-  - url: https://api-staging.nimbo.app/api/v1/
+- url: https://api.example.test
+  description: Reference only; confirm your integration host with Nimbo
 paths:
-  /consultations/844052:
+  "/consultations/{consultation_id}":
     get:
-      summary: /consultations/{consultation_id}
+      summary: GET /consultations/{consultation_id}
       responses:
         '200':
-          description: /consultations/{consultation_id}
-          headers:
-            Server:
-              schema:
-                type: string
-              example: Cowboy
-            Date:
-              schema:
-                type: string
-              example: Tue, 26 Sep 2023 12:51:20 GMT
-            Connection:
-              schema:
-                type: string
-              example: keep-alive
-            X-Frame-Options:
-              schema:
-                type: string
-              example: SAMEORIGIN
-            X-Xss-Protection:
-              schema:
-                type: string
-              example: 1; mode=block
-            X-Content-Type-Options:
-              schema:
-                type: string
-              example: nosniff
-            Etag:
-              schema:
-                type: string
-              example: W/"503760c1dead62304ef6f205d07fa0b0"
-            Cache-Control:
-              schema:
-                type: string
-              example: max-age=0, private, must-revalidate
-            X-Request-Id:
-              schema:
-                type: string
-              example: 998bdb56-51d4-41b2-87ac-b33bf1596ba2
-            X-Runtime:
-              schema:
-                type: number
-              example: 0.057865
-            Transfer-Encoding:
-              schema:
-                type: string
-              example: chunked
-            Via:
-              schema:
-                type: string
-              example: 1.1 vegur
           content:
             application/json:
               schema:
@@ -150,103 +103,22 @@ paths:
                         nullable: true
                       cirrus_prescription_status:
                         nullable: true
-              example:
-                consultation:
-                  id: 844052
-                  cause: dolor de cara
-                  created_at: '2023-07-31T13:15:25.692-06:00'
-                  links:
-                    person: /api/v1/people/680861
-                    prescriptions: /api/v1/consultations/844052/prescriptions
-                    encounter: /api/v1/encounters/1002622
-                    physical_test_samples: /api/v1/consultations/844052/physical_test_samples
-                    consultation_diagnostics: /api/v1/consultations/844052/consultation_diagnostics
-                    consultation_procedures: /api/v1/consultations/844052/consultation_procedures
-                    consultation_lab_tests: /api/v1/consultations/844052/consultation_lab_tests
-                    consultation_lab_test_result: /api/v1/consultations/844052/consultation_lab_test_result
-                    consultation_prescription_drugs: >-
-                      /api/v1/consultations/844052/consultation_prescription_drugs
-                    consultation_schedule: /api/v1/encounters/1002622/consultation_schedule
-                    disability_leave: /api/v1/consultations/844052/disability_leave
-                    invoice: /api/v1/encounters/1002622/invoice
-                    vital_signs_set: /api/v1/consultations/844052/vital_signs_set
-                    odontogram: /api/v1/consultations/844052/odontogram
-                    medical_note: /api/v1/consultations/844052/medical_note
-                    physiotherapy_records: /api/v1/consultations/844052/physiotherapy_records
-                    medical_history_attachments: /api/v1/consultations/844052/medical_history_attachments
-                    location: /api/v1/consultations/844052/location
-                    operating_room_requests: /api/v1/consultations/844052/operating_room_requests
-                  medical_instructions: ''
-                  physical_examination: null
-                  subjective_symptoms: null
-                  cause_extended: null
-                  account_id: 17474
-                  finished_at: null
-                  encounter_id: 1002622
-                  treatment_plan: null
-                  starts_at: '2023-07-31T13:15:25.000-06:00'
-                  sis: {}
-                  lab_test: {}
-                  procedure: null
-                  encode_id: 9G54MV
-                  consultation_attributes: {}
-                  account_medical_instructions: null
-                  cirrus_prescription_status: null
-  /encounters/1002622/invoice:
+          description: Successful response
+      operationId: legacy_nimbo_erp_get__consultations_consultation_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters:
+      - name: consultation_id
+        in: path
+        required: true
+        schema:
+          type: string
+  "/encounters/{encounter_id}/invoice":
     get:
-      summary: encounters/{encounter_id}/invoice
+      summary: GET /encounters/{encounter_id}/invoice
       responses:
         '200':
-          description: InvoiceItems
-          headers:
-            Server:
-              schema:
-                type: string
-              example: Cowboy
-            Date:
-              schema:
-                type: string
-              example: Tue, 26 Sep 2023 12:28:44 GMT
-            Connection:
-              schema:
-                type: string
-              example: keep-alive
-            X-Frame-Options:
-              schema:
-                type: string
-              example: SAMEORIGIN
-            X-Xss-Protection:
-              schema:
-                type: string
-              example: 1; mode=block
-            X-Content-Type-Options:
-              schema:
-                type: string
-              example: nosniff
-            Etag:
-              schema:
-                type: string
-              example: W/"9a5879b43736ca93bb2759e5f775170b"
-            Cache-Control:
-              schema:
-                type: string
-              example: max-age=0, private, must-revalidate
-            X-Request-Id:
-              schema:
-                type: string
-              example: fd6535ae-f4fa-45a8-ae80-3bc9562587b9
-            X-Runtime:
-              schema:
-                type: number
-              example: 0.02047
-            Transfer-Encoding:
-              schema:
-                type: string
-              example: chunked
-            Via:
-              schema:
-                type: string
-              example: 1.1 vegur
           content:
             application/json:
               schema:
@@ -299,84 +171,22 @@ paths:
                       starts_at:
                         type: string
                         format: date-time
-              example:
-                invoice:
-                  id: 94074
-                  payment_type: null
-                  encounter_id: 1002622
-                  person_id: 680861
-                  discount_rate: null
-                  discount_amount: null
-                  tax_rate: null
-                  tax_amount: null
-                  total_cents: 75000
-                  total_discount_cents: 0
-                  total_tax_cents: 0
-                  links:
-                    consultation: /api/v1/encounters/1002622/consultation
-                    consultation_invoice_items: /api/v1/invoices/94074/consultation_invoice_items
-                    consultation_schedule: /api/v1/encounters/1002622/consultation_schedule
-                    encounter: /api/v1/encounters/1002622
-                  tax_attributes: {}
-                  signed_at: null
-                  globally_invoiced: false
-                  cause: dolor de pierna
-                  starts_at: '2023-07-31T13:15:25.000-06:00'
-  /invoices/94074/consultation_invoice_items:
+          description: Successful response
+      operationId: legacy_nimbo_erp_get__encounters_encounter_id_invoice
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters:
+      - name: encounter_id
+        in: path
+        required: true
+        schema:
+          type: string
+  "/invoices/{invoice_id}/consultation_invoice_items":
     get:
-      summary: /invoices/{invoice_id}/consultation_invoice_items
+      summary: GET /invoices/{invoice_id}/consultation_invoice_items
       responses:
         '200':
-          description: consultation_invoice_items
-          headers:
-            Server:
-              schema:
-                type: string
-              example: Cowboy
-            Date:
-              schema:
-                type: string
-              example: Tue, 26 Sep 2023 12:30:54 GMT
-            Connection:
-              schema:
-                type: string
-              example: keep-alive
-            X-Frame-Options:
-              schema:
-                type: string
-              example: SAMEORIGIN
-            X-Xss-Protection:
-              schema:
-                type: string
-              example: 1; mode=block
-            X-Content-Type-Options:
-              schema:
-                type: string
-              example: nosniff
-            Etag:
-              schema:
-                type: string
-              example: W/"6c511adc1d1171c32ddb70e66130c0e0"
-            Cache-Control:
-              schema:
-                type: string
-              example: max-age=0, private, must-revalidate
-            X-Request-Id:
-              schema:
-                type: string
-              example: 6cd31c9f-f47d-4a84-8bc8-4ddd18365dd4
-            X-Runtime:
-              schema:
-                type: number
-              example: 0.025905
-            Transfer-Encoding:
-              schema:
-                type: string
-              example: chunked
-            Via:
-              schema:
-                type: string
-              example: 1.1 vegur
           content:
             application/json:
               schema:
@@ -395,8 +205,6 @@ paths:
                           type: integer
                         value:
                           type: integer
-                        description:
-                          type: string
                         account_id:
                           type: integer
                         invoice_item_id:
@@ -420,28 +228,21 @@ paths:
                           nullable: true
                         uom_description:
                           nullable: true
-              example:
-                consultation_invoice_items:
-                  - id: 51145
-                    quantity: 1
-                    amount: 75000
-                    value: 75000
-                    description: Consulta General
-                    account_id: 17318
-                    invoice_item_id: 13383
-                    invoice_id: 94074
-                    invoice_item_sku: null
-                    accounting_type: charge
-                    created_at: '2023-09-26T06:20:30.194-06:00'
-                    tax_attributes: {}
-                    kop_key: null
-                    kop_description: null
-                    uom_key: null
-                    uom_description: null
+          description: Successful response
+      operationId: legacy_nimbo_erp_get__invoices_invoice_id_consultation_invoice_items
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters:
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
 security:
-  - BearerAuth: []
+- BearerAuth: []
