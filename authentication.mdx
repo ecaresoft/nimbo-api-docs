@@ -7,7 +7,7 @@ Authentication depends on the API surface you use. Confirm the credentials and p
 
 ## Bearer authentication
 
-The legacy specifications define HTTP bearer authentication for protected operations. When your integration uses this scheme, send the token in the request header:
+For operations that use HTTP bearer authentication, send the integration token in the request header:
 
 ```http
 Authorization: Bearer <YOUR_INTEGRATION_TOKEN>
@@ -17,7 +17,7 @@ Replace the placeholder in your own secure environment. Keep integration credent
 
 ## Public reads
 
-The public contract preview contains read operations intended for public documentation. Check each operation's security and parameter requirements. Public documentation does not grant access to protected resources or confirm that an operation is available on your integration's host.
+Some catalog and site operations accept requests without authentication. Check the security and parameter requirements for each operation. Access to a public read endpoint does not grant access to protected resources.
 
 ## Authentication errors
 

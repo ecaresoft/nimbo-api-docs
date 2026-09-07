@@ -1,10 +1,13 @@
 ---
 openapi: 3.1.0
+x-nimbo-publication:
+  audience: public
+  availability: contract_snapshot
 info:
-  title: Nimbo catalogs and sites
+  title: Nimbo API public contract
   version: 0.1.0
-  description: Nimbo API reference. Use the API host and integration access provided
-    by Nimbo.
+  description: Public-audience contract snapshot. Inclusion does not establish production
+    availability or legacy compatibility.
 servers:
 - url: https://api.example.test
   description: Reference only; not a live API host
@@ -22,10 +25,12 @@ paths:
       - Countries
       operationId: listCountries
       summary: List countries
-      description: Lists active countries. Inactive countries are excluded.
+      description: Public catalog of active countries used by current patient-app
+        flows outside the patient portal namespace. Inactive countries are excluded
+        to preserve the legacy model scope.
       responses:
         '200':
-          description: Active countries with the response root and state links.
+          description: Active countries with the legacy response root and state links.
           content:
             application/json:
               schema:
@@ -119,7 +124,7 @@ paths:
       operationId: getCountry
       summary: Get a country
       description: Returns an active country. Inactive countries are treated as not
-        found.
+        found to preserve the legacy model scope.
       parameters:
       - name: id
         in: path
@@ -129,7 +134,7 @@ paths:
         example: '123'
       responses:
         '200':
-          description: Country with the response root.
+          description: Country with the legacy response root.
           content:
             application/json:
               schema:
@@ -222,8 +227,8 @@ paths:
       - Countries
       operationId: listCountryStates
       summary: List states for a country
-      description: Lists states for an active country in ascending ID order. Inactive
-        countries are treated as not found.
+      description: Lists states for an active country in legacy id-ascending order.
+        Inactive countries are treated as not found to preserve the legacy model scope.
       parameters:
       - name: id
         in: path
@@ -233,7 +238,7 @@ paths:
         example: '123'
       responses:
         '200':
-          description: States with the response root.
+          description: States with the legacy response root.
           content:
             application/json:
               schema:
@@ -313,7 +318,7 @@ paths:
         example: '123'
       responses:
         '200':
-          description: State with the response root.
+          description: State with the legacy response root.
           content:
             application/json:
               schema:
@@ -391,7 +396,7 @@ paths:
         example: '123'
       responses:
         '200':
-          description: Counties with the response root.
+          description: Counties with the legacy response root.
           content:
             application/json:
               schema:
@@ -466,7 +471,7 @@ paths:
       summary: List specialties
       responses:
         '200':
-          description: Specialties with the response root.
+          description: Specialties with the legacy response root.
           content:
             application/json:
               schema:
@@ -499,6 +504,69 @@ paths:
                           type:
                           - string
                           - 'null'
+  "/api/v1/specialties/{id}":
+    get:
+      tags:
+      - Catalogs
+      operationId: getSpecialty
+      summary: Get a specialty
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Specialty with the legacy response root.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - specialty
+                additionalProperties: false
+                properties:
+                  specialty:
+                    type: object
+                    required:
+                    - id
+                    - name_en
+                    - name_es
+                    additionalProperties: false
+                    example:
+                      id: 3001
+                      name_en: General Medicine
+                      name_es: Medicina General
+                    properties:
+                      id:
+                        type: integer
+                      name_en:
+                        type:
+                        - string
+                        - 'null'
+                      name_es:
+                        type:
+                        - string
+                        - 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
   "/api/v1/currencies":
     get:
       tags:
@@ -507,7 +575,7 @@ paths:
       summary: List currencies
       responses:
         '200':
-          description: Currencies with the response root.
+          description: Currencies with the legacy response root.
           content:
             application/json:
               schema:
@@ -567,7 +635,7 @@ paths:
       summary: List languages
       responses:
         '200':
-          description: Languages with the response root.
+          description: Languages with the legacy response root.
           content:
             application/json:
               schema:
@@ -614,7 +682,7 @@ paths:
       summary: List relationships
       responses:
         '200':
-          description: Relationships with the response root.
+          description: Relationships with the legacy response root.
           content:
             application/json:
               schema:
@@ -661,7 +729,7 @@ paths:
           type: integer
       responses:
         '200':
-          description: Identification types with the response root.
+          description: Identification types with the legacy response root.
           content:
             application/json:
               schema:
@@ -713,7 +781,8 @@ paths:
       summary: List SAT CFDI uses
       responses:
         '200':
-          description: SAT CFDI use catalog items wrapped in the `cfdi_uses` root.
+          description: SAT CFDI use catalog items wrapped in the legacy `cfdi_uses`
+            root.
           content:
             application/json:
               schema:
@@ -754,8 +823,9 @@ paths:
       - SAT Catalogs
       operationId: listSatMeasurementUnits
       summary: Search SAT measurement units
-      description: Returns measurement units in ascending ID order, including timestamps
-        in the America/Monterrey time zone.
+      description: Rows are returned in legacy id-ascending order with the full legacy
+        column set, including timestamps rendered in the legacy application time zone
+        (`America/Monterrey`).
       parameters:
       - name: query
         in: query
@@ -767,7 +837,8 @@ paths:
           type: string
       responses:
         '200':
-          description: SAT measurement units wrapped in the `measurement_units` root.
+          description: SAT measurement units wrapped in the legacy `measurement_units`
+            root.
           content:
             application/json:
               schema:
@@ -822,8 +893,9 @@ paths:
       - SAT Catalogs
       operationId: listSatKeyOfProductsAndServices
       summary: Search SAT product and service keys
-      description: Returns product and service keys in ascending ID order, including
-        timestamps in the America/Monterrey time zone.
+      description: Rows are returned in legacy id-ascending order with the full legacy
+        column set, including timestamps rendered in the legacy application time zone
+        (`America/Monterrey`).
       parameters:
       - name: query
         in: query
@@ -835,7 +907,7 @@ paths:
           type: string
       responses:
         '200':
-          description: SAT product and service keys wrapped in the `key_of_products_and_services`
+          description: SAT product and service keys wrapped in the legacy `key_of_products_and_services`
             root.
           content:
             application/json:
@@ -893,7 +965,7 @@ paths:
       summary: List SAT payment forms
       responses:
         '200':
-          description: SAT payment form catalog items wrapped in the `payment_forms`
+          description: SAT payment form catalog items wrapped in the legacy `payment_forms`
             root.
           content:
             application/json:
@@ -931,7 +1003,7 @@ paths:
       summary: List SAT payment methods
       responses:
         '200':
-          description: SAT payment method catalog items wrapped in the `payment_methods`
+          description: SAT payment method catalog items wrapped in the legacy `payment_methods`
             root.
           content:
             application/json:
@@ -975,7 +1047,8 @@ paths:
       summary: List SAT tax types
       responses:
         '200':
-          description: SAT tax type catalog items wrapped in the `tax_types` root.
+          description: SAT tax type catalog items wrapped in the legacy `tax_types`
+            root.
           content:
             application/json:
               schema:
@@ -1012,7 +1085,7 @@ paths:
       summary: List SAT factor types
       responses:
         '200':
-          description: SAT factor type catalog items wrapped in the `factor_types`
+          description: SAT factor type catalog items wrapped in the legacy `factor_types`
             root.
           content:
             application/json:
@@ -1056,7 +1129,7 @@ paths:
       summary: List SAT rates or fees
       responses:
         '200':
-          description: SAT rates or fees wrapped in the `rates_or_fees` root.
+          description: SAT rates or fees wrapped in the legacy `rates_or_fees` root.
           content:
             application/json:
               schema:
@@ -1115,7 +1188,7 @@ paths:
       summary: List SAT tax regimes
       responses:
         '200':
-          description: SAT tax regimes wrapped in the `tax_regime` root.
+          description: SAT tax regimes wrapped in the legacy `tax_regime` root.
           content:
             application/json:
               schema:
@@ -1152,7 +1225,7 @@ paths:
       summary: List SAT periodicities
       responses:
         '200':
-          description: SAT periodicities wrapped in the `periodicities` root.
+          description: SAT periodicities wrapped in the legacy `periodicities` root.
           content:
             application/json:
               schema:
@@ -1194,8 +1267,9 @@ paths:
       operationId: showSiteOrganization
       summary: Show public organization branding
       description: Resolves public organization branding by encoded slug or encoded
-        custom domain, with plain slug or host fallback. Linked accounts are ordered
-        by account ID.
+        custom domain. The additive plain slug/host fallback is an approved, documented
+        divergence retained for the current patient-app branding consumer. Account
+        relationship linkage is ordered by account ID.
       parameters:
       - name: id
         in: path
@@ -1563,3 +1637,413 @@ paths:
                 not_found:
                   value:
                     error: Not found
+  "/api/v1/sites/accounts/{id}":
+    get:
+      tags:
+      - Sites
+      operationId: showSiteAccount
+      summary: Show a public clinician site profile
+      description: Resolves the non-deleted account by its public slug. The response
+        preserves the legacy JSON:API root and exposes only the site-profile contract.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Public site account profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                additionalProperties: false
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - id
+                    - type
+                    - attributes
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: string
+                        example: '456'
+                      type:
+                        type: string
+                        enum:
+                        - account
+                      attributes:
+                        type: object
+                        required:
+                        - name
+                        - slug
+                        - cellphone
+                        - bio
+                        - specialty_names
+                        - location
+                        - avatar_url
+                        - availability
+                        - username
+                        - available_hour
+                        additionalProperties: false
+                        properties:
+                          name:
+                            type:
+                            - string
+                            - 'null'
+                            example: Demo Doctor
+                          slug:
+                            type:
+                            - string
+                            - 'null'
+                            example: demo-doctor-profile
+                          cellphone:
+                            type:
+                            - string
+                            - 'null'
+                            example: "+525550100"
+                          bio:
+                            type:
+                            - string
+                            - 'null'
+                            example: Synthetic public profile
+                          specialty_names:
+                            anyOf:
+                            - type: object
+                              required:
+                              - name_es
+                              - name_en
+                              additionalProperties: false
+                              properties:
+                                name_es:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: Medicina general
+                                name_en:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: General medicine
+                            - type: 'null'
+                          location:
+                            anyOf:
+                            - type: object
+                              required:
+                              - id
+                              - name
+                              - organization_id
+                              - created_at
+                              - updated_at
+                              - office_attributes
+                              - state_id
+                              - deleted_at
+                              - metadata
+                              - active
+                              - google_booking_enabled
+                              additionalProperties: false
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 789
+                                name:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example: Main Office
+                                organization_id:
+                                  type:
+                                  - integer
+                                  - 'null'
+                                  example: 123
+                                created_at:
+                                  type: string
+                                  example: '2026-07-17T12:00:00.000Z'
+                                updated_at:
+                                  type: string
+                                  example: '2026-07-17T12:00:00.000Z'
+                                office_attributes:
+                                  type: object
+                                  additionalProperties: true
+                                  example:
+                                    office_city: Test City
+                                state_id:
+                                  type:
+                                  - integer
+                                  - 'null'
+                                  example: 321
+                                deleted_at:
+                                  type:
+                                  - string
+                                  - 'null'
+                                  example:
+                                metadata:
+                                  type: object
+                                  additionalProperties: true
+                                active:
+                                  type:
+                                  - boolean
+                                  - 'null'
+                                  example: true
+                                google_booking_enabled:
+                                  type: boolean
+                                  example: false
+                            - type: 'null'
+                          avatar_url:
+                            type: string
+                            example: https://s3.amazonaws.com/synthetic-assets/accounts/avatars/000/000/456/original/avatar.png
+                          availability:
+                            type:
+                            - object
+                            - 'null'
+                            additionalProperties: true
+                            example:
+                              mon:
+                              - '08:00-12:00'
+                              consultation_duration: 30
+                          username:
+                            type:
+                            - string
+                            - 'null'
+                            example: demo-doctor
+                          available_hour:
+                            type: 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/portals/locations/agenda":
+    get:
+      tags:
+      - Public Portals
+      operationId: showPortalAgendaLocation
+      summary: Resolve the location for a public booking agenda
+      description: Resolves organization-schedule or personal-account locations within
+        the requested organization. Missing or unmatched slugs fall back to that organization's
+        owner location, matching the legacy booking flow.
+      parameters:
+      - name: organization_id
+        in: query
+        required: true
+        schema:
+          type: integer
+        example: 123
+      - name: agenda_type
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - organization
+          - personal
+        example: personal
+      - name: slug
+        in: query
+        required: false
+        schema:
+          type: string
+        example: demo-doctor
+      responses:
+        '200':
+          description: Public booking location.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                additionalProperties: false
+                properties:
+                  location:
+                    type: object
+                    required:
+                    - id
+                    - name
+                    - state_id
+                    - office_city
+                    - office_name
+                    - office_address
+                    - office_telephone
+                    - office_zipcode
+                    - optional_charge
+                    - metadata
+                    - state_name
+                    - google_booking_enabled
+                    - google_business_name
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                        example: 789
+                      name:
+                        type:
+                        - string
+                        - 'null'
+                        example: Main Office
+                      state_id:
+                        type:
+                        - integer
+                        - 'null'
+                        example: 321
+                      office_city:
+                        type:
+                        - string
+                        - 'null'
+                      office_name:
+                        type:
+                        - string
+                        - 'null'
+                      office_address:
+                        type:
+                        - string
+                        - 'null'
+                      office_telephone:
+                        type:
+                        - string
+                        - 'null'
+                      office_zipcode:
+                        type:
+                        - string
+                        - 'null'
+                      optional_charge:
+                        type: boolean
+                        example: false
+                      metadata:
+                        type: object
+                        additionalProperties: true
+                      state_name:
+                        type:
+                        - string
+                        - 'null'
+                      google_booking_enabled:
+                        type: boolean
+                        example: false
+                      google_business_name:
+                        type:
+                        - string
+                        - 'null'
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/waiting_rooms/waiting_room_slug":
+    get:
+      tags:
+      - Public Portals
+      - Telehealth
+      operationId: showWaitingRoomBySlug
+      summary: Show a public waiting room by slug
+      description: Preserves the legacy public lookup, including visibility of inactive
+        rows; callers use the room configuration to render the telehealth entry page.
+      parameters:
+      - name: slug
+        in: query
+        required: true
+        schema:
+          type: string
+        example: demo-video-room
+      responses:
+        '200':
+          description: Waiting-room configuration.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - waiting_room
+                additionalProperties: false
+                properties:
+                  waiting_room:
+                    type: object
+                    required:
+                    - id
+                    - organization_id
+                    - name
+                    - slug
+                    - schedule_configuration
+                    - waiting_room_configuration
+                    - created_at
+                    - updated_at
+                    - selected_accounts
+                    - custom_field_ids
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                        example: 901
+                      organization_id:
+                        type:
+                        - integer
+                        - 'null'
+                        example: 123
+                      name:
+                        type:
+                        - string
+                        - 'null'
+                      slug:
+                        type:
+                        - string
+                        - 'null'
+                      schedule_configuration:
+                        type: object
+                        additionalProperties: true
+                      waiting_room_configuration:
+                        type: object
+                        additionalProperties: true
+                      created_at:
+                        type: string
+                        example: '2026-07-17T12:00:00.000Z'
+                      updated_at:
+                        type: string
+                        example: '2026-07-17T12:00:00.000Z'
+                      selected_accounts:
+                        type: array
+                        items:
+                          type: integer
+                        example:
+                        - 456
+                      custom_field_ids:
+                        type: array
+                        items:
+                          type: integer
+                        example: []
+        '404':
+          description: No waiting room has the requested slug. The legacy response
+            body is empty.
+x-nimbo-source:
+  repository: ecaresoft/nimbo-api
+  revision: 27768e9673f6f8b714594d6f64186b2632626a26
+  path: docs/api/generated/openapi.public.yaml
+  sha256: aab9bb65f8f1af93da4819ff2de2fdf55b98544fa71cbb0ddf397c0eff56b094

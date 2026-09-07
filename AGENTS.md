@@ -7,12 +7,17 @@ URL, navigation, or product guides.
 
 - Read `README.md`, `docs.json`, and the installed Mintlify skill before edits.
 - Canonical replacement API contracts belong in `ecaresoft/nimbo-api`.
-- Never hand-edit `openapi/nimbo_public.yml`; import a committed public artifact
-  with `scripts/sync-api.rb` and commit its provenance lock.
+- Never hand-edit rendered files under `openapi/`. Inputs live under
+  `scripts/contracts/`; import a committed public artifact with `scripts/sync-api.rb`.
+  Keep revision evidence and publication decisions in `scripts/reference-policy.json`.
 - Never copy `openapi.internal.yaml` into this public repository. Hidden pages
   and `.mintignore` are not authorization boundaries.
-- Keep the preview label and reference-only playground until the published
-  operations, host, fidelity, and runtime availability have been reviewed.
+- Present one API reference organized by functionality. Do not expose backend
+  migration status as product versions or ask readers to choose a backend.
+- Publish generated operations only after reviewing their contract and recorded
+  availability. Retain the existing definition when replacement evidence is
+  incomplete. A new source revision requires a publication-policy review.
+- Keep the reference-only playground until the integration host is reviewed.
 - Preserve legacy coverage. Changes to `scripts/legacy-inventory.json` require
   an explicit explanation of additions, removals, or equivalent duplicates.
 - Use synthetic examples only. Do not restore captured record IDs, headers,

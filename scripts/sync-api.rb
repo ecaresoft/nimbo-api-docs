@@ -66,7 +66,7 @@ module ApiDocsSync
     end.parse!(argv)
     raise 'Provide --source and --revision' unless options[:source] && options[:revision]
     spec, lock = render(read_source(options[:source], options[:revision]), options[:revision])
-    outputs = {'openapi/nimbo_public.yml'=>spec, 'scripts/api-source.json'=>lock}
+    outputs = {'scripts/contracts/nimbo_public.yml'=>spec, 'scripts/api-source.json'=>lock}
     outputs.each do |path, content|
       target = File.join(ROOT, path)
       if options[:check]
@@ -75,6 +75,8 @@ module ApiDocsSync
         File.write(target, content)
       end
     end
+    require_relative "build-reference"
+    ApiReference.write(check: options[:check])
     puts "Public contract #{options[:check] ? 'verified' : 'imported'} at #{options[:revision]}"
   end
 end

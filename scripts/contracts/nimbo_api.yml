@@ -3,8 +3,8 @@ openapi: 3.0.0
 info:
   title: Nimbo API
   version: 1.0.0
-  description: Nimbo API reference. Use the API host and integration access provided
-    by Nimbo.
+  description: Legacy Nimbo integration reference. Captured examples have been removed.
+    Confirm host, credentials, and supported behavior with Nimbo.
 servers:
 - url: https://api.example.test
   description: Reference only; confirm your integration host with Nimbo
@@ -32,6 +32,9 @@ paths:
       - Patient Management
       - CustomFields
       operationId: legacy_nimbo_api_get__custom_fields
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
     post:
       summary: POST /custom_fields
       responses:
@@ -64,6 +67,9 @@ paths:
                     organization_id:
                       nullable: true
       operationId: legacy_nimbo_api_post__custom_fields
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/people/{people_id}/custom_form_response":
     get:
@@ -77,6 +83,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__people_people_id_custom_form_response
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: people_id
         in: path
@@ -100,6 +109,9 @@ paths:
             schema:
               type: object
       operationId: legacy_nimbo_api_post__custom_form_responses
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultation_surveys/{consultation_survey_id}/custom_form_response":
     get:
@@ -111,6 +123,9 @@ paths:
       - Patient Management
       - CustomFields
       operationId: legacy_nimbo_api_get__consultation_surveys_consultation_survey_id_custom_form_response
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_survey_id
         in: path
@@ -231,6 +246,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__people
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/people/{person_id}":
     put:
@@ -401,6 +419,9 @@ paths:
                         insurance_claim_institution_address:
                           type: string
       operationId: legacy_nimbo_api_put__people_person_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: person_id
         in: path
@@ -417,6 +438,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_delete__people_person_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: person_id
         in: path
@@ -518,6 +542,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__people_person_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: person_id
         in: path
@@ -573,6 +600,9 @@ paths:
       tags:
       - Patient Management
       operationId: legacy_nimbo_api_get__accounts_account_id_people
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
   "/predictions/people":
     get:
       summary: GET /predictions/people
@@ -682,6 +712,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__predictions_people
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
   "/accounts/{account_id}/patient_groups":
     get:
       summary: GET /accounts/{account_id}/patient_groups
@@ -778,6 +811,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__accounts_account_id_patient_groups
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: account_id
         in: path
@@ -795,6 +831,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__organizations_current
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/locations":
     get:
@@ -807,6 +846,24 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__locations
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters: []
+  "/specialties":
+    get:
+      summary: GET /specialties
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Account Management
+      security:
+      - BearerAuth: []
+      operationId: legacy_nimbo_api_get__specialties
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/specialties/{specialty_id}":
     get:
@@ -817,8 +874,29 @@ paths:
       tags:
       - Account Management
       operationId: legacy_nimbo_api_get__specialties_specialty_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: specialty_id
+        in: path
+        required: true
+        schema:
+          type: string
+  "/countries/{country_id}/states":
+    get:
+      summary: GET /countries/{country_id}/states
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Account Management
+      operationId: legacy_nimbo_api_get__countries_country_id_states
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters:
+      - name: country_id
         in: path
         required: true
         schema:
@@ -882,6 +960,9 @@ paths:
                     physician_specialty_id:
                       type: string
       operationId: legacy_nimbo_api_post__invitations
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/accounts/set_password":
     post:
@@ -894,6 +975,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_post__accounts_set_password
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/account_profiles/{account_id}":
     put:
@@ -927,6 +1011,9 @@ paths:
                     physician_specialty_id:
                       type: string
       operationId: legacy_nimbo_api_put__account_profiles_account_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: account_id
         in: path
@@ -1125,6 +1212,9 @@ paths:
                       type: string
                       format: color
       operationId: legacy_nimbo_api_put__accounts_account_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: account_id
         in: path
@@ -1550,6 +1640,9 @@ paths:
       tags:
       - Account Management
       operationId: legacy_nimbo_api_get__accounts_account_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: account_id
         in: path
@@ -1814,6 +1907,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__accounts_me
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/organization_members":
     get:
@@ -1826,6 +1922,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__organization_members
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/invoice_items":
     post:
@@ -1896,6 +1995,9 @@ paths:
                       items:
                         type: integer
       operationId: legacy_nimbo_api_post__invoice_items
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/invoice_items/{invoice_item_id}":
     put:
@@ -2020,6 +2122,9 @@ paths:
                       items:
                         type: integer
       operationId: legacy_nimbo_api_put__invoice_items_invoice_item_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: invoice_item_id
         in: path
@@ -2090,6 +2195,9 @@ paths:
                     invoice_item_id:
                       type: string
       operationId: legacy_nimbo_api_post__item_transactions
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultations/{consultation_id}/consultation_lab_tests":
     get:
@@ -2103,6 +2211,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__consultations_consultation_id_consultation_lab_tests
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -2121,6 +2232,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__lab_tests_lab_test_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: lab_test_id
         in: path
@@ -2139,6 +2253,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__consultations_consultation_id_consultation_procedures
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -2157,6 +2274,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__procedures_procedure_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: procedure_id
         in: path
@@ -2196,6 +2316,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__prescriptions
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
     put:
       summary: PUT /prescriptions
@@ -2225,6 +2348,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_put__prescriptions
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultation_prescription_drugs":
     post:
@@ -2261,6 +2387,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__consultation_prescription_drugs
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultation_prescription_drugs/{consultation_prescription_drug_id}":
     delete:
@@ -2274,6 +2403,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_delete__consultation_prescription_drugs_consultation_prescription_drug_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_prescription_drug_id
         in: path
@@ -2388,6 +2520,9 @@ paths:
       tags:
       - Consultations
       operationId: legacy_nimbo_api_get__consultations
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
     post:
       summary: POST /consultations
       responses:
@@ -2398,6 +2533,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_post__consultations
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultations/{consultation_id}/consultation_diagnostics":
     get:
@@ -2436,6 +2574,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__consultations_consultation_id_consultation_diagnostics
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -2530,6 +2671,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__consultations_consultation_id_consultation_prescription_drugs
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -2575,6 +2719,9 @@ paths:
                           max:
                             type: integer
       operationId: legacy_nimbo_api_post__consultation_lab_test_results
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultations/{consultation_id}/physiotherapy_records":
     get:
@@ -2607,6 +2754,9 @@ paths:
       tags:
       - Consultations
       operationId: legacy_nimbo_api_get__consultations_consultation_id_physiotherapy_records
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -2624,6 +2774,27 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__consultations_consultation_id_disability_leave
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters:
+      - name: consultation_id
+        in: path
+        required: true
+        schema:
+          type: string
+  "/consultations/{consultation_id}":
+    get:
+      summary: GET /consultations/{consultation_id}
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Consultations
+      operationId: legacy_nimbo_api_get__consultations_consultation_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -2734,6 +2905,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__consultation_schedules
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultation_schedules/{consultation_schedule_id}":
     get:
@@ -3124,6 +3298,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_get__consultation_schedules_consultation_schedule_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_schedule_id
         in: path
@@ -3174,6 +3351,9 @@ paths:
                     account_id:
                       type: integer
       operationId: legacy_nimbo_api_put__consultation_schedules_consultation_schedule_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_schedule_id
         in: path
@@ -3251,6 +3431,9 @@ paths:
       tags:
       - Consultation Schedules
       operationId: legacy_nimbo_api_delete__consultation_schedules_consultation_schedule_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: consultation_schedule_id
         in: path
@@ -3302,6 +3485,9 @@ paths:
                     account_id:
                       type: integer
       operationId: legacy_nimbo_api_get__consultation_schedule_notifications
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/calendar/available_hours":
     get:
@@ -3346,6 +3532,9 @@ paths:
       tags:
       - Consultation Schedules
       operationId: legacy_nimbo_api_get__calendar_available_hours
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
   "/api/v1/calendar/available_hours_organization":
     get:
       summary: GET /api/v1/calendar/available_hours_organization
@@ -3394,6 +3583,36 @@ paths:
       tags:
       - Consultation Schedules
       operationId: legacy_nimbo_api_get__api_v1_calendar_available_hours_organization
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+  "/reports/consultation_invoice_items":
+    get:
+      summary: GET /reports/consultation_invoice_items
+      parameters:
+      - name: start
+        in: query
+        schema:
+          type: string
+      - name: end
+        in: query
+        schema:
+          type: string
+      - name: person
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Charges
+      security:
+      - BearerAuth: []
+      operationId: legacy_nimbo_api_get__reports_consultation_invoice_items
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
   "/invoice_item_locations":
     get:
       summary: GET /invoice_item_locations
@@ -3405,6 +3624,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__invoice_item_locations
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/invoice_items/invoice_items_payment":
     get:
@@ -3422,6 +3644,9 @@ paths:
             schema:
               type: object
       operationId: legacy_nimbo_api_get__invoice_items_invoice_items_payment
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/invoices":
     post:
@@ -3458,6 +3683,9 @@ paths:
                     person_id:
                       type: string
       operationId: legacy_nimbo_api_post__invoices
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/consultation_invoice_items":
     post:
@@ -3491,6 +3719,9 @@ paths:
                     invoice_item_id:
                       type: string
       operationId: legacy_nimbo_api_post__consultation_invoice_items
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/people/{people_id}/vital_signs_sets":
     get:
@@ -3665,6 +3896,9 @@ paths:
       tags:
       - Vital Signs
       operationId: legacy_nimbo_api_get__people_people_id_vital_signs_sets
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: people_id
         in: path
@@ -3813,6 +4047,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__vital_signs_sets
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/people/{people_id}/medical_history":
     get:
@@ -4301,6 +4538,9 @@ paths:
       tags:
       - Medical History
       operationId: legacy_nimbo_api_get__people_people_id_medical_history
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: people_id
         in: path
@@ -4536,6 +4776,9 @@ paths:
                             text:
                               nullable: true
       operationId: legacy_nimbo_api_post__medical_histories
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/medical_notes":
     post:
@@ -4577,6 +4820,9 @@ paths:
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__medical_notes
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
     get:
       summary: GET /medical_notes
       parameters:
@@ -4604,6 +4850,9 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__medical_notes
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
   "/oauth/token":
     post:
       summary: POST /oauth/token
@@ -4628,6 +4877,9 @@ paths:
       tags:
       - Authentication
       operationId: legacy_nimbo_api_post__oauth_token
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/telehealth_waiting_rooms":
     post:
@@ -4779,6 +5031,9 @@ paths:
                                   type: string
                                   format: date
       operationId: legacy_nimbo_api_post__telehealth_waiting_rooms
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/waiting_rooms/{waiting_room_id}/custom_forms":
     get:
@@ -4789,6 +5044,9 @@ paths:
       tags:
       - Teleconsultation Waiting Room
       operationId: legacy_nimbo_api_get__waiting_rooms_waiting_room_id_custom_forms
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: waiting_room_id
         in: path
@@ -5059,6 +5317,9 @@ paths:
       tags:
       - Teleconsultation Waiting Room
       operationId: legacy_nimbo_api_get__telehealth_waiting_rooms_waiting_room_encrypted_id_check
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: waiting_room_encrypted_id
         in: path
@@ -5158,6 +5419,9 @@ paths:
       tags:
       - Teleconsultation Waiting Room
       operationId: legacy_nimbo_api_get__waiting_rooms
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters: []
   "/waiting_rooms/{waiting_room_id}":
     get:
@@ -5250,6 +5514,9 @@ paths:
       tags:
       - Teleconsultation Waiting Room
       operationId: legacy_nimbo_api_get__waiting_rooms_waiting_room_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
       parameters:
       - name: waiting_room_id
         in: path
@@ -5349,6 +5616,100 @@ paths:
       tags:
       - Teleconsultation Waiting Room
       operationId: legacy_nimbo_api_get__waiting_rooms_waiting_room_slug
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+  "/countries":
+    get:
+      summary: GET /countries
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name_en:
+                          type: string
+                        name_es:
+                          type: string
+                        abbrv:
+                          type: string
+                        links:
+                          type: object
+                          properties:
+                            states:
+                              type: string
+                        country_code:
+                          type: string
+                        default_locale:
+                          nullable: true
+                        nationality_es:
+                          type: string
+                        nationality_en:
+                          type: string
+                        default_vademecum:
+                          type: boolean
+          description: Successful response
+      operationId: legacy_nimbo_api_get__countries
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters: []
+  "/countries/{country_id}":
+    get:
+      summary: GET /countries/{country_id}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  country:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name_en:
+                        type: string
+                      name_es:
+                        type: string
+                      abbrv:
+                        type: string
+                      links:
+                        type: object
+                        properties:
+                          states:
+                            type: string
+                      country_code:
+                        type: string
+                      default_locale:
+                        type: string
+                      nationality_es:
+                        type: string
+                      nationality_en:
+                        type: string
+                      default_vademecum:
+                        type: boolean
+          description: Successful response
+      operationId: legacy_nimbo_api_get__countries_country_id
+      description: Legacy reference. Confirm the API host and integration access with
+        Nimbo before making requests. This imported contract has not been verified
+        against the replacement API.
+      parameters:
+      - name: country_id
+        in: path
+        required: true
+        schema:
+          type: string
 components:
   securitySchemes:
     BearerAuth:

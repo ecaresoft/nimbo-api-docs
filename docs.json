@@ -3,33 +3,109 @@
   "theme": "almond",
   "name": "Nimbo API",
   "description": "Developer documentation for Nimbo integrations, API contracts, and webhooks.",
-  "colors": { "primary": "#1f87ff", "light": "#4da3ff", "dark": "#0d6efd" },
+  "colors": {
+    "primary": "#1f87ff",
+    "light": "#4da3ff",
+    "dark": "#0d6efd"
+  },
   "favicon": "/favicon.svg",
-  "logo": { "light": "/logo/light.svg", "dark": "/logo/dark.svg", "href": "/" },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "/"
+  },
   "navbar": {
-    "links": [{ "label": "Contact Nimbo", "href": "https://www.nimbo-x.com/contacto" }],
-    "primary": { "type": "button", "label": "Open Nimbo", "href": "https://app.nimbo-x.com" }
+    "links": [
+      {
+        "label": "Contact Nimbo",
+        "href": "https://www.nimbo-x.com/contacto"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Open Nimbo",
+      "href": "https://app.nimbo-x.com"
+    }
   },
   "navigation": {
     "tabs": [
-      { "tab": "Guides", "groups": [
-        { "group": "Get started", "pages": ["index", "quickstart", "authentication"] },
-        { "group": "Using the reference", "pages": ["reference/overview"] }
-      ] },
-      { "tab": "Public contract preview", "groups": [
-        { "group": "About this preview", "pages": ["reference/public-preview"] },
-        { "group": "Endpoints", "openapi": "openapi/nimbo_public.yml" }
-      ] },
-      { "tab": "Legacy API", "groups": [
-        { "group": "Nimbo API", "openapi": "openapi/nimbo_api.yml" },
-        { "group": "ERP", "openapi": "openapi/nimbo_erp.yml" },
-        { "group": "Billing", "openapi": "openapi/nimbo_facturacion.yml" },
-        { "group": "Webhooks", "openapi": "openapi/nimbo_webhooks.yml" }
-      ] }
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Using the reference",
+            "pages": [
+              "reference/overview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Catalogs and sites",
+            "openapi": "openapi/nimbo_public.yml"
+          },
+          {
+            "group": "Core API",
+            "openapi": "openapi/nimbo_api.yml"
+          },
+          {
+            "group": "ERP",
+            "openapi": "openapi/nimbo_erp.yml"
+          },
+          {
+            "group": "Billing",
+            "openapi": "openapi/nimbo_facturacion.yml"
+          },
+          {
+            "group": "Webhooks",
+            "openapi": "openapi/nimbo_webhooks.yml"
+          }
+        ]
+      }
     ],
-    "global": { "anchors": [{ "anchor": "Nimbo help center", "href": "https://help.nimbo-x.com", "icon": "book-open" }] }
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Nimbo help center",
+          "href": "https://help.nimbo-x.com",
+          "icon": "book-open"
+        }
+      ]
+    }
   },
-  "api": { "playground": { "display": "simple" } },
-  "contextual": { "options": ["copy", "view"] },
-  "footer": { "socials": { "x": "https://twitter.com/nimbo_x", "linkedin": "https://www.linkedin.com/company/ecaresoft-inc." } }
+  "api": {
+    "playground": {
+      "display": "simple"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://twitter.com/nimbo_x",
+      "linkedin": "https://www.linkedin.com/company/ecaresoft-inc."
+    }
+  },
+  "redirects": [
+    {
+      "source": "/reference/public-preview",
+      "destination": "/reference/overview",
+      "permanent": true
+    }
+  ]
 }

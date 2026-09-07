@@ -1,0 +1,59 @@
+{
+  "reviewed_revision": "27768e9673f6f8b714594d6f64186b2632626a26",
+  "evidence": "nimbo-api docs/endpoint-migration-status.md at reviewed_revision: published generated operations are recorded Traffic-ready and production-routed. This is recorded release evidence, not a fresh live probe.",
+  "publish": [
+    "listCountries",
+    "getCountry",
+    "listCountryStates",
+    "getState",
+    "listStateCounties",
+    "listSpecialties",
+    "listCurrencies",
+    "listLanguages",
+    "listRelationships",
+    "listOrganizationalPortalIdentificationTypes",
+    "listSatCfdiUses",
+    "listSatMeasurementUnits",
+    "listSatKeyOfProductsAndServices",
+    "listSatPaymentForms",
+    "listSatPaymentMethods",
+    "listSatTaxTypes",
+    "listSatFactorTypes",
+    "listSatRatesOrFees",
+    "listSatTaxRegime",
+    "listSatPeriodicities",
+    "showSiteOrganization"
+  ],
+  "defer": {
+    "getSpecialty": "Replacement contract blocked; retain the existing specialty definition.",
+    "showSiteAccount": "Differential evidence pending; do not publish this new definition.",
+    "showPortalAgendaLocation": "Differential evidence pending; do not publish this new definition.",
+    "showWaitingRoomBySlug": "Differential evidence pending; retain the existing waiting-room definition."
+  },
+  "duplicate_owners": {
+    "GET /api/v1/consultations/{}": "legacy_nimbo_erp_get__consultations_consultation_id",
+    "GET /api/v1/reports/consultation_invoice_items": "legacy_nimbo_facturacion_get__reports_consultation_invoice_items",
+    "GET /api/v1/countries": "listCountries",
+    "GET /api/v1/countries/{}": "getCountry",
+    "GET /api/v1/countries/{}/states": "listCountryStates",
+    "GET /api/v1/specialties": "listSpecialties",
+    "GET /api/v1/specialties/{}": "legacy_nimbo_api_get__specialties_specialty_id",
+    "GET /api/v1/waiting_rooms/waiting_room_slug": "legacy_nimbo_api_get__waiting_rooms_waiting_room_slug"
+  },
+  "duplicate_notes": "ERP consultation and billing report definitions include response schemas absent from the general import. The billing report also documents the status filter and an integer person identifier. Keep one definition per endpoint; input sources remain unchanged.",
+  "titles": {
+    "nimbo_api.yml": "Nimbo API",
+    "nimbo_erp.yml": "Nimbo ERP",
+    "nimbo_facturacion.yml": "Nimbo billing",
+    "nimbo_webhooks.yml": "Nimbo webhooks",
+    "nimbo_public.yml": "Nimbo catalogs and sites"
+  },
+  "descriptions": {
+    "listCountries": "Lists active countries. Inactive countries are excluded.",
+    "getCountry": "Returns an active country. Inactive countries are treated as not found.",
+    "listCountryStates": "Lists states for an active country in ascending ID order. Inactive countries are treated as not found.",
+    "listSatMeasurementUnits": "Returns measurement units in ascending ID order, including timestamps in the America/Monterrey time zone.",
+    "listSatKeyOfProductsAndServices": "Returns product and service keys in ascending ID order, including timestamps in the America/Monterrey time zone.",
+    "showSiteOrganization": "Resolves public organization branding by encoded slug or encoded custom domain, with plain slug or host fallback. Linked accounts are ordered by account ID."
+  }
+}

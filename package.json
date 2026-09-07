@@ -2,6 +2,13 @@
   "name": "nimbo-api-docs",
   "private": true,
   "version": "1.0.0",
-  "scripts": { "dev": "mint dev", "validate": "ruby scripts/check-contracts.rb && mint validate", "test": "ruby test/sync_api_test.rb", "links": "mint broken-links" },
-  "devDependencies": { "mint": "4.2.634" }
+  "scripts": {
+    "dev": "mint dev",
+    "validate": "ruby scripts/check-contracts.rb && mint validate",
+    "test": "ruby -Itest -e 'Dir[\"test/*_test.rb\"].sort.each { |file| require_relative file }'",
+    "links": "mint broken-links"
+  },
+  "devDependencies": {
+    "mint": "4.2.634"
+  }
 }
