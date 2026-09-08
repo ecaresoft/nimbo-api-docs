@@ -88,9 +88,6 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_facturacion_post__invoices_id_sign
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
   "/reports/consultation_invoice_items":
     get:
       summary: GET /reports/consultation_invoice_items
@@ -176,9 +173,6 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_facturacion_get__reports_consultation_invoice_items
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
   "/invoices/{id}/download_cfdi.pdf":
     get:
       summary: GET /invoices/{id}/download_cfdi.pdf
@@ -196,9 +190,6 @@ paths:
         '200':
           description: Successful response
       operationId: legacy_nimbo_facturacion_get__invoices_id_download_cfdi_pdf
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
   "/invoices/{id}/download_cfdi.xml":
     get:
       summary: GET /invoices/{id}/download_cfdi.xml
@@ -216,9 +207,6 @@ paths:
         '200':
           description: Successful response
       operationId: legacy_nimbo_facturacion_get__invoices_id_download_cfdi_xml
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
   "/invoices/{id}/email_invoice":
     post:
       summary: POST /invoices/{id}/email_invoice
@@ -288,9 +276,6 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_facturacion_post__invoices_id_email_invoice
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters:
       - name: id
         in: path

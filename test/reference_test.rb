@@ -42,6 +42,25 @@ class ReferenceTest < Minitest::Test
     end
   end
 
+  def test_imported_endpoint_descriptions_are_preserved
+    with_policy do |root, _, _|
+      path = File.join(root, 'scripts/contracts/nimbo_erp.yml')
+      doc = YAML.safe_load_file(path)
+      operation = ApiDocsSync.operations(doc).first.last
+      description = 'Returns the consultation and its invoice relationships.'
+      operation['description'] = description
+      File.write(path, YAML.dump(doc))
+      rendered = YAML.safe_load(ApiReference.render(root).fetch('openapi/nimbo_erp.yml'))
+      assert_equal description, ApiDocsSync.operations(rendered).first.last.fetch('description')
+    end
+  end
+
+  def test_imported_sources_do_not_repeat_migration_disclaimers
+    Dir[File.join(ApiDocsSync::ROOT, 'scripts/contracts/*.yml')].each do |path|
+      refute_match(/This imported contract has not been verified/i, File.read(path))
+    end
+  end
+
   def test_served_prose_and_metadata_do_not_expose_backend_migration
     walk = lambda do |node|
       case node

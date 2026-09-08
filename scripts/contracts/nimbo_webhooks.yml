@@ -43,9 +43,6 @@ paths:
                 grant_type:
                   type: string
       operationId: legacy_nimbo_webhooks_post__oauth_token
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters: []
   "/webhooks":
     post:
@@ -73,9 +70,6 @@ paths:
                 nimbo_access_token:
                   type: string
       operationId: legacy_nimbo_webhooks_post__webhooks
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters: []
     get:
       summary: GET /webhooks
@@ -118,9 +112,6 @@ paths:
       security:
       - BearerAuth: []
       operationId: legacy_nimbo_webhooks_get__webhooks
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters: []
   "/events":
     get:
@@ -284,9 +275,6 @@ paths:
                 name:
                   type: string
       operationId: legacy_nimbo_webhooks_get__events
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters: []
   "/webhooks/{webhook_id}":
     delete:
@@ -315,9 +303,6 @@ paths:
                 nimbo_access_token:
                   type: string
       operationId: legacy_nimbo_webhooks_delete__webhooks_webhook_id
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters:
       - name: webhook_id
         in: path

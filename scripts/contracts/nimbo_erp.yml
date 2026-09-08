@@ -105,9 +105,6 @@ paths:
                         nullable: true
           description: Successful response
       operationId: legacy_nimbo_erp_get__consultations_consultation_id
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters:
       - name: consultation_id
         in: path
@@ -173,9 +170,6 @@ paths:
                         format: date-time
           description: Successful response
       operationId: legacy_nimbo_erp_get__encounters_encounter_id_invoice
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters:
       - name: encounter_id
         in: path
@@ -230,9 +224,6 @@ paths:
                           nullable: true
           description: Successful response
       operationId: legacy_nimbo_erp_get__invoices_invoice_id_consultation_invoice_items
-      description: Legacy reference. Confirm the API host and integration access with
-        Nimbo before making requests. This imported contract has not been verified
-        against the replacement API.
       parameters:
       - name: invoice_id
         in: path

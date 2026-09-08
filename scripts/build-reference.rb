@@ -55,8 +55,6 @@ module ApiReference
           if file == 'nimbo_public.yml'
             override = policy.fetch('descriptions', {})[id]
             operation['description'] = override if override
-          else
-            operation.delete('description') # Remove the imported migration disclaimer.
           end
           false
         end

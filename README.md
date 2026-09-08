@@ -50,8 +50,10 @@ There is no scheduled sync or automatic tracking of API `main`.
 Readers see one API reference organized by functionality. Backend migration
 status, publication decisions, and source provenance belong in maintainer files.
 
-- `scripts/contracts/` stores the unchanged imported inputs (25 generated and
-  83 existing operation entries). These are excluded from the Mintlify site.
+- `scripts/contracts/` stores the imported inputs (25 generated and
+  83 existing operation entries). Repeated migration disclaimers have been
+  removed from the existing inputs; endpoint descriptions are preserved by the
+  renderer. These inputs are excluded from the Mintlify site.
 - `scripts/reference-policy.json` pins the reviewed source revision, approves
   21 generated operations using recorded Traffic-ready/production-routed
   evidence, and defers four whose replacement fidelity remains incomplete.
@@ -70,6 +72,10 @@ status, publication decisions, and source provenance belong in maintainer files.
   evidence used here is not a fresh live-environment probe.
 - The synthetic server and non-interactive playground remain unchanged.
 - Public documentation does not imply executable LLM tool eligibility.
+
+The existing imported contracts have not all been verified against the replacement
+API. Their inclusion preserves existing documentation coverage; verification and
+replacement decisions are tracked by the publication policy above.
 
 Run `ruby scripts/build-reference.rb` after input or presentation-policy changes.
 CI reproduces the served files, rejects duplicate endpoints, and checks that
