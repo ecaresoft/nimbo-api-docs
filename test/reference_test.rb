@@ -51,6 +51,36 @@ class ReferenceTest < Minitest::Test
     ApiReference.write(check: true)
   end
 
+  def test_functional_navigation_includes_every_served_operation_once
+    docs = JSON.parse(File.read(File.join(ApiDocsSync::ROOT, 'docs.json')))
+    groups = docs.fetch('navigation').fetch('tabs').find { |tab| tab['tab'] == 'API reference' }.fetch('groups')
+    assert_equal ['Patients', 'Appointments', 'Clinical records'], groups.first(3).map { |group| group.fetch('group') }
+    assert_equal 'Catalogs', groups.last.fetch('group')
+    entries = []
+    walk = lambda do |nodes|
+      nodes.each do |node|
+        if node.is_a?(String)
+          if node.start_with?('api-reference/')
+            page = File.read(File.join(ApiDocsSync::ROOT, "#{node}.mdx"))
+            entries << YAML.safe_load(page.split('---')[1]).fetch('openapi')
+          else
+            entries << node
+          end
+        else
+          refute_includes ['API Reference', 'Core API', 'ERP'], node['group']
+          walk.call(node.fetch('pages'))
+        end
+      end
+    end
+    walk.call(groups)
+    expected = ApiReference.render.flat_map do |file, raw|
+      ApiDocsSync.operations(YAML.safe_load(raw)).map { |method, path, _| "#{file} #{method.upcase} #{path}" }
+    end
+    assert_equal expected.sort, entries.sort
+    assert_equal entries.uniq, entries
+    refute File.exist?(File.join(ApiDocsSync::ROOT, 'guides/patient-portal.mdx'))
+  end
+
   def test_new_revision_requires_review
     with_policy do |root, path, policy|
       policy['reviewed_revision'] = 'b' * 40

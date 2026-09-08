@@ -42,6 +42,12 @@ module ApiReference
       document = clean(document)
       document['info']['description'] = 'Nimbo API reference. Use the API host and integration access provided by Nimbo.'
       document['info']['title'] = policy.fetch('titles').fetch(file)
+      # Historical inputs can contain trailing whitespace in a path key.
+      # Normalize the rendered URL without altering the retained input inventory.
+      document['paths'] = document.fetch('paths').each_with_object({}) do |(path, item), paths|
+        raise "Duplicate normalized path: #{path.strip}" if paths.key?(path.strip)
+        paths[path.strip] = item
+      end
       document['paths'].delete_if do |path, item|
         item.delete_if do |method, operation|
           next false unless ApiDocsSync::METHODS.include?(method)

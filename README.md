@@ -49,6 +49,12 @@ There is no scheduled sync or automatic tracking of API `main`.
 
 Readers see one API reference organized by functionality. Backend migration
 status, publication decisions, and source provenance belong in maintainer files.
+`docs.json` explicitly assigns each served operation to one functional group,
+starting with patients, appointments, and clinical records; catalogs come last.
+Source specification filenames do not determine the sidebar hierarchy. Retain
+operation summaries and tags when reorganizing navigation to preserve URLs.
+The renderer trims accidental surrounding whitespace from historical path keys;
+the retained input inventory remains unchanged.
 
 - `scripts/contracts/` stores the imported inputs (38 generated and
   85 existing operation entries). Repeated migration disclaimers have been
