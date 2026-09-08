@@ -52,24 +52,255 @@
         "tab": "API reference",
         "groups": [
           {
-            "group": "Catalogs and sites",
-            "openapi": "openapi/nimbo_public.yml"
+            "group": "Patients",
+            "pages": [
+              "openapi/nimbo_api.yml POST /people",
+              "openapi/nimbo_api.yml PUT /people/{person_id}",
+              "openapi/nimbo_api.yml DELETE /people/{person_id}",
+              "openapi/nimbo_api.yml GET /people/{person_id}",
+              "openapi/nimbo_api.yml GET /accounts/{account_id}/people",
+              "openapi/nimbo_api.yml GET /predictions/people",
+              "openapi/nimbo_api.yml GET /accounts/{account_id}/patient_groups",
+              {
+                "group": "Custom fields and forms",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /custom_fields",
+                  "openapi/nimbo_api.yml POST /custom_fields",
+                  "openapi/nimbo_api.yml GET /people/{people_id}/custom_form_response",
+                  "openapi/nimbo_api.yml POST /custom_form_responses",
+                  "openapi/nimbo_api.yml GET /consultation_surveys/{consultation_survey_id}/custom_form_response"
+                ]
+              }
+            ]
           },
           {
-            "group": "Core API",
-            "openapi": "openapi/nimbo_api.yml"
+            "group": "Appointments",
+            "pages": [
+              "openapi/nimbo_api.yml POST /consultation_schedules",
+              "openapi/nimbo_api.yml GET /consultation_schedules/{consultation_schedule_id}",
+              "openapi/nimbo_api.yml PUT /consultation_schedules/{consultation_schedule_id}",
+              "openapi/nimbo_api.yml DELETE /consultation_schedules/{consultation_schedule_id}",
+              "openapi/nimbo_api.yml GET /consultation_schedule_notifications",
+              "openapi/nimbo_api.yml GET /calendar/available_hours",
+              "openapi/nimbo_api.yml GET /api/v1/calendar/available_hours_organization"
+            ]
           },
           {
-            "group": "ERP",
-            "openapi": "openapi/nimbo_erp.yml"
+            "group": "Clinical records",
+            "pages": [
+              {
+                "group": "Consultations",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /consultations",
+                  "openapi/nimbo_api.yml POST /consultations",
+                  "openapi/nimbo_api.yml GET /consultations/{consultation_id}/consultation_diagnostics",
+                  "openapi/nimbo_api.yml GET /consultations/{consultation_id}/consultation_prescription_drugs",
+                  "openapi/nimbo_api.yml POST /consultation_lab_test_results",
+                  "openapi/nimbo_api.yml GET /consultations/{consultation_id}/physiotherapy_records",
+                  "openapi/nimbo_api.yml GET /consultations/{consultation_id}/disability_leave",
+                  "openapi/nimbo_erp.yml GET /consultations/{consultation_id}"
+                ]
+              },
+              {
+                "group": "Prescriptions",
+                "pages": [
+                  "openapi/nimbo_api.yml POST /prescriptions",
+                  "openapi/nimbo_api.yml PUT /prescriptions",
+                  "openapi/nimbo_api.yml POST /consultation_prescription_drugs",
+                  "openapi/nimbo_api.yml DELETE /consultation_prescription_drugs/{consultation_prescription_drug_id}"
+                ]
+              },
+              {
+                "group": "Lab orders",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /consultations/{consultation_id}/consultation_lab_tests",
+                  "openapi/nimbo_api.yml GET /lab_tests/{lab_test_id}"
+                ]
+              },
+              {
+                "group": "Procedure orders",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /consultations/{consultation_id}/consultation_procedures",
+                  "openapi/nimbo_api.yml GET /procedures/{procedure_id}"
+                ]
+              },
+              {
+                "group": "Medical history",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /people/{people_id}/medical_history",
+                  "openapi/nimbo_api.yml POST /medical_histories"
+                ]
+              },
+              {
+                "group": "Medical notes",
+                "pages": [
+                  "openapi/nimbo_api.yml POST /medical_notes",
+                  "openapi/nimbo_api.yml GET /medical_notes"
+                ]
+              },
+              {
+                "group": "Vital signs",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /people/{people_id}/vital_signs_sets",
+                  "openapi/nimbo_api.yml POST /vital_signs_sets"
+                ]
+              }
+            ]
           },
           {
-            "group": "Billing",
-            "openapi": "openapi/nimbo_facturacion.yml"
+            "group": "Patient portal",
+            "pages": [
+              {
+                "group": "Patient authentication",
+                "pages": [
+                  "openapi/nimbo_patient_portal.yml POST /api/v1/patient_portal/auth",
+                  "openapi/nimbo_patient_portal.yml POST /api/v1/patient_portal/validate"
+                ]
+              },
+              {
+                "group": "Patient records",
+                "pages": [
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/organization",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/medical_history",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/vital_signs",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/lab_tests",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/attachments",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/consultations",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/prescriptions"
+                ]
+              },
+              {
+                "group": "Patient appointments",
+                "pages": [
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/consultation_schedules",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/consultation_requests",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/organization_portals"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Charges and invoicing",
+            "pages": [
+              {
+                "group": "Charges and invoices",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /invoice_item_locations",
+                  "openapi/nimbo_api.yml GET /invoice_items/invoice_items_payment",
+                  "openapi/nimbo_api.yml POST /invoices",
+                  "openapi/nimbo_api.yml POST /consultation_invoice_items",
+                  "openapi/nimbo_erp.yml GET /encounters/{encounter_id}/invoice",
+                  "openapi/nimbo_erp.yml GET /invoices/{invoice_id}/consultation_invoice_items"
+                ]
+              },
+              {
+                "group": "Electronic invoicing",
+                "pages": [
+                  "openapi/nimbo_facturacion.yml POST /invoices/{id}/sign",
+                  "openapi/nimbo_facturacion.yml GET /invoices/{id}/download_cfdi.pdf",
+                  "openapi/nimbo_facturacion.yml GET /invoices/{id}/download_cfdi.xml",
+                  "openapi/nimbo_facturacion.yml POST /invoices/{id}/email_invoice"
+                ]
+              },
+              {
+                "group": "Billing reports",
+                "pages": [
+                  "openapi/nimbo_facturacion.yml GET /reports/consultation_invoice_items"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Inventory",
+            "pages": [
+              "openapi/nimbo_api.yml POST /invoice_items",
+              "openapi/nimbo_api.yml PUT /invoice_items/{invoice_item_id}",
+              "openapi/nimbo_api.yml POST /item_transactions"
+            ]
+          },
+          {
+            "group": "Telehealth",
+            "pages": [
+              "openapi/nimbo_api.yml POST /telehealth_waiting_rooms",
+              "openapi/nimbo_api.yml GET /waiting_rooms/{waiting_room_id}/custom_forms",
+              "openapi/nimbo_api.yml GET /telehealth_waiting_rooms/{waiting_room_encrypted_id}/check",
+              "api-reference/teleconsultation-waiting-room/get-waiting_rooms",
+              "api-reference/teleconsultation-waiting-room/get-waiting_rooms-1",
+              "openapi/nimbo_api.yml GET /waiting_rooms/waiting_room_slug"
+            ]
+          },
+          {
+            "group": "Authentication and accounts",
+            "pages": [
+              "openapi/nimbo_api.yml POST /oauth/token",
+              "openapi/nimbo_api.yml GET /organizations/current",
+              "openapi/nimbo_api.yml GET /locations",
+              "openapi/nimbo_api.yml POST /invitations",
+              "openapi/nimbo_api.yml POST /accounts/set_password",
+              "openapi/nimbo_api.yml PUT /account_profiles/{account_id}",
+              "openapi/nimbo_api.yml PUT /accounts/{account_id}",
+              "openapi/nimbo_api.yml GET /accounts/{account_id}",
+              "openapi/nimbo_api.yml GET /accounts/me",
+              "openapi/nimbo_api.yml GET /organization_members"
+            ]
           },
           {
             "group": "Webhooks",
-            "openapi": "openapi/nimbo_webhooks.yml"
+            "pages": [
+              "openapi/nimbo_webhooks.yml POST /oauth/token",
+              "openapi/nimbo_webhooks.yml POST /webhooks",
+              "openapi/nimbo_webhooks.yml GET /webhooks",
+              "openapi/nimbo_webhooks.yml GET /events",
+              "openapi/nimbo_webhooks.yml DELETE /webhooks/{webhook_id}"
+            ]
+          },
+          {
+            "group": "Sites",
+            "pages": [
+              "openapi/nimbo_public.yml GET /api/v1/sites/organizations/{id}"
+            ]
+          },
+          {
+            "group": "Catalogs",
+            "pages": [
+              {
+                "group": "Geography",
+                "pages": [
+                  "openapi/nimbo_public.yml GET /api/v1/countries",
+                  "openapi/nimbo_public.yml GET /api/v1/countries/{id}",
+                  "openapi/nimbo_public.yml GET /api/v1/countries/{id}/states",
+                  "openapi/nimbo_public.yml GET /api/v1/states/{id}",
+                  "openapi/nimbo_public.yml GET /api/v1/states/{id}/counties"
+                ]
+              },
+              {
+                "group": "Reference catalogs",
+                "pages": [
+                  "openapi/nimbo_api.yml GET /specialties/{specialty_id}",
+                  "openapi/nimbo_public.yml GET /api/v1/specialties",
+                  "openapi/nimbo_public.yml GET /api/v1/currencies",
+                  "openapi/nimbo_public.yml GET /api/v1/languages",
+                  "openapi/nimbo_public.yml GET /api/v1/relationships",
+                  "openapi/nimbo_public.yml GET /api/v1/identification_types/by_organizational_portal"
+                ]
+              },
+              {
+                "group": "SAT catalogs",
+                "pages": [
+                  "openapi/nimbo_public.yml GET /api/v1/sat/cfdi_uses",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/measurement_units",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/key_of_products_and_services",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/payment_forms",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/payment_methods",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/tax_types",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/factor_types",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/rates_or_fees",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/tax_regime",
+                  "openapi/nimbo_public.yml GET /api/v1/sat/periodicities"
+                ]
+              }
+            ]
           }
         ]
       }

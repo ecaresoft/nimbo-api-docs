@@ -1,0 +1,62 @@
+---
+openapi: 3.0.0
+info:
+  title: Patient portal authentication
+  version: 1.0.0
+servers:
+- url: https://api.example.test
+paths:
+  "/api/v1/patient_portal/auth":
+    post:
+      summary: Request a patient portal OTP
+      responses:
+        '200':
+          description: The request succeeded.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_code:
+                  type: string
+                phone:
+                  type: string
+      operationId: customerPatientPortalAuth
+      tags:
+      - Patient portal authentication
+      security: []
+      description: Requests a one-time code for the patient phone number. Use the
+        country code and phone fields supplied for your integration.
+  "/api/v1/patient_portal/validate":
+    post:
+      summary: Validate a patient portal OTP
+      responses:
+        '200':
+          description: A patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                country_code:
+                  type: string
+                phone:
+                  type: string
+      operationId: customerPatientPortalValidate
+      tags:
+      - Patient portal authentication
+      security: []
+      description: Exchanges the one-time code and patient phone number for a patient
+        portal token. Use this token to access the people authorized for that patient
+        session.

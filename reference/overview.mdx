@@ -8,11 +8,17 @@ Use the **API reference** tab to browse endpoints by functionality.
 
 | Section | What you can find |
 | --- | --- |
-| Catalogs and sites | Countries, states, specialties, SAT catalogs, and organization branding. |
-| Core API | Patient management, clinical workflows, scheduling, accounts, and inventory. |
-| ERP | Consultation and invoice relationships. |
-| Billing | Invoice items and billing reports. |
-| Webhooks | Webhook configuration and operations. |
+| Patients | Patient records, groups, custom fields, and forms. |
+| Appointments | Scheduling, availability, and appointment notifications. |
+| Clinical records | Consultations, prescriptions, lab and procedure orders, histories, notes, and vital signs. |
+| Patient portal | Patient authentication, authorized records, appointments, and portal links. |
+| Charges and invoicing | Charges, invoices, CFDI signing and downloads, invoice email, and billing reports. |
+| Inventory | Invoice items and inventory transactions. |
+| Telehealth | Waiting rooms and patient entry checks. |
+| Authentication and accounts | Integration authentication, accounts, organizations, locations, and invitations. |
+| Webhooks | Credentials, subscriptions, and the event catalog. |
+| Sites | Public organization branding. |
+| Catalogs | Geography, specialties, identification types, and SAT catalogs. |
 
 ## Before making requests
 
@@ -26,6 +32,6 @@ Check the HTTP status code before reading the response body. Response roots and 
 
 ## OpenAPI files
 
-Download the specifications for [catalogs and sites](/openapi/nimbo_public.yml), the [core API](/openapi/nimbo_api.yml), [ERP](/openapi/nimbo_erp.yml), [billing](/openapi/nimbo_facturacion.yml), and [webhooks](/openapi/nimbo_webhooks.yml).
+Download the specifications for [catalogs and sites](/openapi/nimbo_public.yml), the [core API](/openapi/nimbo_api.yml), [ERP](/openapi/nimbo_erp.yml), [billing](/openapi/nimbo_facturacion.yml), [patient portal](/openapi/nimbo_patient_portal.yml), and [webhooks](/openapi/nimbo_webhooks.yml).
 
 This site provides reference pages without an interactive request runner. Make requests using your own development tools and the environment agreed for your integration.

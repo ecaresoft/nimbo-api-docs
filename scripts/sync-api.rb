@@ -70,7 +70,7 @@ module ApiDocsSync
     outputs.each do |path, content|
       target = File.join(ROOT, path)
       if options[:check]
-        raise "Contract drift: #{path}" unless File.exist?(target) && File.binread(target) == content
+        raise "Contract drift: #{path}" unless File.exist?(target) && File.binread(target) == content.b
       else
         File.write(target, content)
       end

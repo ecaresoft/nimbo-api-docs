@@ -83,8 +83,8 @@ paths:
         required: true
         schema:
           type: string
-  ? "/custom_form_responses\n"
-  : post:
+  "/custom_form_responses":
+    post:
       summary: 'POST /custom_form_responses
 
         '

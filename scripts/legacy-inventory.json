@@ -1,7 +1,6 @@
 {
   "source_repository": "ecaresoft/nimbo-api-docs",
   "source_revision": "83f6ce7506f75f544488f524b68a114745db97c1",
-  "excluded_internal_spec": "nimbo_patient_web_app.yml",
   "files": {
     "nimbo_api.yml": {
       "original_operations": 72,
@@ -113,6 +112,20 @@
         "POST /oauth/token",
         "POST /webhooks"
       ]
+    },
+    "nimbo_patient_portal_auth.yml": {
+      "original_operations": 2,
+      "operations": 2,
+      "method_paths": [
+        "POST /api/v1/patient_portal/auth",
+        "POST /api/v1/patient_portal/validate"
+      ]
     }
+  },
+  "excluded_historical_spec": "nimbo_patient_web_app.yml",
+  "patient_portal_coverage_review": {
+    "date": "2026-09-08",
+    "source": "https://www.postman.com/nimbo-x/nimbo-apis-public-documentation/collection/oy1s904/nimbo-patient-web-app-api",
+    "decision": "Restore all 13 customer-shared operations: 11 reviewed canonical reads and two retained authentication definitions. Add only those two operations to this legacy inventory (83 -> 85); existing entries are unchanged. Captured examples/headers are removed, paths normalized to /api/v1, and incorrect utc-millisec string formats removed. The full historical spec is not imported."
   }
 }

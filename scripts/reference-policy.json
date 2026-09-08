@@ -1,6 +1,6 @@
 {
-  "reviewed_revision": "27768e9673f6f8b714594d6f64186b2632626a26",
-  "evidence": "nimbo-api docs/endpoint-migration-status.md at reviewed_revision: published generated operations are recorded Traffic-ready and production-routed. This is recorded release evidence, not a fresh live probe.",
+  "reviewed_revision": "34f84cd24473c8e0a120253266aee10ead32f789",
+  "evidence": "Reviewed 2026-09-08: the existing 25 public definitions are semantically unchanged from the prior imported revision. Preserve prior 21 approvals and four deferrals. Patient portal coverage comes from the customer-shared Postman collection recorded in legacy-inventory.json. The 11 portal reads are Traffic-ready and production-routed in nimbo-api docs/endpoint-migration-status.md at reviewed_revision. Retain existing customer OTP definitions because replacement fidelity is incomplete; audience eligibility is independent of replacement availability. Recorded release evidence, not a fresh runtime probe.",
   "publish": [
     "listCountries",
     "getCountry",
@@ -22,13 +22,26 @@
     "listSatRatesOrFees",
     "listSatTaxRegime",
     "listSatPeriodicities",
-    "showSiteOrganization"
+    "showSiteOrganization",
+    "listPatientPortalPeople",
+    "showPatientPortalPersonOrganization",
+    "listPatientPortalPersonConsultations",
+    "listPatientPortalPersonAttachments",
+    "showPatientPortalPersonLabTests",
+    "listPatientPortalPersonPrescriptions",
+    "showPatientPortalPersonVitalSigns",
+    "showPatientPortalPersonMedicalHistory",
+    "listPatientPortalPersonConsultationSchedules",
+    "listPatientPortalPersonConsultationRequests",
+    "listPatientPortalPersonOrganizationPortals"
   ],
   "defer": {
     "getSpecialty": "Replacement contract blocked; retain the existing specialty definition.",
     "showSiteAccount": "Differential evidence pending; do not publish this new definition.",
     "showPortalAgendaLocation": "Differential evidence pending; do not publish this new definition.",
-    "showWaitingRoomBySlug": "Differential evidence pending; retain the existing waiting-room definition."
+    "showWaitingRoomBySlug": "Differential evidence pending; retain the existing waiting-room definition.",
+    "requestPatientPortalOtp": "Customer documentation eligible; replacement remains blocked and on legacy. Retain sanitized customer auth definition.",
+    "validatePatientPortalOtp": "Customer documentation eligible; replacement differential required and on legacy. Retain sanitized customer validation definition."
   },
   "duplicate_owners": {
     "GET /api/v1/consultations/{}": "legacy_nimbo_erp_get__consultations_consultation_id",
@@ -38,7 +51,9 @@
     "GET /api/v1/countries/{}/states": "listCountryStates",
     "GET /api/v1/specialties": "listSpecialties",
     "GET /api/v1/specialties/{}": "legacy_nimbo_api_get__specialties_specialty_id",
-    "GET /api/v1/waiting_rooms/waiting_room_slug": "legacy_nimbo_api_get__waiting_rooms_waiting_room_slug"
+    "GET /api/v1/waiting_rooms/waiting_room_slug": "legacy_nimbo_api_get__waiting_rooms_waiting_room_slug",
+    "POST /api/v1/patient_portal/auth": "customerPatientPortalAuth",
+    "POST /api/v1/patient_portal/validate": "customerPatientPortalValidate"
   },
   "duplicate_notes": "ERP consultation and billing report definitions include response schemas absent from the general import. The billing report also documents the status filter and an integer person identifier. Keep one definition per endpoint; input sources remain unchanged.",
   "titles": {
@@ -46,7 +61,8 @@
     "nimbo_erp.yml": "Nimbo ERP",
     "nimbo_facturacion.yml": "Nimbo billing",
     "nimbo_webhooks.yml": "Nimbo webhooks",
-    "nimbo_public.yml": "Nimbo catalogs and sites"
+    "nimbo_public.yml": "Nimbo catalogs and sites",
+    "nimbo_patient_portal_auth.yml": "Patient portal authentication"
   },
   "descriptions": {
     "listCountries": "Lists active countries. Inactive countries are excluded.",
@@ -54,6 +70,9 @@
     "listCountryStates": "Lists states for an active country in ascending ID order. Inactive countries are treated as not found.",
     "listSatMeasurementUnits": "Returns measurement units in ascending ID order, including timestamps in the America/Monterrey time zone.",
     "listSatKeyOfProductsAndServices": "Returns product and service keys in ascending ID order, including timestamps in the America/Monterrey time zone.",
-    "showSiteOrganization": "Resolves public organization branding by encoded slug or encoded custom domain, with plain slug or host fallback. Linked accounts are ordered by account ID."
+    "showSiteOrganization": "Resolves public organization branding by encoded slug or encoded custom domain, with plain slug or host fallback. Linked accounts are ordered by account ID.",
+    "listPatientPortalPeople": "Lists the non-deleted people authorized for the patient portal token, newest first. The response includes chat availability; a chat-service connection failure can cause the request to fail.",
+    "showPatientPortalPersonMedicalHistory": "Returns the medical history for an authorized patient. If no active history exists, this read creates a new medical history record.",
+    "listPatientPortalPersonOrganizationPortals": "Lists the personal booking link, eligible organization schedules, and visible telehealth waiting rooms for the authorized patient, in that order. Availability depends on the organization subscription and each portal's scheduling and visibility settings. Organization schedules and waiting rooms are ordered by ID. Appointment history does not determine eligibility."
   }
 }
