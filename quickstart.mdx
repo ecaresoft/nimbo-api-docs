@@ -1,47 +1,26 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Prepare your first request"
+sidebarTitle: "Quickstart"
+description: "Confirm integration access, choose your environment, and prepare a request to Nimbo."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+Before you start, have an approved integration use case and a contact on the Nimbo team who can confirm your access.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Confirm your integration access">
+    Describe what your software needs to read or update. Ask Nimbo to confirm the supported operations, permissions, and authentication method for that integration.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+  <Step title="Get the correct API host">
+    Use the base URL supplied for your integration and environment. The `api.example.test` host in this site's reference is a placeholder and cannot receive API requests.
 
-    ```bash
-    your-cli init
-    ```
+    Check whether your supplied base URL already includes `/api/v1` before adding an endpoint path. Include that prefix only once.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
-    ```bash
-    your-cli start
-    ```
+  <Step title="Prepare a read request">
+    Choose a supported read operation and review its parameters and authentication requirements. Use synthetic test records in your agreed test environment before working with live records.
+  </Step>
+  <Step title="Inspect the response">
+    Check the status code, response root, and fields used by your application. Treat an unexpected response as something to investigate; do not infer support from an example alone.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+Read [Authentication](/authentication) before adding credentials, and [API reference](/reference/overview) to find the endpoints for your integration.

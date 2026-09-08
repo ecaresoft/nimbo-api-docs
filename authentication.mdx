@@ -1,0 +1,24 @@
+---
+title: "Authentication"
+description: "Use the authentication method and permissions assigned to your Nimbo integration."
+---
+
+Authentication depends on the API surface you use. Confirm the credentials and permissions for your integration with Nimbo; there is no universal credential documented here that grants access to every endpoint.
+
+## Bearer authentication
+
+For operations that use HTTP bearer authentication, send the integration token in the request header:
+
+```http
+Authorization: Bearer <YOUR_INTEGRATION_TOKEN>
+```
+
+Replace the placeholder in your own secure environment. Keep integration credentials on your server and out of source control, browser code, URLs, and documentation examples.
+
+## Public reads
+
+Some catalog and site operations accept requests without authentication. Check the security and parameter requirements for each operation. Access to a public read endpoint does not grant access to protected resources.
+
+## Authentication errors
+
+Use the error responses documented for your operation. If authentication fails, check the selected environment, credential validity, and assigned permissions before retrying. Do not substitute a patient-portal token for an integration credential.

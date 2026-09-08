@@ -1,10 +1,10 @@
 ---
 openapi: 3.0.0
 info:
-  title: Nimbo billing
+  title: Nimbo Facturación
   version: 1.0.0
-  description: Nimbo API reference. Use the API host and integration access provided
-    by Nimbo.
+  description: Legacy Nimbo integration reference. Captured examples have been removed.
+    Confirm host, credentials, and supported behavior with Nimbo.
 servers:
 - url: https://api.example.test
   description: Reference only; confirm your integration host with Nimbo

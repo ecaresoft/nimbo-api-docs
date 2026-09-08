@@ -1,0 +1,31 @@
+---
+title: "API reference"
+sidebarTitle: "API reference"
+description: "Find Nimbo endpoints by functionality and review the requirements for your integration."
+---
+
+Use the **API reference** tab to browse endpoints by functionality.
+
+| Section | What you can find |
+| --- | --- |
+| Catalogs and sites | Countries, states, specialties, SAT catalogs, and organization branding. |
+| Core API | Patient management, clinical workflows, scheduling, accounts, and inventory. |
+| ERP | Consultation and invoice relationships. |
+| Billing | Invoice items and billing reports. |
+| Webhooks | Webhook configuration and operations. |
+
+## Before making requests
+
+Confirm the API host, credentials, and permissions assigned to your integration. Use each endpoint's parameters, authentication requirements, and response schema to prepare your request.
+
+The `api.example.test` host shown in code examples is a placeholder. Replace it with the host supplied by Nimbo, and include `/api/v1` only once when combining your base URL and endpoint path.
+
+## Responses and errors
+
+Check the HTTP status code before reading the response body. Response roots and fields vary by endpoint. Some definitions do not yet include every response field or error case; confirm any behavior your integration depends on with Nimbo.
+
+## OpenAPI files
+
+Download the specifications for [catalogs and sites](/openapi/nimbo_public.yml), the [core API](/openapi/nimbo_api.yml), [ERP](/openapi/nimbo_erp.yml), [billing](/openapi/nimbo_facturacion.yml), and [webhooks](/openapi/nimbo_webhooks.yml).
+
+This site provides reference pages without an interactive request runner. Make requests using your own development tools and the environment agreed for your integration.

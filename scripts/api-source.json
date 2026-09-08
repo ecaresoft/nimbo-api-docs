@@ -1,0 +1,134 @@
+{
+  "repository": "ecaresoft/nimbo-api",
+  "revision": "27768e9673f6f8b714594d6f64186b2632626a26",
+  "path": "docs/api/generated/openapi.public.yaml",
+  "sha256": "aab9bb65f8f1af93da4819ff2de2fdf55b98544fa71cbb0ddf397c0eff56b094",
+  "document_sha256": "494d50d46964dcf7893b454fcddab42b61b027feae2d1e70122a05fd6b2b7a65",
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/api/v1/countries",
+      "operationId": "listCountries"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/countries/{id}",
+      "operationId": "getCountry"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/countries/{id}/states",
+      "operationId": "listCountryStates"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/states/{id}",
+      "operationId": "getState"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/states/{id}/counties",
+      "operationId": "listStateCounties"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/specialties",
+      "operationId": "listSpecialties"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/specialties/{id}",
+      "operationId": "getSpecialty"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/currencies",
+      "operationId": "listCurrencies"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/languages",
+      "operationId": "listLanguages"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships",
+      "operationId": "listRelationships"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/identification_types/by_organizational_portal",
+      "operationId": "listOrganizationalPortalIdentificationTypes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/cfdi_uses",
+      "operationId": "listSatCfdiUses"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/measurement_units",
+      "operationId": "listSatMeasurementUnits"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/key_of_products_and_services",
+      "operationId": "listSatKeyOfProductsAndServices"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/payment_forms",
+      "operationId": "listSatPaymentForms"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/payment_methods",
+      "operationId": "listSatPaymentMethods"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/tax_types",
+      "operationId": "listSatTaxTypes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/factor_types",
+      "operationId": "listSatFactorTypes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/rates_or_fees",
+      "operationId": "listSatRatesOrFees"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/tax_regime",
+      "operationId": "listSatTaxRegime"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sat/periodicities",
+      "operationId": "listSatPeriodicities"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sites/organizations/{id}",
+      "operationId": "showSiteOrganization"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sites/accounts/{id}",
+      "operationId": "showSiteAccount"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portals/locations/agenda",
+      "operationId": "showPortalAgendaLocation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/waiting_rooms/waiting_room_slug",
+      "operationId": "showWaitingRoomBySlug"
+    }
+  ]
+}

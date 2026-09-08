@@ -3,8 +3,8 @@ openapi: 3.0.0
 info:
   title: Nimbo API
   version: 1.0.0
-  description: Nimbo API reference. Use the API host and integration access provided
-    by Nimbo.
+  description: Legacy Nimbo integration reference. Captured examples have been removed.
+    Confirm host, credentials, and supported behavior with Nimbo.
 servers:
 - url: https://api.example.test
   description: Reference only; confirm your integration host with Nimbo
@@ -808,6 +808,18 @@ paths:
       - BearerAuth: []
       operationId: legacy_nimbo_api_get__locations
       parameters: []
+  "/specialties":
+    get:
+      summary: GET /specialties
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Account Management
+      security:
+      - BearerAuth: []
+      operationId: legacy_nimbo_api_get__specialties
+      parameters: []
   "/specialties/{specialty_id}":
     get:
       summary: GET /specialties/{specialty_id}
@@ -819,6 +831,21 @@ paths:
       operationId: legacy_nimbo_api_get__specialties_specialty_id
       parameters:
       - name: specialty_id
+        in: path
+        required: true
+        schema:
+          type: string
+  "/countries/{country_id}/states":
+    get:
+      summary: GET /countries/{country_id}/states
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Account Management
+      operationId: legacy_nimbo_api_get__countries_country_id_states
+      parameters:
+      - name: country_id
         in: path
         required: true
         schema:
@@ -2630,6 +2657,21 @@ paths:
         required: true
         schema:
           type: string
+  "/consultations/{consultation_id}":
+    get:
+      summary: GET /consultations/{consultation_id}
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Consultations
+      operationId: legacy_nimbo_api_get__consultations_consultation_id
+      parameters:
+      - name: consultation_id
+        in: path
+        required: true
+        schema:
+          type: string
   "/consultation_schedules":
     post:
       summary: POST /consultation_schedules
@@ -3394,6 +3436,30 @@ paths:
       tags:
       - Consultation Schedules
       operationId: legacy_nimbo_api_get__api_v1_calendar_available_hours_organization
+  "/reports/consultation_invoice_items":
+    get:
+      summary: GET /reports/consultation_invoice_items
+      parameters:
+      - name: start
+        in: query
+        schema:
+          type: string
+      - name: end
+        in: query
+        schema:
+          type: string
+      - name: person
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+      tags:
+      - Charges
+      security:
+      - BearerAuth: []
+      operationId: legacy_nimbo_api_get__reports_consultation_invoice_items
   "/invoice_item_locations":
     get:
       summary: GET /invoice_item_locations
@@ -5349,6 +5415,91 @@ paths:
       tags:
       - Teleconsultation Waiting Room
       operationId: legacy_nimbo_api_get__waiting_rooms_waiting_room_slug
+  "/countries":
+    get:
+      summary: GET /countries
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name_en:
+                          type: string
+                        name_es:
+                          type: string
+                        abbrv:
+                          type: string
+                        links:
+                          type: object
+                          properties:
+                            states:
+                              type: string
+                        country_code:
+                          type: string
+                        default_locale:
+                          nullable: true
+                        nationality_es:
+                          type: string
+                        nationality_en:
+                          type: string
+                        default_vademecum:
+                          type: boolean
+          description: Successful response
+      operationId: legacy_nimbo_api_get__countries
+      parameters: []
+  "/countries/{country_id}":
+    get:
+      summary: GET /countries/{country_id}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  country:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name_en:
+                        type: string
+                      name_es:
+                        type: string
+                      abbrv:
+                        type: string
+                      links:
+                        type: object
+                        properties:
+                          states:
+                            type: string
+                      country_code:
+                        type: string
+                      default_locale:
+                        type: string
+                      nationality_es:
+                        type: string
+                      nationality_en:
+                        type: string
+                      default_vademecum:
+                        type: boolean
+          description: Successful response
+      operationId: legacy_nimbo_api_get__countries_country_id
+      parameters:
+      - name: country_id
+        in: path
+        required: true
+        schema:
+          type: string
 components:
   securitySchemes:
     BearerAuth:
