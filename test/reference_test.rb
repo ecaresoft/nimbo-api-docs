@@ -16,12 +16,39 @@ class ReferenceTest < Minitest::Test
   def test_one_reference_preserves_existing_definitions_for_deferred_replacements
     outputs = ApiReference.render
     ids = outputs.values.flat_map { |raw| ApiDocsSync.operations(YAML.safe_load(raw)).map { |_, _, op| op['operationId'] } }
-    assert_equal 98, ids.size
+    assert_equal 111, ids.size
     assert_includes ids, 'legacy_nimbo_api_get__specialties_specialty_id'
     assert_includes ids, 'legacy_nimbo_api_get__waiting_rooms_waiting_room_slug'
     %w[getSpecialty showSiteAccount showPortalAgendaLocation showWaitingRoomBySlug].each { |id| refute_includes ids, id }
     assert_includes ids, 'listCountryStates'
     refute_includes ids, 'legacy_nimbo_api_get__countries_country_id_states'
+  end
+
+  def test_customer_patient_portal_coverage_and_security_are_preserved
+    outputs = ApiReference.render
+    portal = YAML.safe_load(outputs.fetch('openapi/nimbo_patient_portal.yml'))
+    operations = ApiDocsSync.operations(portal)
+    assert_equal 13, operations.size
+    expected_reads = %w[listPatientPortalPeople showPatientPortalPersonOrganization
+      listPatientPortalPersonConsultations listPatientPortalPersonAttachments
+      showPatientPortalPersonLabTests listPatientPortalPersonPrescriptions
+      showPatientPortalPersonVitalSigns showPatientPortalPersonMedicalHistory
+      listPatientPortalPersonConsultationSchedules listPatientPortalPersonConsultationRequests
+      listPatientPortalPersonOrganizationPortals]
+    assert_equal (expected_reads + %w[customerPatientPortalAuth customerPatientPortalValidate]).sort,
+      operations.map { |_, _, operation| operation.fetch('operationId') }.sort
+    operations.each do |method, _, operation|
+      assert_equal(method == 'get' ? [{'PatientPortalToken'=>[]}] : [], operation.fetch('security'))
+    end
+    assert_equal 'bearer', portal.dig('components', 'securitySchemes', 'PatientPortalToken', 'scheme')
+    catalogs = YAML.safe_load(outputs.fetch('openapi/nimbo_public.yml'))
+    refute catalogs.fetch('paths').keys.any? { |path| path.include?('/patient_portal/') }
+    assert_match(/creates a new medical history/, operations.find { |_, _, op| op['operationId'] == 'showPatientPortalPersonMedicalHistory' }.last['description'])
+  end
+
+  def test_committed_reference_bytes_match_with_utf8_descriptions
+    # The patient portal schema includes the customer-visible label “Mis médicos”.
+    ApiReference.write(check: true)
   end
 
   def test_new_revision_requires_review

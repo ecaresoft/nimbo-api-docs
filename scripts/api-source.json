@@ -1,9 +1,9 @@
 {
   "repository": "ecaresoft/nimbo-api",
-  "revision": "27768e9673f6f8b714594d6f64186b2632626a26",
+  "revision": "34f84cd24473c8e0a120253266aee10ead32f789",
   "path": "docs/api/generated/openapi.public.yaml",
-  "sha256": "aab9bb65f8f1af93da4819ff2de2fdf55b98544fa71cbb0ddf397c0eff56b094",
-  "document_sha256": "494d50d46964dcf7893b454fcddab42b61b027feae2d1e70122a05fd6b2b7a65",
+  "sha256": "16b3cd1ff6a167f7372235301477ce4792ce5fc0fe48434386f431de73f6b6bf",
+  "document_sha256": "206521dcf32ca1f1d5c5a4e47fe2a3a92a06063ac1b4a7f4edf87811e769bfe3",
   "operations": [
     {
       "method": "GET",
@@ -129,6 +129,71 @@
       "method": "GET",
       "path": "/api/v1/waiting_rooms/waiting_room_slug",
       "operationId": "showWaitingRoomBySlug"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/patient_portal/auth",
+      "operationId": "requestPatientPortalOtp"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/patient_portal/validate",
+      "operationId": "validatePatientPortalOtp"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people",
+      "operationId": "listPatientPortalPeople"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/organization",
+      "operationId": "showPatientPortalPersonOrganization"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/medical_history",
+      "operationId": "showPatientPortalPersonMedicalHistory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/vital_signs",
+      "operationId": "showPatientPortalPersonVitalSigns"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/lab_tests",
+      "operationId": "showPatientPortalPersonLabTests"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/attachments",
+      "operationId": "listPatientPortalPersonAttachments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/consultations",
+      "operationId": "listPatientPortalPersonConsultations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/prescriptions",
+      "operationId": "listPatientPortalPersonPrescriptions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/consultation_schedules",
+      "operationId": "listPatientPortalPersonConsultationSchedules"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/consultation_requests",
+      "operationId": "listPatientPortalPersonConsultationRequests"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/organization_portals",
+      "operationId": "listPatientPortalPersonOrganizationPortals"
     }
   ]
 }

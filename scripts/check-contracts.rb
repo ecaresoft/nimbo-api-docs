@@ -32,7 +32,7 @@ inventory.fetch('files').each do |file, expected|
   end
   walk.call(doc)
 end
-raise 'Internal patient spec must not be published' if File.exist?(File.join(root, 'openapi/nimbo_patient_web_app.yml'))
+raise 'Unreviewed historical patient spec must not be restored' if File.exist?(File.join(root, 'openapi/nimbo_patient_web_app.yml'))
 puts "Contracts checked: #{actual.size} generated input operations; #{inventory.fetch('files').values.sum { |v| v.fetch('operations') }} legacy operations"
 
 require_relative "build-reference"

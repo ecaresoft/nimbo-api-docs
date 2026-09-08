@@ -41,6 +41,12 @@
             ]
           },
           {
+            "group": "Patient portal",
+            "pages": [
+              "guides/patient-portal"
+            ]
+          },
+          {
             "group": "Using the reference",
             "pages": [
               "reference/overview"
@@ -54,6 +60,40 @@
           {
             "group": "Catalogs and sites",
             "openapi": "openapi/nimbo_public.yml"
+          },
+          {
+            "group": "Patient portal",
+            "openapi": "openapi/nimbo_patient_portal.yml",
+            "pages": [
+              {
+                "group": "Patient authentication",
+                "pages": [
+                  "POST /api/v1/patient_portal/auth",
+                  "POST /api/v1/patient_portal/validate"
+                ]
+              },
+              {
+                "group": "Patient records",
+                "pages": [
+                  "GET /api/v1/patient_portal/people",
+                  "GET /api/v1/patient_portal/people/{person_id}/organization",
+                  "GET /api/v1/patient_portal/people/{person_id}/medical_history",
+                  "GET /api/v1/patient_portal/people/{person_id}/vital_signs",
+                  "GET /api/v1/patient_portal/people/{person_id}/lab_tests",
+                  "GET /api/v1/patient_portal/people/{person_id}/attachments",
+                  "GET /api/v1/patient_portal/people/{person_id}/consultations",
+                  "GET /api/v1/patient_portal/people/{person_id}/prescriptions"
+                ]
+              },
+              {
+                "group": "Patient appointments",
+                "pages": [
+                  "GET /api/v1/patient_portal/people/{person_id}/consultation_schedules",
+                  "GET /api/v1/patient_portal/people/{person_id}/consultation_requests",
+                  "GET /api/v1/patient_portal/people/{person_id}/organization_portals"
+                ]
+              }
+            ]
           },
           {
             "group": "Core API",

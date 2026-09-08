@@ -50,23 +50,32 @@ There is no scheduled sync or automatic tracking of API `main`.
 Readers see one API reference organized by functionality. Backend migration
 status, publication decisions, and source provenance belong in maintainer files.
 
-- `scripts/contracts/` stores the imported inputs (25 generated and
-  83 existing operation entries). Repeated migration disclaimers have been
+- `scripts/contracts/` stores the imported inputs (38 generated and
+  85 existing operation entries). Repeated migration disclaimers have been
   removed from the existing inputs; endpoint descriptions are preserved by the
   renderer. These inputs are excluded from the Mintlify site.
 - `scripts/reference-policy.json` pins the reviewed source revision, approves
-  21 generated operations using recorded Traffic-ready/production-routed
-  evidence, and defers four whose replacement fidelity remains incomplete.
+  32 generated operations using recorded Traffic-ready/production-routed
+  evidence, and defers six whose replacement fidelity remains incomplete.
   Existing specialty and waiting-room definitions remain published.
-- `scripts/build-reference.rb` generates the five served OpenAPI files with
+- `scripts/build-reference.rb` generates the six served OpenAPI files with
   customer-facing descriptions and no source/migration extensions. Explicit
   ownership resolves overlapping definitions, including ERP/billing copies.
-  Each normalized method/path has one published definition: 98 operations total.
+  Each normalized method/path has one published definition: 111 operations total.
 - ERP's consultation response schema and billing's report schema/filter details
-  are retained instead of the less complete general copies. The 83-operation
-  input inventory remains unchanged and continues to be checked.
-- The old patient-web-app spec remains excluded because its canonical contracts
-  classify it internal-only. No internal artifact is imported into this repo.
+  are retained instead of the less complete general copies. The original 83-operation
+  input inventory remains unchanged; two sanitized patient authentication
+  operations restore customer coverage, making 85 retained input entries.
+- The patient portal section restores the 13 operations in the customer-shared
+  Postman collection: 11 reviewed canonical reads and two sanitized existing OTP
+  definitions. The canonical OTP contracts are public-documentation eligible but
+  deferred because replacement fidelity is incomplete. The six other canonical
+  patient-portal operations remain internal and are not imported.
+- Documentation audience is independent of authentication, data sensitivity,
+  and LLM eligibility. The complete historical patient spec and the internal
+  bundle remain excluded; generated patient coverage comes only from the
+  committed public artifact. `scripts/legacy-inventory.json` records the exact
+  coverage additions and sanitization decisions.
 - A new source SHA requires a new publication-policy review. Public audience
   alone does not establish fidelity or availability. The recorded release
   evidence used here is not a fresh live-environment probe.

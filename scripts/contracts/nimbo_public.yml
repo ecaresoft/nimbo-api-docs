@@ -18,6 +18,8 @@ tags:
 - name: Sites
 - name: Public Portals
 - name: Telehealth
+- name: Patient Portal Auth
+- name: Patient Portal
 paths:
   "/api/v1/countries":
     get:
@@ -2042,8 +2044,1608 @@ paths:
         '404':
           description: No waiting room has the requested slug. The legacy response
             body is empty.
+  "/api/v1/patient_portal/auth":
+    post:
+      tags:
+      - Patient Portal Auth
+      operationId: requestPatientPortalOtp
+      summary: Request a patient portal OTP
+      description: Requests an OTP for a phone number associated with a non-deleted
+        patient portal person. Staging and production accept the request only after
+        Twilio accepts a WhatsApp template message or its synchronous SMS fallback.
+        Client errors use generic shapes and requests are rate limited by phone and
+        IP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - country_code
+              - phone
+              additionalProperties: true
+              properties:
+                country_code:
+                  type: string
+                  pattern: "^\\+?[0-9]+$"
+                  example: '52'
+                phone:
+                  type: string
+                  pattern: "^[0-9]+$"
+                  example: '5550100000'
+      responses:
+        '200':
+          description: OTP accepted by the configured delivery provider. The response
+            body is empty for legacy compatibility.
+        '404':
+          description: The supplied number is invalid or is not eligible for patient
+            portal authentication.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                invalid_or_unknown_number:
+                  value:
+                    error: Invalid number
+        '429':
+          description: The request rate limit for the phone or source address was
+            exceeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                rate_limited:
+                  value:
+                    error: Too many requests
+        '503':
+          description: OTP delivery or its shared rate-limit cache is unavailable.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                delivery_unavailable:
+                  value:
+                    error: OTP delivery is unavailable
+  "/api/v1/patient_portal/validate":
+    post:
+      tags:
+      - Patient Portal Auth
+      operationId: validatePatientPortalOtp
+      summary: Validate a patient portal OTP
+      description: Validates an OTP and returns a patient portal JWT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - country_code
+              - phone
+              - code
+              additionalProperties: true
+              properties:
+                country_code:
+                  type: string
+                  pattern: "^\\+?[0-9]+$"
+                  example: '52'
+                phone:
+                  type: string
+                  pattern: "^[0-9]+$"
+                  example: '5550100000'
+                code:
+                  type: string
+                  pattern: "^[0-9]{4}$"
+                  example: '0000'
+      responses:
+        '200':
+          description: JWT issued after replacing token associations with non-deleted
+            matching people.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - token
+                additionalProperties: false
+                properties:
+                  token:
+                    type: string
+                    description: Patient portal JWT.
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: Invalid number.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        '429':
+          description: The validation-attempt rate limit for the phone or source address
+            was exceeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                rate_limited:
+                  value:
+                    error: Too many requests
+        '503':
+          description: The shared rate-limit cache is missing, invalid, or unavailable.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                cache_unavailable:
+                  value:
+                    error: OTP delivery is unavailable
+  "/api/v1/patient_portal/people":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPeople
+      summary: List people attached to the current patient token
+      description: Lists non-deleted people attached to the authenticated patient
+        token. For chat-entitled organizations, each summary performs the legacy Firebase
+        chatrooms read. Firebase transport failures abort the response instead of
+        being converted to rooms=false.
+      security:
+      - PatientPortalToken: []
+      responses:
+        '200':
+          description: Non-deleted people available to the patient token, newest created
+            first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - people
+                additionalProperties: false
+                properties:
+                  people:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - full_name
+                      - organization_name
+                      - doctor_name
+                      - telephone2
+                      - rooms
+                      - avatar_url_large
+                      - born_at
+                      - gender
+                      - medical_history_config
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        full_name:
+                          type: string
+                          example: Demo Patient
+                        organization_name:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_name:
+                          type: string
+                        telephone2:
+                          type:
+                          - string
+                          - 'null'
+                        rooms:
+                          type: boolean
+                          description: True only when the person's organization has
+                            the shared chat entitlement and Firebase returns a non-null
+                            chatrooms node. Missing or deleted nodes and organizations
+                            without the entitlement return false.
+                        avatar_url_large:
+                          type: string
+                          description: One-hour legacy Paperclip avatar URL, or an
+                            empty string when no avatar exists.
+                          example: https://synthetic-patient-assets.example.test/people/avatars/000/001/001/large/avatar.png
+                        born_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date
+                        gender:
+                          type:
+                          - string
+                          - 'null'
+                        medical_history_config:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties: true
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '500':
+          description: Firebase could not be reached while resolving chat rooms for
+            an entitled patient. The error body is runtime-dependent, matching the
+            legacy unhandled transport-failure behavior.
+  "/api/v1/patient_portal/people/{person_id}/organization":
+    get:
+      tags:
+      - Patient Portal
+      operationId: showPatientPortalPersonOrganization
+      summary: Show an authorized patient's public organization
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Public organization data visible for the authorized patient.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - public_organization
+                additionalProperties: false
+                properties:
+                  public_organization:
+                    type: object
+                    required:
+                    - id
+                    - name
+                    - owner_id
+                    - tax_name
+                    - tax_rfc
+                    - tax_address_one
+                    - tax_address_two
+                    - tax_zip_code
+                    - tax_exterior_number
+                    - tax_interior_number
+                    - tax_city
+                    - tax_state
+                    - tax_country
+                    - kind
+                    - slug
+                    - username
+                    - telehealth_request_slug
+                    - slug_organization_portal
+                    - options
+                    - logo
+                    - waiting_room_configuration
+                    - owner_country_code
+                    - validations
+                    - insurance_company_required
+                    - landing_page_info
+                    - subscription_expired
+                    - available_chat
+                    - patient_portal_chat_disabled
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type:
+                        - string
+                        - 'null'
+                      owner_id:
+                        type:
+                        - integer
+                        - 'null'
+                      tax_name:
+                        type:
+                        - string
+                        - 'null'
+                      tax_rfc:
+                        type:
+                        - string
+                        - 'null'
+                      tax_address_one:
+                        type:
+                        - string
+                        - 'null'
+                      tax_address_two:
+                        type:
+                        - string
+                        - 'null'
+                      tax_zip_code:
+                        type:
+                        - string
+                        - 'null'
+                      tax_exterior_number:
+                        type:
+                        - string
+                        - 'null'
+                      tax_interior_number:
+                        type:
+                        - string
+                        - 'null'
+                      tax_city:
+                        type:
+                        - string
+                        - 'null'
+                      tax_state:
+                        type:
+                        - string
+                        - 'null'
+                      tax_country:
+                        type:
+                        - string
+                        - 'null'
+                      kind:
+                        type:
+                        - string
+                        - 'null'
+                      slug:
+                        type:
+                        - string
+                        - 'null'
+                      username:
+                        type:
+                        - string
+                        - 'null'
+                      telehealth_request_slug:
+                        type:
+                        - string
+                        - 'null'
+                      slug_organization_portal:
+                        type:
+                        - string
+                        - 'null'
+                        example: demo-main
+                      options:
+                        type: object
+                        additionalProperties: true
+                      logo:
+                        type: string
+                        example: https://s3.amazonaws.com/synthetic-assets/images/images/000/000/789/medium/clinic-logo.png
+                      waiting_room_configuration:
+                        type: object
+                        additionalProperties: true
+                      owner_country_code:
+                        type:
+                        - string
+                        - 'null'
+                        example: "+52"
+                      validations:
+                        type:
+                        - object
+                        - 'null'
+                        additionalProperties: true
+                      insurance_company_required:
+                        type: boolean
+                      landing_page_info:
+                        type: object
+                        additionalProperties: true
+                      subscription_expired:
+                        type:
+                        - boolean
+                        - 'null'
+                      available_chat:
+                        type:
+                        - boolean
+                        - 'null'
+                      patient_portal_chat_disabled:
+                        type: boolean
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/medical_history":
+    get:
+      tags:
+      - Patient Portal
+      operationId: showPatientPortalPersonMedicalHistory
+      summary: Show or create an authorized patient's medical history
+      description: 'Returns the configured patient-portal medical history record shape.
+        For legacy compatibility, the endpoint treats a deleted history as missing
+        and creates a new history for an authorized non-deleted patient.
+
+        '
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Medical history visible to the authorized patient.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - medical_history
+                additionalProperties: false
+                properties:
+                  medical_history:
+                    type: object
+                    required:
+                    - records
+                    - editable
+                    - id
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: integer
+                      editable:
+                        type: boolean
+                      records:
+                        type: object
+                        additionalProperties: true
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/vital_signs":
+    get:
+      tags:
+      - Patient Portal
+      operationId: showPatientPortalPersonVitalSigns
+      summary: Show merged patient-facing vital signs
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Non-deleted vital-sign sets merged in created-at ascending
+            order.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - vital_signs
+                  additionalProperties: false
+                  properties:
+                    vital_signs:
+                      type: object
+                      required:
+                      - id
+                      - consultation_id
+                      - person_id
+                      - account_id
+                      - elements
+                      - created_at
+                      - updated_at
+                      - deleted_at
+                      - set_type
+                      - metadata
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        consultation_id:
+                          type:
+                          - integer
+                          - 'null'
+                        person_id:
+                          type: integer
+                        account_id:
+                          type:
+                          - integer
+                          - 'null'
+                        elements:
+                          type: object
+                          additionalProperties: true
+                        created_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        updated_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        deleted_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        set_type:
+                          type:
+                          - string
+                          - 'null'
+                        metadata:
+                          type: object
+                          additionalProperties: true
+                - type: 'null'
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/lab_tests":
+    get:
+      tags:
+      - Patient Portal
+      operationId: showPatientPortalPersonLabTests
+      summary: Show patient-facing lab test results
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Earliest non-deleted result from the newest non-deleted consultation,
+            or an empty list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - lab_tests
+                additionalProperties: false
+                properties:
+                  lab_tests:
+                    oneOf:
+                    - type: object
+                      required:
+                      - id
+                      - consultation_id
+                      - elements
+                      - created_at
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        consultation_id:
+                          type: integer
+                        elements:
+                          type: object
+                          additionalProperties: true
+                        created_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                    - type: array
+                      items:
+                        type: object
+                        additionalProperties: true
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/attachments":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPersonAttachments
+      summary: List patient-shared medical history attachments
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Non-deleted attachments explicitly shared below a non-deleted
+            medical-history parent, ordered by ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - attachments
+                additionalProperties: false
+                properties:
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - attachment_file_name
+                      - attachment_file_name_alias
+                      - consultation_id
+                      - attachment_content_type
+                      - medical_history_id
+                      - attachment_file_url
+                      - attachment_file_size
+                      - created_at
+                      - updated_at
+                      - updater_name
+                      - metadata
+                      - attachment_file_original_url
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        attachment_file_name:
+                          type:
+                          - string
+                          - 'null'
+                        attachment_file_name_alias:
+                          type:
+                          - string
+                          - 'null'
+                        consultation_id:
+                          type:
+                          - integer
+                          - 'null'
+                        attachment_content_type:
+                          type:
+                          - string
+                          - 'null'
+                        medical_history_id:
+                          type: integer
+                        attachment_file_url:
+                          type: string
+                        attachment_file_original_url:
+                          type: string
+                        attachment_file_size:
+                          type:
+                          - integer
+                          - 'null'
+                        created_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        updated_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        updater_name:
+                          type: string
+                        metadata:
+                          type: object
+                          additionalProperties: true
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/consultations":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPersonConsultations
+      summary: List authorized patient consultations
+      description: Returns consultation-history membership independently of booking
+        eligibility. Each summary keeps its historical physician and exposes doctor_active
+        so consumers can omit inactive physicians from "Mis médicos" without deleting
+        clinical history. url_portal is non-null only when that physician is active,
+        has a username and present schedule configuration, and has use_portal exactly
+        true (missing defaults to true).
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+        example: 1
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 10
+        example: 10
+      responses:
+        '200':
+          description: Paginated non-deleted consultations ordered by starts_at descending.
+            Private causes are masked. Inactive physicians remain in consultation
+            history with doctor_active false and url_portal null; consumers omit them
+            only from physician-card membership.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - consultations
+                - meta
+                additionalProperties: false
+                properties:
+                  consultations:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - cause
+                      - starts_at
+                      - doctor_name
+                      - doctor_speciality_es
+                      - doctor_speciality_en
+                      - organization_name
+                      - doctor_speciality
+                      - doctor_active
+                      - url_portal
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        cause:
+                          type:
+                          - string
+                          - 'null'
+                        starts_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        doctor_name:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_speciality_es:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_speciality_en:
+                          type:
+                          - string
+                          - 'null'
+                        organization_name:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_speciality:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_active:
+                          type: boolean
+                          description: Whether the historical physician account is
+                            active. Consumers use this field to exclude inactive physicians
+                            from "Mis médicos" while retaining the consultation in
+                            clinical history.
+                        url_portal:
+                          type:
+                          - string
+                          - 'null'
+                          description: Personal booking URL when the historical physician
+                            is active, has a username and present schedule configuration,
+                            and has use_portal exactly true (missing defaults to true);
+                            otherwise null. Null does not remove the physician's consultation
+                            summary from history.
+                  meta:
+                    type: object
+                    required:
+                    - total_pages
+                    additionalProperties: false
+                    properties:
+                      total_pages:
+                        type: integer
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/prescriptions":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPersonPrescriptions
+      summary: List authorized patient prescriptions
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Prescriptions from non-deleted consultations ordered by starts_at
+            descending, using the legacy instrucctions spelling.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - prescriptions
+                additionalProperties: false
+                properties:
+                  prescriptions:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - doctor
+                      - date
+                      - instrucctions
+                      - drugs
+                      additionalProperties: false
+                      properties:
+                        doctor:
+                          type:
+                          - string
+                          - 'null'
+                        date:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        instrucctions:
+                          type:
+                          - string
+                          - 'null'
+                        drugs:
+                          type: array
+                          items:
+                            type: object
+                            required:
+                            - name
+                            - dose
+                            - frequency
+                            - duration
+                            additionalProperties: false
+                            properties:
+                              name:
+                                type:
+                                - string
+                                - 'null'
+                              dose:
+                                type:
+                                - string
+                                - 'null'
+                              frequency:
+                                type:
+                                - string
+                                - 'null'
+                              duration:
+                                type:
+                                - string
+                                - 'null'
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/consultation_schedules":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPersonConsultationSchedules
+      summary: List authorized patient consultation schedules
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+        example: 1
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 10
+        example: 10
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - unstarted
+        example: unstarted
+      responses:
+        '200':
+          description: Paginated non-deleted upcoming schedules ordered by starts_at
+            ascending, or descending for state=unstarted.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - consultation_schedules
+                - meta
+                additionalProperties: false
+                properties:
+                  consultation_schedules:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - cause
+                      - starts_at
+                      - ends_at
+                      - doctor_name
+                      - doctor_image
+                      - organization_name
+                      - patient_name
+                      - schedule_type
+                      - status
+                      - can_confirm_schedule
+                      - can_cancel_schedule
+                      - doctor_speciality
+                      - doctor_speciality_es
+                      - doctor_speciality_en
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        cause:
+                          type:
+                          - string
+                          - 'null'
+                        starts_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        ends_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        doctor_name:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_image:
+                          type: string
+                        organization_name:
+                          type:
+                          - string
+                          - 'null'
+                        patient_name:
+                          type: string
+                        schedule_type:
+                          type:
+                          - string
+                          - 'null'
+                        status:
+                          type:
+                          - string
+                          - 'null'
+                        can_confirm_schedule:
+                          type: boolean
+                        can_cancel_schedule:
+                          type: boolean
+                        doctor_speciality:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_speciality_es:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_speciality_en:
+                          type:
+                          - string
+                          - 'null'
+                  meta:
+                    type: object
+                    required:
+                    - total_pages
+                    additionalProperties: false
+                    properties:
+                      total_pages:
+                        type: integer
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/consultation_requests":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPersonConsultationRequests
+      summary: List authorized patient consultation requests
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Pending matching consultation requests for the authorized patient.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - consultation_requests
+                additionalProperties: false
+                properties:
+                  consultation_requests:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - starts_at
+                      - cause
+                      - doctor_name
+                      - doctor_image
+                      - organization_name
+                      - patient_name
+                      - schedule_type
+                      - status
+                      - request_type
+                      additionalProperties: false
+                      properties:
+                        id:
+                          type: integer
+                        starts_at:
+                          type:
+                          - string
+                          - 'null'
+                          format: date-time
+                        cause:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_name:
+                          type:
+                          - string
+                          - 'null'
+                        doctor_image:
+                          type: string
+                        organization_name:
+                          type:
+                          - string
+                          - 'null'
+                        patient_name:
+                          type: string
+                        schedule_type:
+                          type:
+                          - string
+                          - 'null'
+                        status:
+                          type:
+                          - string
+                          - 'null'
+                        request_type:
+                          type:
+                          - string
+                          - 'null'
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+  "/api/v1/patient_portal/people/{person_id}/organization_portals":
+    get:
+      tags:
+      - Patient Portal
+      operationId: listPatientPortalPersonOrganizationPortals
+      summary: List organization portals available to an authorized patient
+      description: Returns API-eligible personal, organization-schedule, and telehealth
+        waiting-room entries in that order. The single personal entry represents the
+        authorized person's selected account; historical consultation physicians are
+        not aggregated into this response. That selected account requires a username,
+        a present account.configuration.schedule value, and account.configuration.use_portal
+        equal to true; a missing use_portal value defaults to true. Each organization
+        schedule requires configuration.public_scheduling_enabled equal to true (missing
+        defaults to true), configuration.show_in_web_app_patient exactly true, and
+        its own non-empty slug. No main/default schedule is required. A waiting room
+        is returned from the organization's active WaitingRoom records only when its
+        own waiting_room_configuration.show_in_web_app_patient is exactly true and
+        it has a non-empty slug. Staffing rows in waiting_room_accounts do not authorize
+        patient visibility. The organization Agenda Pro subscription still applies;
+        telehealth_waiting_room Flipper state does not affect waiting-room membership.
+        Appointment history does not affect eligibility. Eligible organization schedules
+        and waiting rooms are each ordered by ID; schedule values are numbered contiguously.
+      security:
+      - PatientPortalToken: []
+      parameters:
+      - name: person_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 123
+      responses:
+        '200':
+          description: Patient and organization portal links.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - organization_portals
+                additionalProperties: false
+                properties:
+                  organization_portals:
+                    type: array
+                    items:
+                      oneOf:
+                      - type: object
+                        description: The selected account's personal booking link.
+                          Historical consultation physicians are not aggregated here.
+                          Returned only when the account username and schedule configuration
+                          are present and use_portal is true, with a missing use_portal
+                          value defaulting to true.
+                        required:
+                        - name
+                        - value
+                        - url
+                        additionalProperties: false
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                            enum:
+                            - personalPortal
+                          url:
+                            type: string
+                            example: https://patients.example.test/c/demo-doctor
+                      - type: object
+                        description: Clinic or group scheduling link that has its
+                          own non-empty slug and passed both API-owned visibility
+                          predicates. Eligibility does not depend on the organization's
+                          main/default schedule or on another portal category. The
+                          complete stored configuration remains in the payload.
+                        required:
+                        - name
+                        - value
+                        - url
+                        - configuration
+                        additionalProperties: false
+                        properties:
+                          name:
+                            type: string
+                            example: Main portal
+                          value:
+                            type: string
+                            pattern: "^organizationPortal[1-9][0-9]*$"
+                            example: organizationPortal1
+                          url:
+                            type: string
+                            example: https://patients.example.test/op/demo-main
+                          configuration:
+                            type: object
+                            description: Stored schedule configuration. Returned entries
+                              have public_scheduling_enabled true or missing and show_in_web_app_patient
+                              exactly true.
+                            additionalProperties: true
+                      - type: object
+                        description: An active telehealth WaitingRoom returned when
+                          the room has a non-empty slug and its own configuration
+                          has show_in_web_app_patient exactly true, in addition to
+                          the organization Agenda Pro subscription. The released feature
+                          no longer depends on telehealth_waiting_room Flipper state.
+                          waiting_room_accounts describes room operators and does
+                          not authorize patient visibility. The room's stored name
+                          and slug produce the display name and URL.
+                        required:
+                        - name
+                        - value
+                        - url
+                        additionalProperties: false
+                        properties:
+                          name:
+                            type: string
+                            example: Teleconsulta sin cita
+                          value:
+                            type: string
+                            enum:
+                            - waitingRoom
+                          url:
+                            type: string
+                            example: https://patients.example.test/o/demo-video
+        '401':
+          description: Missing, expired, invalid, or unauthorized patient portal token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                unauthorized:
+                  value:
+                    error: Unauthorized
+        '404':
+          description: The requested resource was not found or is outside the authorized
+            patient scope.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_found:
+                  value:
+                    error: Not found
+components:
+  securitySchemes:
+    PatientPortalToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Patient portal JWT accepted either as a raw Authorization header
+        value or as a Bearer token for legacy client compatibility.
+
+        '
 x-nimbo-source:
   repository: ecaresoft/nimbo-api
-  revision: 27768e9673f6f8b714594d6f64186b2632626a26
+  revision: 34f84cd24473c8e0a120253266aee10ead32f789
   path: docs/api/generated/openapi.public.yaml
-  sha256: aab9bb65f8f1af93da4819ff2de2fdf55b98544fa71cbb0ddf397c0eff56b094
+  sha256: 16b3cd1ff6a167f7372235301477ce4792ce5fc0fe48434386f431de73f6b6bf

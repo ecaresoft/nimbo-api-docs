@@ -63,6 +63,22 @@ module ApiReference
       [File.join('openapi', file), YAML.dump(document)]
     end
     owners.each { |route, id| raise "Selected definition missing: #{route}" unless seen[route] == id }
+    # Keep the patient session API together without changing canonical inputs.
+    public_file = File.join('openapi', 'nimbo_public.yml')
+    auth_file = File.join('openapi', 'nimbo_patient_portal_auth.yml')
+    public_doc = YAML.safe_load(outputs.fetch(public_file))
+    portal = YAML.safe_load(outputs.delete(auth_file))
+    portal['openapi'] = public_doc.fetch('openapi')
+    portal['info']['title'] = 'Nimbo patient portal'
+    public_doc['paths'].keys.grep(%r{\A/api/v1/patient_portal/}).each do |path|
+      raise "Duplicate portal path: #{path}" if portal['paths'].key?(path)
+      portal['paths'][path] = public_doc['paths'].delete(path)
+    end
+    portal['components'] = public_doc.delete('components') if public_doc['components']
+    portal['tags'] = [{'name'=>'Patient Portal'}, {'name'=>'Patient portal authentication'}]
+    public_doc['tags'] = public_doc.fetch('tags', []).reject { |tag| tag['name'].start_with?('Patient Portal') }
+    outputs[public_file] = YAML.dump(public_doc)
+    outputs[File.join('openapi', 'nimbo_patient_portal.yml')] = YAML.dump(portal)
     outputs
   end
 
@@ -70,7 +86,7 @@ module ApiReference
     render.each do |path, content|
       target = File.join(ROOT, path)
       if check
-        raise "Rendered reference drift: #{path}" unless File.binread(target) == content
+        raise "Rendered reference drift: #{path}" unless File.binread(target) == content.b
       else
         File.write(target, content)
       end
