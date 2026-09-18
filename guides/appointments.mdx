@@ -1,0 +1,45 @@
+---
+title: "Schedule an appointment"
+description: "Find availability, create an appointment, and retrieve its saved details."
+---
+
+Start with an integration token, an authorized treating account, and a [patient ID](/guides/patients). Confirm scheduling access and use synthetic test records.
+
+## Look up availability
+
+Use `GET /calendar/available_hours` for an account, with the documented `from`, `to`, `monthly`, and `account` parameters. Organization-portal availability uses `/api/v1/calendar/available_hours_organization` and a `slug` parameter; include `/api/v1` only once when constructing that URL.
+
+Check the endpoint response before choosing a time. An availability lookup does not reserve the slot.
+
+## Create the appointment
+
+Send [`POST /consultation_schedules`](/api-reference/schedules/post-consultation_schedules). Replace the synthetic IDs and choose a date and UTC offset appropriate for the appointment location.
+
+```json
+{
+  "consultation_schedule": {
+    "cause": "Example follow-up",
+    "starts_at": "2027-02-10T09:00:00-06:00",
+    "ends_at": "2027-02-10T09:30:00-06:00",
+    "schedule_type": "appointment",
+    "reminder": false,
+    "sms_reminder": false,
+    "metadata": {
+      "share_payment_link": false,
+      "send_payment_link": false
+    },
+    "person_id": "2001",
+    "account_id": "1001"
+  }
+}
+```
+
+This example does not set a price. Confirm the price units and any required commercial configuration before adding one. Set reminder and payment-link options intentionally for your integration.
+
+## Check the saved appointment
+
+On HTTP `201`, retain `consultation_schedule.id`. Retrieve it using `GET /consultation_schedules/{consultation_schedule_id}` and check the saved times and patient association. The reference also includes update and delete operations; deletion changes the saved schedule and is not just dismissal of a local UI item.
+
+If the create response is lost, check the saved state before retrying to avoid duplicate appointments. Blocked intervals also use schedule operations, but do not assume the appointment example is a valid blocked-interval request.
+
+Find these operations under **Appointments** in the [Browse endpoints](/reference/overview) and [core specification](/openapi/nimbo_api.yml).

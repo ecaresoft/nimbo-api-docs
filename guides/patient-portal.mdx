@@ -1,0 +1,52 @@
+---
+title: "Build a patient portal"
+description: "Verify a phone number and read records for people authorized by a patient portal session."
+---
+
+Patient portal authentication is separate from integration OAuth. Use the API host approved for your integration and an approved test phone for verification. All paths below are relative to `NIMBO_API_BASE_URL`, including `/api/v1`.
+
+## Request and validate a code
+
+Send [`POST /patient_portal/auth`](/api-reference/patient-portal-authentication/request-a-patient-portal-otp) with the phone's country calling code and number. These strings are placeholders, not a usable phone number.
+
+```json
+{
+  "country_code": "<COUNTRY_CALLING_CODE>",
+  "phone": "<TEST_PHONE>"
+}
+```
+
+Collect the code received by the patient, then send [`POST /patient_portal/validate`](/api-reference/patient-portal-authentication/validate-a-patient-portal-otp) with the same phone details:
+
+```json
+{
+  "country_code": "<COUNTRY_CALLING_CODE>",
+  "phone": "<TEST_PHONE>",
+  "code": "<ONE_TIME_CODE>"
+}
+```
+
+The successful validation response contains `token`. Keep it private and use it as the bearer token on patient-portal reads. Do not substitute an integration OAuth token or assume the portal token supports OAuth refresh.
+
+## Select an authorized person
+
+Call `GET /patient_portal/people` with `Authorization: Bearer <PATIENT_PORTAL_TOKEN>`. A phone can be linked to multiple patient identities. Let the patient select the appropriate returned person and use that person's ID in subsequent requests; do not assume that any known patient ID is authorized.
+
+## Retrieve records and booking links
+
+| Need | Path after `/patient_portal/people/{person_id}` |
+| --- | --- |
+| Organization profile | `/organization` |
+| Clinical visits | `/consultations` (supports `page`) |
+| Files, lab tests, prescriptions | `/attachments`, `/lab_tests`, `/prescriptions` |
+| Vital signs and history | `/vital_signs`, `/medical_history` |
+| Appointments and requests | `/consultation_schedules`, `/consultation_requests` |
+| Available booking portals | `/organization_portals` |
+
+Consult each response schema rather than assuming these endpoints return the same envelope. Booking links depend on the organization's subscription and visibility settings.
+
+<Note>
+  Reading `/medical_history` creates a medical-history record if no active record exists. Avoid speculative prefetching of that endpoint.
+</Note>
+
+All 13 operations are grouped under **Patient portal** in the [Browse endpoints](/reference/overview) and the [patient portal specification](/openapi/nimbo_patient_portal.yml).

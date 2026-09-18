@@ -37,11 +37,22 @@
             "pages": [
               "index",
               "quickstart",
-              "authentication"
+              "authentication",
+              "guides/request-conventions"
             ]
           },
           {
-            "group": "Using the reference",
+            "group": "Integration workflows",
+            "pages": [
+              "guides/patients",
+              "guides/appointments",
+              "guides/patient-portal",
+              "guides/billing",
+              "guides/webhooks"
+            ]
+          },
+          {
+            "group": "Explore the API",
             "pages": [
               "reference/overview"
             ]
@@ -49,7 +60,7 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API endpoints",
         "groups": [
           {
             "group": "Patients",

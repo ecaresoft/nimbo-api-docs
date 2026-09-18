@@ -220,18 +220,63 @@ paths:
                       type: string
                     born_at:
                       type: string
+                      format: date
                     gender:
                       type: string
+                      description: Patient gender value; confirm the values supported
+                        by your integration.
                     phone_country_id:
                       type: string
+                      description: Country catalog ID for the mobile number; required
+                        unless without_cellphone is true.
                     telephone2:
                       type: string
+                      description: Mobile number; required unless without_cellphone
+                        is true. Validated for the selected phone country.
                     email:
                       type: string
+                      description: May be blank. A supplied email must be valid.
                     account_id:
                       type: string
+                    without_cellphone:
+                      type: boolean
+                      description: Set to true when the patient has no mobile phone.
+                    send_welcome_email:
+                      type: boolean
+                      description: Welcome-email option; this field does not establish
+                        delivery or consent.
+                    address_state_id:
+                      type: string
+                      description: State ID from the geography catalog.
+                    patient_group_ids:
+                      type: array
+                      items:
+                        type: integer
+                      description: Group IDs from the treating account patient-groups
+                        catalog.
+                    person_attributes:
+                      type: object
+                      properties:
+                        send_reminders:
+                          type: boolean
+                          description: Patient reminder preference.
+                        identity_number:
+                          type: string
+                          description: Patient identity value; country-specific validation
+                            applies.
+                  required:
+                  - first_name
+                  - last_name
+                  - gender
+                  - account_id
+              required:
+              - person
+        required: true
       operationId: legacy_nimbo_api_post__people
       parameters: []
+      description: Creates a patient for an authorized treating account. A mobile
+        number and phone country are required unless without_cellphone is true. Additional
+        validation can depend on the organization country and patient configuration.
   "/people/{person_id}":
     put:
       summary: PUT /people/{person_id}
@@ -2730,7 +2775,6 @@ paths:
                           type: boolean
                     person_id:
                       type: string
-                      format: color
                     account_id:
                       type: string
       operationId: legacy_nimbo_api_post__consultation_schedules
@@ -4625,10 +4669,83 @@ paths:
                   created_at:
                     type: integer
           description: Successful response
+        '403':
+          description: Authentication can require an additional verification step.
+            A two-factor challenge includes token_type set to 2fa, expires_in, and
+            otp. Confirm the supported account authentication flow with Nimbo.
       tags:
       - Authentication
       operationId: legacy_nimbo_api_post__oauth_token
       parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                required:
+                - grant_type
+                - username
+                - password
+                properties:
+                  grant_type:
+                    type: string
+                    enum:
+                    - password
+                  username:
+                    type: string
+                    description: Account email address.
+                  password:
+                    type: string
+                    format: password
+              - type: object
+                required:
+                - grant_type
+                - refresh_token
+                properties:
+                  grant_type:
+                    type: string
+                    enum:
+                    - refresh_token
+                  refresh_token:
+                    type: string
+                    description: Refresh token from a successful token response.
+          multipart/form-data:
+            schema:
+              oneOf:
+              - type: object
+                required:
+                - grant_type
+                - username
+                - password
+                properties:
+                  grant_type:
+                    type: string
+                    enum:
+                    - password
+                  username:
+                    type: string
+                    description: Account email address.
+                  password:
+                    type: string
+                    format: password
+              - type: object
+                required:
+                - grant_type
+                - refresh_token
+                properties:
+                  grant_type:
+                    type: string
+                    enum:
+                    - refresh_token
+                  refresh_token:
+                    type: string
+                    description: Refresh token from a successful token response.
+      description: Exchanges approved account credentials or a refresh token for integration
+        tokens. Use the returned expires_in value. Accounts requiring two-factor authentication
+        can return a 403 challenge instead of access tokens.
+      security: []
   "/telehealth_waiting_rooms":
     post:
       summary: POST /telehealth_waiting_rooms

@@ -1,24 +1,24 @@
 ---
-title: "API reference"
-sidebarTitle: "API reference"
+title: "Browse API endpoints"
+sidebarTitle: "Browse endpoints"
 description: "Find Nimbo endpoints by functionality and review the requirements for your integration."
 ---
 
-Use the **API reference** tab to browse endpoints by functionality.
+Choose a section below to open its endpoint documentation. Each link opens a starting endpoint in the **API endpoints** tab, where you can browse related operations in the sidebar.
 
 | Section | What you can find |
 | --- | --- |
-| Patients | Patient records, groups, custom fields, and forms. |
-| Appointments | Scheduling, availability, and appointment notifications. |
-| Clinical records | Consultations, prescriptions, lab and procedure orders, histories, notes, and vital signs. |
-| Patient portal | Patient authentication, authorized records, appointments, and portal links. |
-| Charges and invoicing | Charges, invoices, CFDI signing and downloads, invoice email, and billing reports. |
-| Inventory | Invoice items and inventory transactions. |
-| Telehealth | Waiting rooms and patient entry checks. |
-| Authentication and accounts | Integration authentication, accounts, organizations, locations, and invitations. |
-| Webhooks | Credentials, subscriptions, and the event catalog. |
-| Sites | Public organization branding. |
-| Catalogs | Geography, specialties, identification types, and SAT catalogs. |
+| [Patients](/api-reference/patient-management/post-people) | Patient records, groups, custom fields, and forms. |
+| [Appointments](/api-reference/schedules/post-consultation_schedules) | Scheduling, availability, and appointment notifications. |
+| [Clinical records](/api-reference/consultations/get-consultations) | Consultations, prescriptions, lab and procedure orders, histories, notes, and vital signs. |
+| [Patient portal](/api-reference/patient-portal-authentication/request-a-patient-portal-otp) | Patient authentication, authorized records, appointments, and portal links. |
+| [Charges and invoicing](/api-reference/charges/post-invoices) | Charges, invoices, CFDI signing and downloads, invoice email, and billing reports. |
+| [Inventory](/api-reference/inventory-management/post-invoice_items) | Invoice items and inventory transactions. |
+| [Telehealth](/api-reference/teleconsultation-waiting-room/get-waiting_rooms) | Waiting rooms and patient entry checks. |
+| [Authentication and accounts](/api-reference/authentication/post-oauthtoken) | Integration authentication, accounts, organizations, locations, and invitations. |
+| [Webhooks](/api-reference/post-webhooks) | Credentials, subscriptions, emitted events, and delivery logs. |
+| [Sites](/api-reference/sites/show-public-organization-branding) | Public organization branding. |
+| [Catalogs](/api-reference/countries/list-countries) | Geography, specialties, identification types, and SAT catalogs. |
 
 ## Before making requests
 
@@ -35,3 +35,7 @@ Check the HTTP status code before reading the response body. Response roots and 
 Download the specifications for [catalogs and sites](/openapi/nimbo_public.yml), the [core API](/openapi/nimbo_api.yml), [ERP](/openapi/nimbo_erp.yml), [billing](/openapi/nimbo_facturacion.yml), [patient portal](/openapi/nimbo_patient_portal.yml), and [webhooks](/openapi/nimbo_webhooks.yml).
 
 This site provides reference pages without an interactive request runner. Make requests using your own development tools and the environment agreed for your integration.
+
+## Integration workflows
+
+Use the guides to connect individual operations into a workflow: [patients](/guides/patients), [appointments](/guides/appointments), [patient portal](/guides/patient-portal), [charges and invoicing](/guides/billing), and [webhooks](/guides/webhooks). Read [Request conventions](/guides/request-conventions) for shared guidance and endpoint-specific exceptions.

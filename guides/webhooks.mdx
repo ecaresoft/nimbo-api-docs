@@ -1,0 +1,57 @@
+---
+title: "Receive webhook events"
+sidebarTitle: "Webhooks"
+description: "Register an event subscription and inspect delivery records using the webhook service."
+---
+
+## Prepare access and your callback
+
+Obtain an integration access token from the Nimbo API host using [Authentication](/authentication). Webhook management uses a **separate host**, supplied by Nimbo as `NIMBO_WEBHOOKS_BASE_URL`. Do not send the OAuth request to that host just because the webhook reference also lists `/oauth/token`.
+
+Prepare an HTTPS callback and confirm the topic prefix and events enabled for your organization. Keep the shared secret private. The callback verification algorithm, retry schedule, and delivery-order guarantees need confirmation with Nimbo before relying on them in production.
+
+## Register a subscription
+
+Send [`POST /webhooks`](/api-reference/post-webhooks) to the webhook-management host. This JSON uses placeholders; replace every placeholder and the example callback URL in your own environment.
+
+```json
+{
+  "url": "https://integration.example.test/nimbo/events",
+  "topic": "<ASSIGNED_TOPIC_PREFIX>.patient",
+  "event_name": "patient-created",
+  "authentication_data": {
+    "secret": "<SHARED_SECRET>"
+  },
+  "nimbo_access_token": "<INTEGRATION_ACCESS_TOKEN>"
+}
+```
+
+The subscription request carries `nimbo_access_token` in its body. Read operations document bearer authentication; check each operation instead of assuming one authentication placement for the entire service.
+
+## Choose an event
+
+These names appear in the integration guide. Confirm availability and your assigned topic prefix before subscribing. A suffix alone is not a complete topic.
+
+| Topic suffix | Event names |
+| --- | --- |
+| `account` | `created`, `updated` |
+| `invoice-item` | `invoice-item-created`, `invoice-item-updated`, `invoice-item-deleted` |
+| `prescription` | `prescription-created`, `prescription-cancel`, `prescription-deleted` |
+| `consultation` | `consultation-created`, `consultation-updated`, `consultation-finished`, `consultation-deleted` |
+| `invoice-item-catalog` | `invoice-item-catalog-created`, `invoice-item-catalog-updated`, `invoice-item-catalog-deleted` |
+| `invoice` | `invoice-created`, `invoice-updated` |
+| `patient` | `patient-created`, `patient-updated`, `patient-deleted` |
+| `waiting-room` | `patient-joined-twr` |
+| `consultation-schedule` | `consultation-schedule-create`, `consultation-schedule-updated` |
+
+Do not normalize these spellings: `consultation-schedule-create` and `prescription-cancel` differ from the past-tense names used by other events.
+
+## Inspect delivery and remove subscriptions
+
+Use [`GET /webhooks`](/api-reference/get-webhooks) to list subscriptions and retain the subscription ID. Use [`GET /events`](/api-reference/get-events) to inspect emitted events and their delivery logs, including response codes and retry-related fields. This endpoint is not a catalog of all available event names.
+
+Inspect payloads for the specific event you subscribe to. The integration guide shows both wrapped `value` objects and top-level identifier objects; do not assume a universal callback envelope or treat the event-log response as the callback contract. Verify callback authentication before accepting a payload, and handle repeated deliveries without duplicating work.
+
+Remove a subscription with `DELETE /webhooks/{webhook_id}`, using the documented request body containing `nimbo_access_token`. Do not log that body or callback secrets while diagnosing a delivery failure.
+
+See **Webhooks** in the [Browse endpoints](/reference/overview) and the [webhook specification](/openapi/nimbo_webhooks.yml).

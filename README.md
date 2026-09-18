@@ -101,6 +101,16 @@ The original imports remain in Git history. Removing captured examples from the
 current tree does not purge historical copies or attest that old values were
 synthetic. History rewriting and credential rotation are outside this change.
 
+## Integration guide review — 2026-09-18
+
+Added authentication, request conventions, and patient, scheduling, patient-portal,
+billing, and webhook workflows from the supplied July integration guide. Retained
+OAuth and patient-create contracts were enriched against the recorded legacy
+source revision; the canonical public artifact and 111-operation inventory are
+unchanged. `scripts/reference-policy.json` records source evidence, document
+discrepancies, and deferred host, blacklist, webhook, and monetary-unit decisions.
+Examples are newly synthetic. This review is not live API verification.
+
 ## Brand and project configuration
 
 Almond theme, blue colors, favicon, and light/dark logos are reused from

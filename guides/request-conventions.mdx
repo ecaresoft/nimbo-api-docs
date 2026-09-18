@@ -1,0 +1,34 @@
+---
+title: "Request conventions"
+description: "Construct API URLs, preserve request types, and handle dates, amounts, and failures."
+---
+
+## Hosts and paths
+
+Guide examples use `NIMBO_API_BASE_URL` including `/api/v1` and no trailing slash. Append paths such as `/people` directly. If you copy a reference path that already begins with `/api/v1`, combine it with the host only, not that prefixed base URL.
+
+Webhook management uses `NIMBO_WEBHOOKS_BASE_URL`, a separate URL supplied by Nimbo. Do not assume that it has the same host or `/api/v1` prefix. The reference's `api.example.test` is a nonfunctional placeholder.
+
+## Request bodies and identifiers
+
+Use `Content-Type: application/json` for JSON requests. Keep resource envelopes such as `person`, `consultation_schedule`, and `invoice`. Authentication also supports the form request shown in [Authentication](/authentication).
+
+IDs in these guides are synthetic. Replace them with identifiers returned by your authorized environment. Preserve each endpoint's documented JSON types; some retained request contracts represent IDs and amounts as strings. A person's ID is different from an account, consultation, encounter, or invoice ID.
+
+## Dates and pagination
+
+Use `YYYY-MM-DD` for date-only values such as birth dates. For timestamps, use ISO 8601 with an explicit UTC offset or `Z`; choose the offset appropriate for the appointment's location and date. Do not infer the user's time zone from your server's clock.
+
+Pagination is endpoint-specific. Check whether the operation accepts `page`, `per_page`, or neither and inspect its actual response shape. Do not assume a common page size, total count, or cursor across the API.
+
+## Amounts
+
+An explicitly named field such as `total_cents` represents cents. Do not infer units for other fields from their numeric type: appointment `price` and charge-line `value` need field-specific confirmation before sending monetary values. See [Charges and invoicing](/guides/billing).
+
+## Responses and failures
+
+Check the status and content type before parsing a response. JSON response roots vary by operation, and CFDI downloads return PDF or XML. Use the response schema in the [Browse endpoints](/reference/overview).
+
+There is no documented universal error envelope. Handle authentication failures, validation failures, and unexpected responses separately. Capture the method, path without sensitive query values, HTTP status, and request ID when available. Redact tokens and patient data before storing diagnostic details or contacting support.
+
+After a timeout on a write, check whether the resource was created before retrying. These guides do not establish an idempotency-key contract or a universal retry policy.

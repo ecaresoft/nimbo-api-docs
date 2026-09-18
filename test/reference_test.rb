@@ -53,7 +53,7 @@ class ReferenceTest < Minitest::Test
 
   def test_functional_navigation_includes_every_served_operation_once
     docs = JSON.parse(File.read(File.join(ApiDocsSync::ROOT, 'docs.json')))
-    groups = docs.fetch('navigation').fetch('tabs').find { |tab| tab['tab'] == 'API reference' }.fetch('groups')
+    groups = docs.fetch('navigation').fetch('tabs').find { |tab| tab['tab'] == 'API endpoints' }.fetch('groups')
     assert_equal ['Patients', 'Appointments', 'Clinical records'], groups.first(3).map { |group| group.fetch('group') }
     assert_equal 'Catalogs', groups.last.fetch('group')
     entries = []
@@ -78,7 +78,30 @@ class ReferenceTest < Minitest::Test
     end
     assert_equal expected.sort, entries.sort
     assert_equal entries.uniq, entries
-    refute File.exist?(File.join(ApiDocsSync::ROOT, 'guides/patient-portal.mdx'))
+    guide_groups = docs.fetch('navigation').fetch('tabs').find { |tab| tab['tab'] == 'Guides' }.fetch('groups')
+    guide_pages = guide_groups.flat_map { |group| group.fetch('pages') }
+    %w[patients appointments patient-portal billing webhooks request-conventions].each do |guide|
+      assert_includes guide_pages, "guides/#{guide}"
+      assert File.exist?(File.join(ApiDocsSync::ROOT, "guides/#{guide}.mdx"))
+    end
+  end
+
+  def test_reviewed_integration_contracts_retain_authentication_and_patient_conditions
+    core = YAML.safe_load(ApiReference.render.fetch('openapi/nimbo_api.yml'))
+    oauth = core.dig('paths', '/oauth/token', 'post')
+    assert_equal [], oauth.fetch('security')
+    %w[application/json multipart/form-data].each do |content_type|
+      grants = oauth.dig('requestBody', 'content', content_type, 'schema', 'oneOf')
+      assert_equal [%w[grant_type username password], %w[grant_type refresh_token]], grants.map { |grant| grant.fetch('required') }
+    end
+    assert oauth.fetch('responses').key?('403'), 'Do not describe every account login as a token success'
+    person = core.dig('paths', '/people', 'post', 'requestBody', 'content', 'application/json', 'schema', 'properties', 'person')
+    assert_equal %w[first_name last_name gender account_id], person.fetch('required')
+    refute person.fetch('required').include?('email')
+    refute person.fetch('required').include?('telephone2')
+    assert_match(/unless without_cellphone/, person.dig('properties', 'telephone2', 'description'))
+    assert_match(/May be blank/, person.dig('properties', 'email', 'description'))
+    refute person.dig('properties', 'gender').key?('enum'), 'Source does not establish a closed gender enum'
   end
 
   def test_new_revision_requires_review

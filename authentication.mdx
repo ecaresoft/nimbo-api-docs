@@ -13,7 +13,38 @@ For operations that use HTTP bearer authentication, send the integration token i
 Authorization: Bearer <YOUR_INTEGRATION_TOKEN>
 ```
 
-Replace the placeholder in your own secure environment. Keep integration credentials on your server and out of source control, browser code, URLs, and documentation examples.
+Replace the placeholder in your own secure environment. Keep integration credentials on your server and out of source control, browser code, and logs. Prefer headers for tokens; the documented CFDI download endpoints are a specific [query-token exception](/guides/billing).
+
+## Obtain an integration token
+
+For integrations approved to use an account's password grant, send the account email as `username` to [`POST /oauth/token`](/api-reference/authentication/post-oauthtoken). These examples use the [quickstart](/quickstart) base URL, including `/api/v1`. Load `NIMBO_USERNAME` and `NIMBO_PASSWORD` from your secure environment.
+
+```bash
+curl --request POST "$NIMBO_API_BASE_URL/oauth/token" \
+  --form-string "grant_type=password" \
+  --form-string "username=$NIMBO_USERNAME" \
+  --form-string "password=$NIMBO_PASSWORD"
+```
+
+A successful token response includes `access_token`, `token_type`, `expires_in`, `refresh_token`, and `created_at`. Use the returned expiry rather than hard-coding a token lifetime.
+
+Accounts with two-factor authentication can receive a `403` response with `token_type: "2fa"` instead of an access token. Confirm the supported authentication flow with Nimbo for those accounts; repeating the password request does not complete verification.
+
+## Refresh an integration token
+
+When a refresh token was issued, exchange it at the same endpoint. Load `NIMBO_REFRESH_TOKEN` securely from the earlier response.
+
+```bash
+curl --request POST "$NIMBO_API_BASE_URL/oauth/token" \
+  --header "Content-Type: application/json" \
+  --data "{\"grant_type\":\"refresh_token\",\"refresh_token\":\"$NIMBO_REFRESH_TOKEN\"}"
+```
+
+Store the returned token values securely and update your stored expiry. If refreshing fails, stop automatic retries and resolve the account or credential issue. Do not automatically replay a record-creation request unless you know it did not succeed.
+
+## Patient portal tokens
+
+Patient portal access uses phone verification through `/patient_portal/auth` and `/patient_portal/validate`. The validation response contains `token`, not the integration OAuth response's `access_token`. Use it only for the patient portal and the people authorized by that session. Follow the [patient portal workflow](/guides/patient-portal).
 
 ## Public reads
 

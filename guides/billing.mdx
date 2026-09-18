@@ -1,0 +1,49 @@
+---
+title: "Charges and invoicing"
+description: "Connect consultations, encounter invoices, charge lines, and CFDI delivery."
+---
+
+Confirm billing access and the environment for your integration. Signing and emailing an invoice have external effects; use your agreed test configuration when developing the workflow.
+
+## Follow the record relationships
+
+| Step | Operation | What to retain or inspect |
+| --- | --- | --- |
+| Read a consultation | `GET /consultations/{consultation_id}` | Its encounter relationship and linked resources. |
+| Retrieve the encounter invoice | `GET /encounters/{encounter_id}/invoice` | The invoice ID and totals. |
+| Retrieve charge lines | `GET /invoices/{invoice_id}/consultation_invoice_items` | Existing items, quantities, and amounts. |
+
+Consultation, encounter, and invoice IDs are different identifiers. Follow the returned relationships rather than substituting one ID for another.
+
+## Create an invoice and add charges
+
+If the workflow requires a new invoice, use [`POST /invoices`](/api-reference/charges/post-invoices) with the documented `invoice` envelope. For example:
+
+```json
+{
+  "invoice": {
+    "encounter_id": "3001",
+    "person_id": "2001",
+    "consultation_id": null,
+    "tax_attributes": {
+      "use_cfdi": "S01",
+      "payment_method": "PUE",
+      "payment_form": "01"
+    }
+  }
+}
+```
+
+IDs are synthetic; SAT codes are illustrative choices, not defaults for every invoice. Select applicable values from the SAT catalogs and your billing configuration.
+
+Read the charge catalog using `GET /invoice_item_locations`, then use the invoice and catalog-item IDs with `POST /consultation_invoice_items`. Its request uses the `consultation_invoice_item` envelope and fields such as `invoice_id`, `invoice_item_id`, `account_id`, `quantity`, and `value`. Ordinary charges take their description and unit value from the selected catalog item; a supplied value does not override that catalog price. Payment handling is separate—confirm the amount units and supported request with Nimbo before using it.
+
+## Sign and deliver a CFDI
+
+Use `POST /invoices/{id}/sign` only after reviewing the invoice and confirming the required certificate and tax configuration with Nimbo. Retrieve the signed document through `GET /invoices/{id}/download_cfdi.pdf` or `GET /invoices/{id}/download_cfdi.xml`. Use `POST /invoices/{id}/email_invoice` for email delivery.
+
+The PDF and XML download contracts accept a `token` query parameter. This is an endpoint-specific exception to bearer-header guidance. Keep generated download URLs out of analytics, logs, screenshots, and shared messages. Parse the download according to its PDF or XML content, not as JSON.
+
+For reporting, `GET /reports/consultation_invoice_items` documents `start`, `end`, `status`, and `person` filters. Consult the response schema for totals and status fields; do not infer signing or delivery success from a create request alone.
+
+Find these operations under **Charges and invoicing** in the [Browse endpoints](/reference/overview), with detailed schemas in the [ERP](/openapi/nimbo_erp.yml) and [billing](/openapi/nimbo_facturacion.yml) specifications.

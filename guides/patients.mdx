@@ -1,0 +1,61 @@
+---
+title: "Create a patient"
+description: "Choose patient identifiers, prepare a patient request, and retain the returned person ID."
+---
+
+Complete [Authentication](/authentication) and confirm patient-write access first. Use synthetic records in your test environment.
+
+## Choose the supporting records
+
+Use a treating `account_id` available to your integration. Retrieve countries and states from the geography catalogs and patient groups through `GET /accounts/{account_id}/patient_groups`; do not reuse example IDs as catalog values.
+
+The patient model requires a first name, last name, gender, and associated treating account. When `without_cellphone` is false, a mobile phone and phone country are required. Phone numbers must match the selected country's validation rules. Additional requirements can depend on the organization's country and patient configuration.
+
+Email accepts blank values; a supplied email must be valid. Do not treat `send_welcome_email` as proof of delivery or consent. Confirm reminder preferences for the patient rather than enabling them by default.
+
+## Create the record
+
+Send [`POST /people`](/api-reference/patient-management/post-people) with a `person` envelope. This synthetic example omits a mobile phone deliberately. Replace the treating account ID and review your organization's additional requirements before sending it.
+
+```json
+{
+  "person": {
+    "first_name": "Example",
+    "last_name": "Patient",
+    "born_at": "1990-01-15",
+    "gender": "f",
+    "account_id": "1001",
+    "without_cellphone": true,
+    "send_welcome_email": false
+  }
+}
+```
+
+For a patient with a mobile phone, set `without_cellphone` to false and include `telephone2` and `phone_country_id`. The expanded request can also include `address_state_id`, `patient_group_ids`, and `person_attributes`. Use only fields appropriate to your integration; identity-number requirements depend on the country.
+
+```json
+{
+  "person": {
+    "first_name": "Example",
+    "last_name": "Patient",
+    "born_at": "1990-01-15",
+    "gender": "f",
+    "account_id": "1001",
+    "without_cellphone": true,
+    "email": "patient@example.test",
+    "send_welcome_email": false,
+    "patient_group_ids": [],
+    "person_attributes": {
+      "send_reminders": false
+    }
+  }
+}
+```
+
+## Use the returned person ID
+
+A successful create returns HTTP `201` with a `person` object. Store `person.id` as the `person_id` for subsequent requests, then retrieve the record with `GET /people/{person_id}`. Use this ID when [scheduling an appointment](/guides/appointments).
+
+Patient lookup and probable-match endpoints can help you investigate existing records before creating another one. They do not establish a duplicate-prevention guarantee.
+
+Find patient operations under **Patients** in the [Browse endpoints](/reference/overview), or inspect the [core OpenAPI specification](/openapi/nimbo_api.yml).

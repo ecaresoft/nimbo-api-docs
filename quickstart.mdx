@@ -15,12 +15,32 @@ Before you start, have an approved integration use case and a contact on the Nim
 
     Check whether your supplied base URL already includes `/api/v1` before adding an endpoint path. Include that prefix only once.
   </Step>
-  <Step title="Prepare a read request">
-    Choose a supported read operation and review its parameters and authentication requirements. Use synthetic test records in your agreed test environment before working with live records.
+  <Step title="Set your environment">
+    The examples below use `NIMBO_API_BASE_URL` for the API URL **including** `/api/v1`, with no trailing slash. Set it to the URL supplied by Nimbo. Use only synthetic records in your agreed test environment.
+
+    ```bash
+    export NIMBO_API_BASE_URL="https://api.example.test/api/v1"
+    ```
+
+    This placeholder cannot receive requests. Webhook management uses a separate base URL; see [Webhooks](/guides/webhooks).
+  </Step>
+  <Step title="Obtain an access token">
+    Follow [Authentication](/authentication) using the method approved for your account. Store the returned `access_token` securely as `NIMBO_ACCESS_TOKEN` in your local development environment. Do not put credentials or tokens in a committed script.
+  </Step>
+  <Step title="Make a read request">
+    If organization access is enabled for your integration, request the current organization:
+
+    ```bash
+    curl --include --request GET "$NIMBO_API_BASE_URL/organizations/current" \
+      --header "Authorization: Bearer $NIMBO_ACCESS_TOKEN" \
+      --header "Accept: application/json"
+    ```
   </Step>
   <Step title="Inspect the response">
-    Check the status code, response root, and fields used by your application. Treat an unexpected response as something to investigate; do not infer support from an example alone.
+    The reference documents HTTP `200` for this operation but does not yet specify its response fields. Inspect the returned organization and confirm the fields your integration needs before creating records. A token error or unexpected organization is a reason to check access with Nimbo before proceeding.
   </Step>
 </Steps>
 
-Read [Authentication](/authentication) before adding credentials, and [API reference](/reference/overview) to find the endpoints for your integration.
+Read [Authentication](/authentication) before adding credentials, and [Browse endpoints](/reference/overview) to find the endpoints for your integration.
+
+Next, [create a patient](/guides/patients), [schedule an appointment](/guides/appointments), or [build a patient portal](/guides/patient-portal). See [Request conventions](/guides/request-conventions) for URL construction, dates, and error handling.
