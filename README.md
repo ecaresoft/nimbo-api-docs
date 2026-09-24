@@ -1,6 +1,7 @@
 # Nimbo API documentation
 
-Public developer documentation for Nimbo, rendered by Mintlify.
+Public developer documentation for Nimbo, rendered by Mintlify as Nimbo Developers.
+Documentation domain: https://dev.nimbo-x.com (configured separately in Mintlify/DNS).
 Repository: `ecaresoft/nimbo-api-docs` (formerly `ecaresoft/documentation`).
 The separate `ecaresoft/nimbo-docs` project remains the user help center at
 https://help.nimbo-x.com.

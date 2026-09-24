@@ -44,6 +44,10 @@ These names appear in the integration guide. Confirm availability and your assig
 | `waiting-room` | `patient-joined-twr` |
 | `consultation-schedule` | `consultation-schedule-create`, `consultation-schedule-updated` |
 
+For a tool such as n8n or Zapier, use its HTTPS webhook receiver as the callback and check that your workflow can verify callbacks and handle repeated deliveries. Confirm the event and payload before mapping it to an action.
+
+The table does not document a dedicated appointment-cancellation event. Confirm how cancellations are represented before using events to stop reminders.
+
 Do not normalize these spellings: `consultation-schedule-create` and `prescription-cancel` differ from the past-tense names used by other events.
 
 ## Inspect delivery and remove subscriptions

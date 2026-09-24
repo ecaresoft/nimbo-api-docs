@@ -4,14 +4,16 @@ sidebarTitle: "Quickstart"
 description: "Confirm integration access, choose your environment, and prepare a request to Nimbo."
 ---
 
-Before you start, have an approved integration use case and a contact on the Nimbo team who can confirm your access.
+Before you start, identify what your integration needs to read or change and who on your team will maintain it. Have a Nimbo contact confirm the account, permissions, and environment for that workflow.
+
+For product options and access questions, see [API e integraciones](https://help.nimbo-x.com/administracion/integraciones/api-e-integraciones). For technical setup, prepare your [test environment](/guides/environments) and keep credentials on your server.
 
 <Steps>
   <Step title="Confirm your integration access">
     Describe what your software needs to read or update. Ask Nimbo to confirm the supported operations, permissions, and authentication method for that integration.
   </Step>
   <Step title="Get the correct API host">
-    Use the base URL supplied for your integration and environment. The `api.example.test` host in this site's reference is a placeholder and cannot receive API requests.
+    Use the base URL supplied for your integration and environment. `dev.nimbo-x.com` is the documentation site, not an API host. The `api.example.test` host in this site's reference is a placeholder and cannot receive API requests.
 
     Check whether your supplied base URL already includes `/api/v1` before adding an endpoint path. Include that prefix only once.
   </Step>

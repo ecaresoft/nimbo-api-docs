@@ -1,0 +1,37 @@
+---
+title: "Environments and testing"
+sidebarTitle: "Environments"
+description: "Prepare an isolated test setup and verify your integration before using production data."
+---
+
+## Get your environment details
+
+Ask your Nimbo contact for the API base URL, test account, organization, and permissions assigned to your integration. Confirm how to access the test application and whether your workflow needs a separate webhook-management host.
+
+[dev.nimbo-x.com](https://dev.nimbo-x.com) hosts this documentation. It is not the API base URL. The `api.example.test` address in examples is a nonfunctional placeholder; replace it with the API URL supplied by Nimbo.
+
+Follow [Request conventions](/guides/request-conventions) to include `/api/v1` exactly once. Keep test and production URLs, credentials, and resource IDs in separate configuration. Never copy a production token into your test setup.
+
+## Prepare test records and delivery channels
+
+Use synthetic patients and records. Before testing appointments, confirm which reminder and payment-link options can send messages, and use recipients approved for testing.
+
+For the patient portal, agree on a test phone and verification procedure with Nimbo. Confirm whether codes are delivered in your test environment; do not assume a fixed test code works or that delivery matches production. See [Build a patient portal](/guides/patient-portal).
+
+For webhooks, confirm the enabled events, topic prefix, callback verification, and delivery behavior with Nimbo. Use a separate test callback so test events cannot trigger production actions.
+
+## Verify a complete workflow
+
+1. Obtain a token and check that it accesses the intended organization.
+2. Read the supporting records needed by your workflow, such as the treating account or patient groups.
+3. Create a synthetic record and retrieve it to check the saved values.
+4. Exercise invalid input, expired credentials, and the permissions your integration depends on.
+5. Check how your system recovers from an uncertain write result or a repeated webhook without duplicating work.
+
+For scheduling, also check the saved time zone, patient association, and reminder settings. For a portal, check person selection when a phone authorizes more than one patient.
+
+## Prepare production configuration
+
+Confirm production access and any remaining environment differences with Nimbo before switching. Obtain production credentials, resolve production resource IDs, and configure the production callback separately. Review the first production workflow with your integration owner and check the saved result.
+
+If a request fails, follow [Troubleshooting](/guides/troubleshooting) before repeating it.

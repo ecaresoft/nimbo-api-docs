@@ -97,5 +97,11 @@
       "monetary_units": "No new unit claims for appointment price or charge-line value without field-specific verification."
     },
     "verification_boundary": "Static source and documentation review, not a live API or deployment probe."
+  },
+  "customer_faq_review": {
+    "date": "2026-09-24",
+    "accepted": "Add environment preparation and troubleshooting guidance; expand account setup, patient matching, scheduling automation and webhook guidance. Add a Spanish help-center overview with developer links at dev.nimbo-x.com. No contract or inventory changes.",
+    "deferred": "Concrete API and staging hosts, fixed verification codes, licensing and pricing promises, numerical rate limits, phone-only search restrictions, telehealth embedding, historical import dates, security certifications and SLA claims require separate verification. Existing environment and webhook publication restrictions remain in force.",
+    "verification_boundary": "Content review against existing documentation; no live API, authentication, delivery or production availability verification."
   }
 }

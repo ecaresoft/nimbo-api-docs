@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "almond",
-  "name": "Nimbo API",
+  "name": "Nimbo Developers",
   "description": "Developer documentation for Nimbo integrations, API contracts, and webhooks.",
   "colors": {
     "primary": "#1f87ff",
@@ -37,8 +37,10 @@
             "pages": [
               "index",
               "quickstart",
+              "guides/environments",
               "authentication",
-              "guides/request-conventions"
+              "guides/request-conventions",
+              "guides/troubleshooting"
             ]
           },
           {

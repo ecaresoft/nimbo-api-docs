@@ -15,6 +15,12 @@ Authorization: Bearer <YOUR_INTEGRATION_TOKEN>
 
 Replace the placeholder in your own secure environment. Keep integration credentials on your server and out of source control, browser code, and logs. Prefer headers for tokens; the documented CFDI download endpoints are a specific [query-token exception](/guides/billing).
 
+## Choose an integration account
+
+Use an account assigned to the integration and confirm its organization, permissions, and licensing with your administrator and Nimbo. Grant only the access the workflow needs.
+
+The password grant below expects a Nimbo account password. A Google sign-in session or Google access token cannot replace that password in this request. If the account uses Google sign-in or two-factor authentication, confirm the supported setup with Nimbo before changing its sign-in settings.
+
 ## Obtain an integration token
 
 For integrations approved to use an account's password grant, send the account email as `username` to [`POST /oauth/token`](/api-reference/authentication/post-oauthtoken). These examples use the [quickstart](/quickstart) base URL, including `/api/v1`. Load `NIMBO_USERNAME` and `NIMBO_PASSWORD` from your secure environment.
@@ -26,7 +32,7 @@ curl --request POST "$NIMBO_API_BASE_URL/oauth/token" \
   --form-string "password=$NIMBO_PASSWORD"
 ```
 
-A successful token response includes `access_token`, `token_type`, `expires_in`, `refresh_token`, and `created_at`. Use the returned expiry rather than hard-coding a token lifetime.
+A successful token response includes `access_token`, `token_type`, `expires_in`, `refresh_token`, and `created_at`. Use the returned expiry rather than hard-coding a token lifetime. Store and reuse the token instead of requesting a new one for every API call.
 
 Accounts with two-factor authentication can receive a `403` response with `token_type: "2fa"` instead of an access token. Confirm the supported authentication flow with Nimbo for those accounts; repeating the password request does not complete verification.
 
@@ -52,4 +58,4 @@ Some catalog and site operations accept requests without authentication. Check t
 
 ## Authentication errors
 
-Use the error responses documented for your operation. If authentication fails, check the selected environment, credential validity, and assigned permissions before retrying. Do not substitute a patient-portal token for an integration credential.
+Use the error responses documented for your operation. If authentication fails, check the selected environment, credential validity, and assigned permissions before retrying. Do not substitute a patient-portal token for an integration credential. See [Troubleshooting](/guides/troubleshooting) for token, permission, and connection failures.

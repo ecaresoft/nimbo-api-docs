@@ -5,6 +5,12 @@ description: "Choose patient identifiers, prepare a patient request, and retain 
 
 Complete [Authentication](/authentication) and confirm patient-write access first. Use synthetic records in your test environment.
 
+## Check for an existing patient
+
+Use `GET /predictions/people` or `GET /accounts/{account_id}/people` to investigate existing records before creating one. Check the parameters required by the selected endpoint and confirm the patient's identity before reusing a match.
+
+Store the Nimbo `person_id` alongside your own patient identifier after matching or creating a record. Search results help you review possible duplicates; they do not guarantee duplicate prevention.
+
 ## Choose the supporting records
 
 Use a treating `account_id` available to your integration. Retrieve countries and states from the geography catalogs and patient groups through `GET /accounts/{account_id}/patient_groups`; do not reuse example IDs as catalog values.

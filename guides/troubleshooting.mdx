@@ -1,0 +1,36 @@
+---
+title: "Troubleshoot an integration"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose authentication, access, connection, and delivery failures without duplicating records."
+---
+
+## Authentication and access
+
+| Symptom | What to check | Next step |
+| --- | --- | --- |
+| Token request returns `403` with `token_type: "2fa"` | The account requires two-factor verification. | Confirm the supported integration authentication flow with Nimbo. Repeating the password request does not complete verification. |
+| Password grant fails for an account that uses Google sign-in | This grant expects a Nimbo account password, not a Google access token. | Ask your administrator and Nimbo to confirm the account setup. Do not change sign-in or disable 2FA just to retry. |
+| An authenticated operation returns `403` | Check the environment, account permissions, and access to the requested module and resource. | Share the operation and response status with Nimbo to confirm access; the status alone does not establish the cause. |
+| A token expires | Check the returned `expires_in` and whether a refresh token was issued. | Follow [Authentication](/authentication). Store the returned token values and expiry. |
+
+Reuse an access token until it expires instead of obtaining one for every request. If token requests are being rejected, stop repeated login attempts and confirm the applicable limits with Nimbo. Do not assume a universal request quota or retry interval.
+
+## Connection errors and unavailable responses
+
+Check the supplied API host, HTTPS, and `/api/v1` prefix against your [environment configuration](/guides/environments). Do not send API requests to the documentation domain or `api.example.test`.
+
+A certificate error, timeout, or `503` can have different causes. Record the time and response details, confirm the URL with Nimbo, and investigate connectivity or service availability. Do not bypass certificate validation.
+
+## A write timed out
+
+A lost response does not prove that a write failed. Check whether the patient, appointment, or other record was saved before retrying. Retain returned Nimbo IDs in your system so you can reconcile records. The documented API does not establish a universal idempotency-key contract.
+
+## A webhook is missing or repeated
+
+Check your subscription with `GET /webhooks` and delivery records with `GET /events` on the webhook-management host. Confirm the exact event name and assigned topic prefix, then inspect your callback's response status. Handle repeated deliveries without repeating business actions.
+
+Use the [webhook guide](/guides/webhooks) for registration and callback requirements. Confirm cancellation behavior before relying on an appointment event to stop reminders.
+
+## Share a useful support report
+
+Include the environment, HTTP method, route, response status, timestamp with time zone, and request ID if available. Explain the expected result and what happened. Remove credentials, tokens, sensitive query values, and patient data from logs or examples before sharing them with [Nimbo support](https://www.nimbo-x.com/contacto).

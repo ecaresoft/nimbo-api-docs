@@ -5,6 +5,12 @@ description: "Find availability, create an appointment, and retrieve its saved d
 
 Start with an integration token, an authorized treating account, and a [patient ID](/guides/patients). Confirm scheduling access and use synthetic test records.
 
+## Connect a form, CRM, or scheduling bot
+
+Run authenticated requests from your server. Find or create the patient, look up availability, create the appointment, and retain the returned appointment ID. Confirm the saved appointment before telling the patient that booking succeeded.
+
+Decide whether Nimbo or your integration sends each reminder and payment link. Configure those options intentionally to avoid duplicate messages. Use the [test checklist](/guides/environments) before enabling the workflow for patients.
+
 ## Look up availability
 
 Use `GET /calendar/available_hours` for an account, with the documented `from`, `to`, `monthly`, and `account` parameters. Organization-portal availability uses `/api/v1/calendar/available_hours_organization` and a `slug` parameter; include `/api/v1` only once when constructing that URL.
