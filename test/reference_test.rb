@@ -16,10 +16,10 @@ class ReferenceTest < Minitest::Test
   def test_one_reference_preserves_existing_definitions_for_deferred_replacements
     outputs = ApiReference.render
     ids = outputs.values.flat_map { |raw| ApiDocsSync.operations(YAML.safe_load(raw)).map { |_, _, op| op['operationId'] } }
-    assert_equal 111, ids.size
+    assert_equal 114, ids.size
     assert_includes ids, 'legacy_nimbo_api_get__specialties_specialty_id'
     assert_includes ids, 'legacy_nimbo_api_get__waiting_rooms_waiting_room_slug'
-    %w[getSpecialty showSiteAccount showPortalAgendaLocation showWaitingRoomBySlug].each { |id| refute_includes ids, id }
+    %w[getSpecialty showSiteAccount showPortalAgendaLocation showWaitingRoomBySlug listSiteOrganizationAccounts].each { |id| refute_includes ids, id }
     assert_includes ids, 'listCountryStates'
     refute_includes ids, 'legacy_nimbo_api_get__countries_country_id_states'
   end
@@ -28,13 +28,17 @@ class ReferenceTest < Minitest::Test
     outputs = ApiReference.render
     portal = YAML.safe_load(outputs.fetch('openapi/nimbo_patient_portal.yml'))
     operations = ApiDocsSync.operations(portal)
-    assert_equal 13, operations.size
+    assert_equal 16, operations.size
     expected_reads = %w[listPatientPortalPeople showPatientPortalPersonOrganization
       listPatientPortalPersonConsultations listPatientPortalPersonAttachments
       showPatientPortalPersonLabTests listPatientPortalPersonPrescriptions
       showPatientPortalPersonVitalSigns showPatientPortalPersonMedicalHistory
       listPatientPortalPersonConsultationSchedules listPatientPortalPersonConsultationRequests
       listPatientPortalPersonOrganizationPortals]
+    # The original customer collection has 13 operations. These three reads
+    # have a separate audience/availability review, with the same auth boundary.
+    expected_reads += %w[showPatientPortalConsultation
+      listPatientPortalPersonVitalSignsHistory listPatientPortalConsultationVitalSignsHistory]
     assert_equal (expected_reads + %w[customerPatientPortalAuth customerPatientPortalValidate]).sort,
       operations.map { |_, _, operation| operation.fetch('operationId') }.sort
     operations.each do |method, _, operation|

@@ -57,18 +57,18 @@ operation summaries and tags when reorganizing navigation to preserve URLs.
 The renderer trims accidental surrounding whitespace from historical path keys;
 the retained input inventory remains unchanged.
 
-- `scripts/contracts/` stores the imported inputs (38 generated and
+- `scripts/contracts/` stores the imported inputs (42 generated and
   85 existing operation entries). Repeated migration disclaimers have been
   removed from the existing inputs; endpoint descriptions are preserved by the
   renderer. These inputs are excluded from the Mintlify site.
 - `scripts/reference-policy.json` pins the reviewed source revision, approves
-  32 generated operations using recorded Traffic-ready/production-routed
-  evidence, and defers six whose replacement fidelity remains incomplete.
+  35 generated operations using recorded Traffic-ready/production-routed
+  evidence, and defers seven pending fidelity or separate publication review.
   Existing specialty and waiting-room definitions remain published.
 - `scripts/build-reference.rb` generates the six served OpenAPI files with
   customer-facing descriptions and no source/migration extensions. Explicit
   ownership resolves overlapping definitions, including ERP/billing copies.
-  Each normalized method/path has one published definition: 111 operations total.
+  Each normalized method/path has one published definition: 114 operations total.
 - ERP's consultation response schema and billing's report schema/filter details
   are retained instead of the less complete general copies. The original 83-operation
   input inventory remains unchanged; two sanitized patient authentication
@@ -76,8 +76,9 @@ the retained input inventory remains unchanged.
 - The patient portal section restores the 13 operations in the customer-shared
   Postman collection: 11 reviewed canonical reads and two sanitized existing OTP
   definitions. The canonical OTP contracts are public-documentation eligible but
-  deferred because replacement fidelity is incomplete. The six other canonical
-  patient-portal operations remain internal and are not imported.
+  deferred because replacement fidelity is incomplete. Three separately reviewed
+  reads add consultation detail and person/visit vital-sign capture history, bringing the portal reference to 16 operations. Other internal
+  patient-portal operations are not imported.
 - Documentation audience is independent of authentication, data sensitivity,
   and LLM eligibility. The complete historical patient spec and the internal
   bundle remain excluded; generated patient coverage comes only from the

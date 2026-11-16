@@ -39,7 +39,8 @@ Call `GET /patient_portal/people` with `Authorization: Bearer <PATIENT_PORTAL_TO
 | Organization profile | `/organization` |
 | Clinical visits | `/consultations` (supports `page`) |
 | Files, lab tests, prescriptions | `/attachments`, `/lab_tests`, `/prescriptions` |
-| Vital signs and history | `/vital_signs`, `/medical_history` |
+| Merged vital signs and medical history | `/vital_signs`, `/medical_history` |
+| Separate vital-sign captures | `/vital_signs_history` (supports `page`, `per_page`, `encounter_id`) |
 | Appointments and requests | `/consultation_schedules`, `/consultation_requests` |
 | Available booking portals | `/organization_portals` |
 
@@ -49,4 +50,88 @@ Consult each response schema rather than assuming these endpoints return the sam
   Reading `/medical_history` creates a medical-history record if no active record exists. Avoid speculative prefetching of that endpoint.
 </Note>
 
-All 13 operations are grouped under **Patient portal** in the [Browse endpoints](/reference/overview) and the [patient portal specification](/openapi/nimbo_patient_portal.yml).
+All 16 operations are grouped under **Patient portal** in the [Browse endpoints](/reference/overview) and the [patient portal specification](/openapi/nimbo_patient_portal.yml).
+
+## Show a visit and its location
+
+Use `GET /patient_portal/people/{person_id}/consultations` for clinical visits,
+then `GET /patient_portal/consultations/{id}` with the selected **consultation ID**.
+The list defaults to 10 records per page; `per_page` is capped at 100.
+
+Consultation summaries and detail include `organization` and `location` from the
+encounter's recorded branch, including inactive branches. Missing or deleted
+encounters or locations produce null values. Detail includes the location's
+current address and contact information, rather than a snapshot from the visit
+date. Preserve stored `Default` names and empty strings; do not substitute the
+physician's address. The existing `organization_name` field retains its physician
+account meaning.
+
+Inactive physicians remain in visit history with `doctor_active: false` and
+`url_portal: null`. A client may omit them from its physician-card list while
+retaining their clinical visits.
+
+## Load complete appointment history
+
+Opt into the history response explicitly:
+
+```http
+GET /api/v1/patient_portal/people/2001/consultation_schedules?scope=history&page=1&per_page=20
+Authorization: Bearer <PATIENT_PORTAL_TOKEN>
+```
+
+The exact value `scope=history` returns past and future appointments, newest
+first, plus accepted cancellation requests whose appointments were deleted.
+Other deleted appointments remain excluded. Omitting `scope`, or sending another
+value, preserves the existing recent/upcoming response. `per_page` is capped at
+100; load history pages separately from the upcoming appointment list.
+
+History adds `encounter_id`, `consultation_id`, `consultation_finished_at`,
+`arrival_at`, `missed_at`, `cancellation_status`, `cancelled_at`, and `time_zone`.
+Use `consultation_id` to open clinical detail; schedule IDs and encounter IDs are
+not interchangeable with it. An encounter has at most one consultation.
+
+Interpret the explicit timestamps independently. A linked consultation makes the
+presentation status `started`; its completion timestamp tells you whether it has
+finished. An elapsed appointment or missing consultation does not establish a
+no-show. Accepted cancellations remain visible even without a consultation;
+`state=unstarted` excludes linked consultations rather than all canceled rows.
+Honor the returned confirm/cancel eligibility flags. Use the IANA `time_zone`
+for appointment display and preserve each timestamp's absolute value.
+
+## Read separate vital-sign captures
+
+The existing `/vital_signs` and consultation detail responses keep their merged
+summary. Use the new history reads when you need individual saved captures:
+
+| Scope | Path after `/patient_portal` |
+| --- | --- |
+| Patient, including standalone captures | `/people/{person_id}/vital_signs_history` |
+| One clinical visit | `/consultations/{id}/vital_signs_history` |
+| One encounter | `/people/{person_id}/vital_signs_history?encounter_id={encounter_id}` |
+
+These reads require both an authorized patient session and that organization's
+clinical-sharing permission. Missing or invalid authentication returns 401;
+clinical sharing disabled returns 403; inaccessible patients, visits or encounter
+filters return 404. An accessible visit without captures returns an empty array.
+
+The response has `vital_signs_history` and `meta` with `page`, `per_page`, and
+`total_pages`. Page size defaults to 20 and is capped at 50. Pagination counts
+**captures**, so one encounter can span pages. An out-of-range page is empty;
+`total_pages: 0` means no eligible captures matched. Captures are ordered by
+`recorded_at` descending, missing dates last, then ID descending.
+
+Use each capture's stable `id`. Group by its nullable `encounter_id` or
+`consultation_id` when appropriate, keeping standalone captures visible.
+`recorded_at` is the saved capture creation timestamp, which can have been supplied
+at creation; it is not an independently observed measurement time. `updated_at`
+is the last saved modification, not a record of previous overwritten values.
+The clinician identifies the account attributed to the capture.
+
+Render `measurements` dynamically by `key`; do not hard-code only today's active
+fields or identify measurements by their labels. Preserve saved values and units,
+including zero and false. Labels and units can be null. Each capture contains
+only its own populated measurements, including custom fields; it carries no
+values forward from another capture. Current saved elements take precedence,
+including explicit clears. Snapshot-only values are included only when their
+saved timestamps establish that they are at least as recent as the capture.
+These reads do not create or edit captures.

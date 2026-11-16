@@ -653,6 +653,10 @@ paths:
       - Catalogs
       operationId: listOrganizationalPortalIdentificationTypes
       summary: List identification types for an organizational portal
+      description: Lists identification types for an organization. A missing, blank
+        or unknown organization_id returns a generic Resource not found error without
+        exposing the supplied identifier.
+      security: []
       parameters:
       - name: organization_id
         in: query
@@ -689,8 +693,8 @@ paths:
                           - string
                           - 'null'
         '404':
-          description: The requested resource was not found or is outside the authorized
-            patient scope.
+          description: Resource not found. Does not expose model names, identifiers
+            or query details.
           content:
             application/json:
               schema:
@@ -701,10 +705,12 @@ paths:
                 properties:
                   error:
                     type: string
-              examples:
-                not_found:
-                  value:
-                    error: Not found
+                    enum:
+                    - Resource not found
+                example:
+                  error: Resource not found
+              example:
+                error: Resource not found
   "/api/v1/sat/cfdi_uses":
     get:
       tags:
@@ -1304,8 +1310,12 @@ paths:
                             - 'null'
                             example: doctor@example.test
                           image_url:
+                            description: Original account attachment as a signed S3
+                              GET URL valid for 3600 seconds; empty when unavailable.
+                              Refresh before expiry rather than persisting the URL.
+                              Example uses a synthetic nonfunctional signature.
                             type: string
-                            example: https://s3.amazonaws.com/synthetic-assets/accounts/logos/000/000/456/original/doctor-logo.png
+                            example: https://synthetic-assets.s3.amazonaws.com/accounts/logos/000/000/456/original/doctor-logo.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=synthetic-key%2F20261001%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261001T120000Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000
                           office_address:
                             type:
                             - string
@@ -1343,6 +1353,8 @@ paths:
                             type: integer
                             example: 1
                           logo:
+                            description: Public Image-backed medium logo without expiry;
+                              empty when absent.
                             type: string
                             example: https://s3.amazonaws.com/synthetic-assets/images/images/000/000/789/medium/clinic-logo.png
                           main_color:
