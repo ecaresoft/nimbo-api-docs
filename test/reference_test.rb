@@ -16,10 +16,13 @@ class ReferenceTest < Minitest::Test
   def test_one_reference_preserves_existing_definitions_for_deferred_replacements
     outputs = ApiReference.render
     ids = outputs.values.flat_map { |raw| ApiDocsSync.operations(YAML.safe_load(raw)).map { |_, _, op| op['operationId'] } }
-    assert_equal 114, ids.size
+    assert_equal 117, ids.size
     assert_includes ids, 'legacy_nimbo_api_get__specialties_specialty_id'
-    assert_includes ids, 'legacy_nimbo_api_get__waiting_rooms_waiting_room_slug'
-    %w[getSpecialty showSiteAccount showPortalAgendaLocation showWaitingRoomBySlug listSiteOrganizationAccounts].each { |id| refute_includes ids, id }
+    refute_includes ids, 'getSpecialty'
+    refute_includes ids, 'legacy_nimbo_api_get__waiting_rooms_waiting_room_slug'
+    %w[showSiteAccount listSiteOrganizationAccounts showPortalAgendaLocation showWaitingRoomBySlug].each do |id|
+      assert_includes ids, id
+    end
     assert_includes ids, 'listCountryStates'
     refute_includes ids, 'legacy_nimbo_api_get__countries_country_id_states'
   end
@@ -34,20 +37,32 @@ class ReferenceTest < Minitest::Test
       showPatientPortalPersonLabTests listPatientPortalPersonPrescriptions
       showPatientPortalPersonVitalSigns showPatientPortalPersonMedicalHistory
       listPatientPortalPersonConsultationSchedules listPatientPortalPersonConsultationRequests
-      listPatientPortalPersonOrganizationPortals]
-    # The original customer collection has 13 operations. These three reads
-    # have a separate audience/availability review, with the same auth boundary.
-    expected_reads += %w[showPatientPortalConsultation
+      listPatientPortalPersonOrganizationPortals showPatientPortalConsultation
       listPatientPortalPersonVitalSignsHistory listPatientPortalConsultationVitalSignsHistory]
     assert_equal (expected_reads + %w[customerPatientPortalAuth customerPatientPortalValidate]).sort,
       operations.map { |_, _, operation| operation.fetch('operationId') }.sort
     operations.each do |method, _, operation|
       assert_equal(method == 'get' ? [{'PatientPortalToken'=>[]}] : [], operation.fetch('security'))
     end
+    assert_equal ['PatientPortalToken'], portal.fetch('components').fetch('securitySchemes').keys
     assert_equal 'bearer', portal.dig('components', 'securitySchemes', 'PatientPortalToken', 'scheme')
+    otp = portal.fetch('paths').fetch('/api/v1/patient_portal/auth').fetch('post')
+    assert_equal 'boolean', otp.dig('requestBody', 'content', 'application/json', 'schema', 'properties', 'supports_six_digit_otp', 'type')
+    assert_equal [4, 6], otp.dig('responses', '200', 'content', 'application/json', 'schema', 'properties', 'code_length', 'enum')
     catalogs = YAML.safe_load(outputs.fetch('openapi/nimbo_public.yml'))
     refute catalogs.fetch('paths').keys.any? { |path| path.include?('/patient_portal/') }
     assert_match(/creates a new medical history/, operations.find { |_, _, op| op['operationId'] == 'showPatientPortalPersonMedicalHistory' }.last['description'])
+  end
+
+  def test_published_consultation_detail_preserves_appointment_and_encounter_fields
+    portal = YAML.safe_load(ApiReference.render.fetch('openapi/nimbo_patient_portal.yml'))
+    detail = portal.fetch('paths').fetch('/api/v1/patient_portal/consultations/{id}').fetch('get')
+    params = detail.fetch('parameters').map { |parameter| parameter.fetch('name') }
+    assert_includes params, 'include'
+    properties = detail.dig('responses', '200', 'content', 'application/json', 'schema',
+      'properties', 'consultation', 'properties')
+    assert_includes properties.keys, 'appointment'
+    assert_includes properties.keys, 'encounter_id'
   end
 
   def test_committed_reference_bytes_match_with_utf8_descriptions

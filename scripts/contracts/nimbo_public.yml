@@ -2480,14 +2480,17 @@ paths:
       - Patient Portal Auth
       operationId: requestPatientPortalOtp
       summary: Request a patient portal OTP
+      security: []
       description: Requests an OTP for a phone number associated with a non-deleted
-        patient portal person whose phone country is active. Staging and production
-        accept the request only after Twilio accepts a WhatsApp template message or
-        its synchronous SMS fallback. Client errors use generic shapes and requests
-        are rate limited by phone and IP. An explicitly configured store-review test
-        identity instead uses a reusable server credential with fixed fictional patient/organization
-        bindings and an expiration; its request sends no provider message. An invalid
-        or expired configuration fails closed for that identity.
+        patient portal person whose phone country is active. Provider delivery waits
+        for Twilio to accept a WhatsApp template message or its synchronous SMS fallback.
+        The synthetic staging environment can issue test codes without provider delivery.
+        Client errors use generic shapes and requests are rate limited by phone and
+        IP. An explicitly configured store-review test identity instead uses a reusable
+        server credential with fixed fictional patient/organization bindings and an
+        expiration; its request sends no provider message. An invalid or expired configuration
+        fails closed for that identity. A successful ordinary resend replaces the
+        existing code for that phone.
       requestBody:
         required: true
         content:
@@ -2507,11 +2510,42 @@ paths:
                   type: string
                   pattern: "^[0-9]+$"
                   example: '5550100000'
+                supports_six_digit_otp:
+                  type: boolean
+                  default: false
+                  description: Send JSON true on initial requests and resends when
+                    the client can enter either length. The server chooses the length
+                    and returns it in code_length.
       responses:
         '200':
-          description: OTP accepted by the configured delivery provider, or a configured
-            review identity accepted without provider delivery. The response body
-            is empty for legacy compatibility.
+          description: OTP issued after provider acceptance or through staging test
+            mode, or a configured review identity accepted without provider delivery.
+            Requests with the JSON boolean supports_six_digit_otp set to true receive
+            the actual code length. The length is four when six-digit issuance is
+            disabled or for the store-review identity. All other requests have an
+            empty body and use four digits.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - code_length
+                additionalProperties: false
+                properties:
+                  code_length:
+                    type: integer
+                    enum:
+                    - 4
+                    - 6
+                    description: Number of digits to enter for this request. Use four
+                      digits if an older API returns an empty success.
+              examples:
+                four_digits:
+                  value:
+                    code_length: 4
+                six_digits:
+                  value:
+                    code_length: 6
         '404':
           description: The supplied number is invalid or is not eligible for patient
             portal authentication.
@@ -2568,13 +2602,15 @@ paths:
       - Patient Portal Auth
       operationId: validatePatientPortalOtp
       summary: Validate a patient portal OTP
+      security: []
       description: Validates an OTP and returns a patient portal JWT. Token associations
-        include only non-deleted matching people whose phone country is active. A
-        valid ordinary OTP is consumed even if no eligible people remain. An opt-in
-        store-review test identity accepts its reusable credential and issues a JWT
-        restricted to explicitly approved fictional records in one organization. Missing,
-        changed or expired review settings and changed record bindings deny these
-        review sessions on subsequent patient portal requests.
+        include only non-deleted matching people whose phone country is active. The
+        issued four- or six-digit ordinary code can be validated regardless of the
+        current issuance setting. A valid ordinary OTP is consumed even if no eligible
+        people remain. An opt-in store-review test identity accepts its reusable credential
+        and issues a JWT restricted to explicitly approved fictional records in one
+        organization. Missing, changed or expired review settings and changed record
+        bindings deny these review sessions on subsequent patient portal requests.
       requestBody:
         required: true
         content:
@@ -2597,7 +2633,9 @@ paths:
                   example: '5550100000'
                 code:
                   type: string
-                  pattern: "^[0-9]{4}$"
+                  pattern: "^(?:[0-9]{4}|[1-9][0-9]{5})$"
+                  description: Enter the code at its issued length. Preserve any leading
+                    zeros in a four-digit code.
                   example: '0000'
       responses:
         '200':
@@ -3772,11 +3810,14 @@ paths:
         true (missing defaults to true). Pagination defaults to page 1 and per_page
         10. Values above 100 are accepted and clamped to 100 before limit, offset
         and total_pages; nonpositive or nonnumeric page sizes use 10. Each summary
-        adds organization and location from the encounter's recorded location, including
-        inactive branches. Missing or soft-deleted encounters or locations return
-        null organization/location fields without removing the consultation. Default
-        names and empty values are preserved. organization_name retains its existing
-        physician-account meaning. These reads do not change stored data.
+        adds nullable appointment timing independently of the unchanged clinical starts_at,
+        plus organization and location from the encounter's recorded location, including
+        inactive branches. Missing, foreign-patient or soft-deleted encounters or
+        locations return null organization/location fields without removing the consultation.
+        Foreign encounter causes are not exposed. Canceled schedules remain history
+        but never supply appointment timing. Default names and empty values are preserved.
+        organization_name retains its existing physician-account meaning. These reads
+        do not change stored data.
       security:
       - PatientPortalToken: []
       parameters:
@@ -3786,6 +3827,15 @@ paths:
         schema:
           type: integer
         example: 123
+      - name: include
+        in: query
+        description: Exact encounter opt-in adds nullable encounter_id. Omitted or
+          unrecognized values preserve the existing response field set and all existing
+          IDs and meanings.
+        required: false
+        schema:
+          type: string
+        example: encounter
       - name: page
         in: query
         required: false
@@ -3828,6 +3878,7 @@ paths:
                       - id
                       - cause
                       - starts_at
+                      - appointment
                       - doctor_name
                       - doctor_speciality_es
                       - doctor_speciality_en
@@ -3839,6 +3890,53 @@ paths:
                       - url_portal
                       additionalProperties: false
                       properties:
+                        encounter_id:
+                          type:
+                          - integer
+                          - 'null'
+                          description: Present only with include=encounter; owned
+                            kept encounter identity, otherwise null.
+                        appointment:
+                          type:
+                          - object
+                          - 'null'
+                          description: The single eligible schedule attached to the
+                            same patient's kept encounter, independently of the clinical
+                            start timestamp. Only kept, noncanceled schedules are
+                            eligible. Accepted cancellations remain in schedule history
+                            but never supply this appointment context; unrelated,
+                            deleted and ambiguous eligible schedules return null.
+                            This is the currently stored appointment time, not an
+                            immutable original-booking snapshot. No cause, internal
+                            metadata or command permission is added here.
+                          additionalProperties: false
+                          required:
+                          - id
+                          - starts_at
+                          - ends_at
+                          - time_zone
+                          - schedule_type
+                          properties:
+                            id:
+                              type: integer
+                            starts_at:
+                              type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            ends_at:
+                              type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            time_zone:
+                              type: string
+                              description: Validated effective IANA timezone, with
+                                America/Monterrey fallback.
+                            schedule_type:
+                              type:
+                              - string
+                              - 'null'
                         id:
                           type: integer
                         cause:
@@ -3872,11 +3970,12 @@ paths:
                           type:
                           - object
                           - 'null'
-                          description: Organization of the encounter's recorded location,
-                            independently of the physician account's current organization.
-                            Null when the encounter or location is absent or soft-deleted,
-                            or the organization cannot be resolved. Never inferred
-                            from a sole/default branch.
+                          description: Organization of the recorded location on the
+                            same patient's kept encounter, independently of the physician
+                            account's current organization. Null when the encounter
+                            or location is absent or soft-deleted, or the organization
+                            cannot be resolved. Never inferred from a sole/default
+                            branch.
                           required:
                           - id
                           - name
@@ -4128,8 +4227,9 @@ paths:
         patient token. Without scope=history (including unknown scope values), the
         existing response is unchanged: kept schedules starting at Time.zone.yesterday
         in the application timezone, ascending starts_at/id, or descending for state=unstarted.
-        Only scope=history adds the lifecycle fields and returns all past and future
-        kept schedules plus deleted rows explicitly marked cancellation_request_accepted,
+        Only scope=history adds recorded organization and current location address/contact
+        objects alongside the lifecycle fields and returns all past and future kept
+        schedules plus deleted rows explicitly marked cancellation_request_accepted,
         ordered starts_at DESC, id DESC. Generic deletions remain hidden; this does
         not reconstruct every staff cancellation. History state=unstarted excludes
         only schedules with an authorized kept consultation through an owned, kept
@@ -4139,12 +4239,14 @@ paths:
         consultation_finished_at for completion), otherwise cancelled for accepted
         cancellation, arrived for check-in, then the existing cancellation/confirmation/scheduled
         presentation. Explicit cancellation, arrival and missed evidence remains independent;
-        no missing consultation or elapsed timestamp implies a no-show. History never
-        offers confirm/cancel for canceled, missed, checked-in or started rows; remaining
-        action eligibility retains existing notice, organization and payment restrictions.
-        Clinical detail uses consultation_id, never the schedule or encounter ID.
-        Historical pages can be loaded independently of the existing upcoming list.
-        No writes or provider delivery occur.'
+        no missing consultation or elapsed timestamp implies a no-show. Missing, foreign
+        or deleted encounter context yields null organization/location; inactive locations
+        and stored placeholder values remain available. History never offers confirm/cancel
+        for canceled, missed, checked-in or started rows; remaining action eligibility
+        retains existing notice, organization and payment restrictions. Clinical detail
+        uses consultation_id, never the schedule or encounter ID. Historical pages
+        can be loaded independently of the existing upcoming list. No writes or provider
+        delivery occur.'
       security:
       - PatientPortalToken: []
       parameters:
@@ -4311,7 +4413,153 @@ paths:
                         - cancellation_status
                         - cancelled_at
                         - time_zone
+                        - organization
+                        - location
                         properties:
+                          organization:
+                            type:
+                            - object
+                            - 'null'
+                            description: Organization of the recorded location on
+                              the same patient's kept encounter, independently of
+                              the physician account's current organization. Null when
+                              the encounter or location is absent or soft-deleted,
+                              or the organization cannot be resolved. Never inferred
+                              from a sole/default branch.
+                            required:
+                            - id
+                            - name
+                            additionalProperties: false
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type:
+                                - string
+                                - 'null'
+                            example:
+                              id: 101
+                              name: Example Clinic
+                          location:
+                            type:
+                            - object
+                            - 'null'
+                            description: Recorded encounter location with its current
+                              address and contact information. Uses the same resolution
+                              and historical-membership rules as the summary. Every
+                              documented field is present for an existing location.
+                              Address, city, postal code and telephone preserve stored
+                              strings, including empty strings and placeholders; numeric
+                              values are serialized as strings without inferring missing
+                              formatting or leading zeros. Missing, boolean, array
+                              and object field values are null. A non-object office
+                              store makes these four text fields null without hiding
+                              the location or its geography. No organization or physician
+                              address/contact fallback is applied.
+                            required:
+                            - id
+                            - name
+                            - active
+                            - address
+                            - city
+                            - postal_code
+                            - telephone
+                            - state
+                            - country
+                            additionalProperties: false
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type:
+                                - string
+                                - 'null'
+                              active:
+                                type:
+                                - boolean
+                                - 'null'
+                                description: Stored operational status; false does
+                                  not remove a historical location.
+                              address:
+                                type:
+                                - string
+                                - 'null'
+                                description: Branch address as text, without inferred
+                                  formatting or supplementation.
+                              city:
+                                type:
+                                - string
+                                - 'null'
+                              postal_code:
+                                type:
+                                - string
+                                - 'null'
+                              telephone:
+                                type:
+                                - string
+                                - 'null'
+                              state:
+                                type:
+                                - object
+                                - 'null'
+                                description: Location's state, or null when not configured
+                                  or no longer resolvable.
+                                required:
+                                - id
+                                - name
+                                additionalProperties: false
+                                properties:
+                                  id:
+                                    type: integer
+                                  name:
+                                    type:
+                                    - string
+                                    - 'null'
+                              country:
+                                type:
+                                - object
+                                - 'null'
+                                description: State's country, including inactive countries;
+                                  null when not resolvable.
+                                required:
+                                - id
+                                - name_es
+                                - name_en
+                                - code
+                                additionalProperties: false
+                                properties:
+                                  id:
+                                    type: integer
+                                  name_es:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  name_en:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  code:
+                                    type:
+                                    - string
+                                    - 'null'
+                                    description: Stored country abbreviation, not
+                                      its telephone calling code.
+                            example:
+                              id: 202
+                              name: Central Branch
+                              active: true
+                              address: 123 Example Avenue
+                              city: Example City
+                              postal_code: '01000'
+                              telephone: ''
+                              state:
+                                id: 301
+                                name: Example State
+                              country:
+                                id: 401
+                                name_es: Mexico
+                                name_en: Mexico
+                                code: MX
                           id:
                             type: integer
                           cause:
@@ -4772,17 +5020,20 @@ paths:
       - Patient Portal
       operationId: showPatientPortalConsultation
       summary: Show an authorized consultation detail
-      description: Adds organization and location from the encounter's recorded location.
-        The location includes its current address, city, postal code, telephone, state
-        and country, not a historical snapshot. Inactive locations remain visible;
-        absent or soft-deleted encounters or locations return null organization/location
-        fields. All fields are present for an existing location, preserving Default
-        names, empty strings and placeholders. Numeric address/contact values become
-        strings without inferred formatting; missing or unsupported values are null.
-        Invalid office stores retain location identity/geography with null text fields.
-        No physician or organization address fallback is applied. organization_name
-        retains its existing physician-account meaning. These reads do not change
-        stored data or deliver provider messages.
+      description: Adds nullable linked appointment timing (including timezone/type)
+        independently of clinical starts_at, plus organization and location from the
+        encounter's recorded location. The location includes its current address,
+        city, postal code, telephone, state and country, not a historical snapshot.
+        Inactive locations remain visible; absent, foreign-patient or soft-deleted
+        encounters or locations return null organization/location fields. All fields
+        are present for an existing location, preserving Default names, empty strings
+        and placeholders. Numeric address/contact values become strings without inferred
+        formatting; missing or unsupported values are null. Invalid office stores
+        retain location identity/geography with null text fields. No physician or
+        organization address fallback is applied. organization_name retains its existing
+        physician-account meaning. Foreign encounter causes are not exposed, and canceled
+        schedules never supply appointment timing. These reads do not change stored
+        data or deliver provider messages.
       security:
       - PatientPortalToken: []
       parameters:
@@ -4792,6 +5043,15 @@ paths:
         schema:
           type: string
         example: '123'
+      - name: include
+        in: query
+        description: Exact encounter opt-in adds nullable encounter_id. Omitted or
+          unrecognized values preserve the existing response field set and all existing
+          IDs and meanings.
+        required: false
+        schema:
+          type: string
+        example: encounter
       responses:
         '200':
           description: Non-deleted consultation detail with kept nested notes, lab
@@ -4810,6 +5070,7 @@ paths:
                     - id
                     - cause
                     - starts_at
+                    - appointment
                     - doctor_name
                     - organization_name
                     - organization
@@ -4824,6 +5085,53 @@ paths:
                     - prescriptions
                     additionalProperties: false
                     properties:
+                      encounter_id:
+                        type:
+                        - integer
+                        - 'null'
+                        description: Present only with include=encounter; owned kept
+                          encounter identity, otherwise null.
+                      appointment:
+                        type:
+                        - object
+                        - 'null'
+                        description: The single eligible schedule attached to the
+                          same patient's kept encounter, independently of the clinical
+                          start timestamp. Only kept, noncanceled schedules are eligible.
+                          Accepted cancellations remain in schedule history but never
+                          supply this appointment context; unrelated, deleted and
+                          ambiguous eligible schedules return null. This is the currently
+                          stored appointment time, not an immutable original-booking
+                          snapshot. No cause, internal metadata or command permission
+                          is added here.
+                        additionalProperties: false
+                        required:
+                        - id
+                        - starts_at
+                        - ends_at
+                        - time_zone
+                        - schedule_type
+                        properties:
+                          id:
+                            type: integer
+                          starts_at:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                          ends_at:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                          time_zone:
+                            type: string
+                            description: Validated effective IANA timezone, with America/Monterrey
+                              fallback.
+                          schedule_type:
+                            type:
+                            - string
+                            - 'null'
                       id:
                         type: integer
                       cause:
@@ -4849,11 +5157,11 @@ paths:
                         type:
                         - object
                         - 'null'
-                        description: Organization of the encounter's recorded location,
-                          independently of the physician account's current organization.
-                          Null when the encounter or location is absent or soft-deleted,
-                          or the organization cannot be resolved. Never inferred from
-                          a sole/default branch.
+                        description: Organization of the recorded location on the
+                          same patient's kept encounter, independently of the physician
+                          account's current organization. Null when the encounter
+                          or location is absent or soft-deleted, or the organization
+                          cannot be resolved. Never inferred from a sole/default branch.
                         required:
                         - id
                         - name
@@ -5696,6 +6004,6 @@ components:
         '
 x-nimbo-source:
   repository: ecaresoft/nimbo-api
-  revision: 91c374d251a0f7d8a4241b4f508ff37e1ec357e5
+  revision: 3891c4974252743b071600e9611295adf7a7ff8b
   path: docs/api/generated/openapi.public.yaml
-  sha256: 812edea638710b573af7f59c7cc303658c2a2fcafc7541bab32f66bd50a5ff1b
+  sha256: 32123783e2e401e32f50faffd8f3a8dc38be95d14a67ea41122a0d97b37c8ba1

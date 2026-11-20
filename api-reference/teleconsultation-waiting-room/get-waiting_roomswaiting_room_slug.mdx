@@ -1,0 +1,9 @@
+---
+title: "Find a waiting room by slug"
+description: "Resolve a room or entry-point link to a public waiting room."
+openapi: "openapi/nimbo_public.yml GET /api/v1/waiting_rooms/waiting_room_slug"
+---
+
+Pass the slug from the waiting-room link. The API checks active room slugs first, then active entry points for active rooms. The response always describes the parent room.
+
+An entry-point link returns `entry_point.id`. Pass that ID when joining the queue to preserve where the visit started. A canonical room link returns `entry_point` as `null`. An unknown or inactive destination returns an empty HTTP 404.

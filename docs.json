@@ -243,7 +243,7 @@
               "openapi/nimbo_api.yml GET /telehealth_waiting_rooms/{waiting_room_encrypted_id}/check",
               "api-reference/teleconsultation-waiting-room/get-waiting_rooms",
               "api-reference/teleconsultation-waiting-room/get-waiting_rooms-1",
-              "openapi/nimbo_api.yml GET /waiting_rooms/waiting_room_slug"
+              "api-reference/teleconsultation-waiting-room/get-waiting_roomswaiting_room_slug"
             ]
           },
           {
@@ -274,7 +274,10 @@
           {
             "group": "Sites",
             "pages": [
-              "openapi/nimbo_public.yml GET /api/v1/sites/organizations/{id}"
+              "openapi/nimbo_public.yml GET /api/v1/sites/organizations/{id}",
+              "openapi/nimbo_public.yml GET /api/v1/sites/organizations/{id}/accounts",
+              "openapi/nimbo_public.yml GET /api/v1/sites/accounts/{id}",
+              "openapi/nimbo_public.yml GET /api/v1/portals/locations/agenda"
             ]
           },
           {
