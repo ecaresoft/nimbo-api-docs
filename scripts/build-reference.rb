@@ -80,7 +80,14 @@ module ApiReference
       raise "Duplicate portal path: #{path}" if portal['paths'].key?(path)
       portal['paths'][path] = public_doc['paths'].delete(path)
     end
-    portal['components'] = public_doc.delete('components') if public_doc['components']
+    schemes = public_doc.delete('components')&.fetch('securitySchemes', {}) || {}
+    [public_doc, portal].each do |document|
+      used = ApiDocsSync.operations(document).flat_map do |_, _, operation|
+        operation.fetch('security', []).flat_map(&:keys)
+      end.uniq
+      next if used.empty?
+      document['components'] = {'securitySchemes'=>used.to_h { |name| [name, schemes.fetch(name)] }}
+    end
     portal['tags'] = [{'name'=>'Patient Portal'}, {'name'=>'Patient portal authentication'}]
     public_doc['tags'] = public_doc.fetch('tags', []).reject { |tag| tag['name'].start_with?('Patient Portal') }
     outputs[public_file] = YAML.dump(public_doc)

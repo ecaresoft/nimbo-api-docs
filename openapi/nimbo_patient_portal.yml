@@ -13,7 +13,22 @@ paths:
       summary: Request a patient portal OTP
       responses:
         '200':
-          description: The request succeeded.
+          description: The code was requested. A request with supports_six_digit_otp
+            set to true can return the issued code length as JSON. An empty success
+            indicates a four-digit code.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - code_length
+                properties:
+                  code_length:
+                    type: integer
+                    enum:
+                    - 4
+                    - 6
+                    description: Number of digits to enter for this request.
       requestBody:
         content:
           application/json:
@@ -24,12 +39,18 @@ paths:
                   type: string
                 phone:
                   type: string
+                supports_six_digit_otp:
+                  type: boolean
+                  default: false
+                  description: Send true on the initial request and on resends when
+                    your client accepts either code length.
       operationId: customerPatientPortalAuth
       tags:
       - Patient portal authentication
       security: []
-      description: Requests a one-time code for the patient phone number. Use the
-        country code and phone fields supplied for your integration.
+      description: Requests a one-time code for the patient phone number. Requests
+        that omit supports_six_digit_otp use four digits and receive an empty success
+        response. A successful resend replaces the previous code for this phone.
   "/api/v1/patient_portal/validate":
     post:
       summary: Validate a patient portal OTP
@@ -51,6 +72,9 @@ paths:
               properties:
                 code:
                   type: string
+                  pattern: "^(?:[0-9]{4}|[1-9][0-9]{5})$"
+                  description: Enter the code at the issued length and preserve any
+                    leading zeros.
                 country_code:
                   type: string
                 phone:
@@ -168,6 +192,9 @@ paths:
       - Patient Portal
       operationId: showPatientPortalPersonOrganization
       summary: Show an authorized patient's public organization
+      description: Returns public settings and computed flags under public_organization.
+        Tax identity and address fields and private option groups are omitted. Computed
+        insurance and chat flags still use the stored configuration.
       security:
       - PatientPortalToken: []
       parameters:
@@ -194,16 +221,6 @@ paths:
                     - id
                     - name
                     - owner_id
-                    - tax_name
-                    - tax_rfc
-                    - tax_address_one
-                    - tax_address_two
-                    - tax_zip_code
-                    - tax_exterior_number
-                    - tax_interior_number
-                    - tax_city
-                    - tax_state
-                    - tax_country
                     - kind
                     - slug
                     - username
@@ -231,46 +248,6 @@ paths:
                         type:
                         - integer
                         - 'null'
-                      tax_name:
-                        type:
-                        - string
-                        - 'null'
-                      tax_rfc:
-                        type:
-                        - string
-                        - 'null'
-                      tax_address_one:
-                        type:
-                        - string
-                        - 'null'
-                      tax_address_two:
-                        type:
-                        - string
-                        - 'null'
-                      tax_zip_code:
-                        type:
-                        - string
-                        - 'null'
-                      tax_exterior_number:
-                        type:
-                        - string
-                        - 'null'
-                      tax_interior_number:
-                        type:
-                        - string
-                        - 'null'
-                      tax_city:
-                        type:
-                        - string
-                        - 'null'
-                      tax_state:
-                        type:
-                        - string
-                        - 'null'
-                      tax_country:
-                        type:
-                        - string
-                        - 'null'
                       kind:
                         type:
                         - string
@@ -294,7 +271,16 @@ paths:
                         example: demo-main
                       options:
                         type: object
+                        description: Public organization options. Private integration
+                          groups, provider credentials, internal MRN controls, contact
+                          settings, password policies and two-factor settings are
+                          excluded at the top level, including all their nested values.
+                          Missing or null stored options produce an empty object.
                         additionalProperties: true
+                        example:
+                          telehealth: true
+                          patient_portal_chat_disabled: false
+                          share_medical_history: true
                       logo:
                         type: string
                         example: https://s3.amazonaws.com/synthetic-assets/images/images/000/000/789/medium/clinic-logo.png
@@ -365,8 +351,11 @@ paths:
       - Patient Portal
       operationId: showPatientPortalPersonMedicalHistory
       summary: Show or create an authorized patient's medical history
-      description: Returns the medical history for an authorized patient. If no active
-        history exists, this read creates a new medical history record.
+      description: Returns medical history when the patient’s organization has enabled
+        sharing. Free-text allergies appear in records.allergies. Catalogue entries
+        are returned separately in medical_history_allergies, which can be empty.
+        If there is no active history, this read creates a new medical history record.
+        The editable flag reflects the organization’s patient-editing setting.
       security:
       - PatientPortalToken: []
       parameters:
@@ -391,6 +380,7 @@ paths:
                     type: object
                     required:
                     - records
+                    - medical_history_allergies
                     - editable
                     - id
                     additionalProperties: false
@@ -402,6 +392,58 @@ paths:
                       records:
                         type: object
                         additionalProperties: true
+                      medical_history_allergies:
+                        type: array
+                        description: 'Non-deleted catalogue allergies belonging to
+                          this history, in ascending ID order. Independent of records.allergies
+                          and the configured record groups; empty when there are no
+                          entries. Uses persisted catalogue fields.
+
+                          '
+                        items:
+                          type: object
+                          required:
+                          - id
+                          - medical_history_id
+                          - allergy_id
+                          - name
+                          - drug_data_identifier
+                          - updater_name
+                          - metadata
+                          additionalProperties: false
+                          properties:
+                            id:
+                              type: integer
+                            medical_history_id:
+                              type: integer
+                            allergy_id:
+                              type:
+                              - integer
+                              - 'null'
+                            name:
+                              type:
+                              - string
+                              - 'null'
+                            drug_data_identifier:
+                              type:
+                              - string
+                              - 'null'
+                            updater_name:
+                              type: string
+                              enum:
+                              - ''
+                            metadata:
+                              description: Persisted JSON metadata, including null,
+                                without normalization.
+                          example:
+                            id: 101
+                            medical_history_id: 201
+                            allergy_id: 301
+                            name: Synthetic catalogue entry
+                            drug_data_identifier: synthetic-301
+                            updater_name: ''
+                            metadata: {}
+                        example: []
         '401':
           description: Missing, expired, invalid, or unauthorized patient portal token.
           content:
@@ -418,6 +460,23 @@ paths:
                 unauthorized:
                   value:
                     error: Unauthorized
+        '403':
+          description: The patient's organization has not explicitly enabled clinical-data
+            sharing.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_shared:
+                  value:
+                    error: Clinical data is not shared
         '404':
           description: The requested resource was not found or is outside the authorized
             patient scope.
@@ -441,6 +500,12 @@ paths:
       - Patient Portal
       operationId: showPatientPortalPersonVitalSigns
       summary: Show merged patient-facing vital signs
+      description: 'Requires the authorized patient''s organization to set share_medical_history
+        to the boolean true. Missing, false, null, malformed, or absent organization
+        settings return 403 before reading, creating, updating, or auditing clinical
+        data.
+
+        '
       security:
       - PatientPortalToken: []
       parameters:
@@ -532,6 +597,23 @@ paths:
                 unauthorized:
                   value:
                     error: Unauthorized
+        '403':
+          description: The patient's organization has not explicitly enabled clinical-data
+            sharing.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_shared:
+                  value:
+                    error: Clinical data is not shared
         '404':
           description: The requested resource was not found or is outside the authorized
             patient scope.
@@ -555,6 +637,12 @@ paths:
       - Patient Portal
       operationId: showPatientPortalPersonLabTests
       summary: Show patient-facing lab test results
+      description: 'Requires the authorized patient''s organization to set share_medical_history
+        to the boolean true. Missing, false, null, malformed, or absent organization
+        settings return 403 before reading, creating, updating, or auditing clinical
+        data.
+
+        '
       security:
       - PatientPortalToken: []
       parameters:
@@ -618,6 +706,23 @@ paths:
                 unauthorized:
                   value:
                     error: Unauthorized
+        '403':
+          description: The patient's organization has not explicitly enabled clinical-data
+            sharing.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_shared:
+                  value:
+                    error: Clinical data is not shared
         '404':
           description: The requested resource was not found or is outside the authorized
             patient scope.
@@ -769,7 +874,17 @@ paths:
         so consumers can omit inactive physicians from "Mis médicos" without deleting
         clinical history. url_portal is non-null only when that physician is active,
         has a username and present schedule configuration, and has use_portal exactly
-        true (missing defaults to true).
+        true (missing defaults to true). Pagination defaults to page 1 and per_page
+        10. Values above 100 are accepted and clamped to 100 before limit, offset
+        and total_pages; nonpositive or nonnumeric page sizes use 10. Each summary
+        adds nullable appointment timing independently of the unchanged clinical starts_at,
+        plus organization and location from the encounter's recorded location, including
+        inactive branches. Missing, foreign-patient or soft-deleted encounters or
+        locations return null organization/location fields without removing the consultation.
+        Foreign encounter causes are not exposed. Canceled schedules remain history
+        but never supply appointment timing. Default names and empty values are preserved.
+        organization_name retains its existing physician-account meaning. These reads
+        do not change stored data.
       security:
       - PatientPortalToken: []
       parameters:
@@ -779,6 +894,15 @@ paths:
         schema:
           type: integer
         example: 123
+      - name: include
+        in: query
+        description: Exact encounter opt-in adds nullable encounter_id. Omitted or
+          unrecognized values preserve the existing response field set and all existing
+          IDs and meanings.
+        required: false
+        schema:
+          type: string
+        example: encounter
       - name: page
         in: query
         required: false
@@ -790,6 +914,9 @@ paths:
       - name: per_page
         in: query
         required: false
+        description: Requested page size; values above 100 are accepted and clamped
+          to 100 before limit, offset and total_pages calculations. Nonpositive handling
+          is operation-specific.
         schema:
           type: integer
           minimum: 1
@@ -818,15 +945,65 @@ paths:
                       - id
                       - cause
                       - starts_at
+                      - appointment
                       - doctor_name
                       - doctor_speciality_es
                       - doctor_speciality_en
                       - organization_name
+                      - organization
+                      - location
                       - doctor_speciality
                       - doctor_active
                       - url_portal
                       additionalProperties: false
                       properties:
+                        encounter_id:
+                          type:
+                          - integer
+                          - 'null'
+                          description: Present only with include=encounter; owned
+                            kept encounter identity, otherwise null.
+                        appointment:
+                          type:
+                          - object
+                          - 'null'
+                          description: The single eligible schedule attached to the
+                            same patient's kept encounter, independently of the clinical
+                            start timestamp. Only kept, noncanceled schedules are
+                            eligible. Accepted cancellations remain in schedule history
+                            but never supply this appointment context; unrelated,
+                            deleted and ambiguous eligible schedules return null.
+                            This is the currently stored appointment time, not an
+                            immutable original-booking snapshot. No cause, internal
+                            metadata or command permission is added here.
+                          additionalProperties: false
+                          required:
+                          - id
+                          - starts_at
+                          - ends_at
+                          - time_zone
+                          - schedule_type
+                          properties:
+                            id:
+                              type: integer
+                            starts_at:
+                              type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            ends_at:
+                              type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            time_zone:
+                              type: string
+                              description: Validated effective IANA timezone, with
+                                America/Monterrey fallback.
+                            schedule_type:
+                              type:
+                              - string
+                              - 'null'
                         id:
                           type: integer
                         cause:
@@ -854,6 +1031,63 @@ paths:
                           type:
                           - string
                           - 'null'
+                          description: Physician account's current organization name;
+                            retained for compatibility.
+                        organization:
+                          type:
+                          - object
+                          - 'null'
+                          description: Organization of the recorded location on the
+                            same patient's kept encounter, independently of the physician
+                            account's current organization. Null when the encounter
+                            or location is absent or soft-deleted, or the organization
+                            cannot be resolved. Never inferred from a sole/default
+                            branch.
+                          required:
+                          - id
+                          - name
+                          additionalProperties: false
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type:
+                              - string
+                              - 'null'
+                          example:
+                            id: 101
+                            name: Example Clinic
+                        location:
+                          type:
+                          - object
+                          - 'null'
+                          description: Location referenced by the encounter, including
+                            inactive locations. Null when the encounter or location
+                            is absent or soft-deleted. Names such as Default and empty
+                            strings are returned unchanged. Values describe the current
+                            location record, not a snapshot at the encounter date.
+                          required:
+                          - id
+                          - name
+                          - active
+                          additionalProperties: false
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type:
+                              - string
+                              - 'null'
+                            active:
+                              type:
+                              - boolean
+                              - 'null'
+                              description: Stored operational status; false does not
+                                remove a historical location.
+                          example:
+                            id: 202
+                            name: Central Branch
+                            active: true
                         doctor_speciality:
                           type:
                           - string
@@ -920,6 +1154,12 @@ paths:
       - Patient Portal
       operationId: listPatientPortalPersonPrescriptions
       summary: List authorized patient prescriptions
+      description: 'Requires the authorized patient''s organization to set share_medical_history
+        to the boolean true. Missing, false, null, malformed, or absent organization
+        settings return 403 before reading, creating, updating, or auditing clinical
+        data.
+
+        '
       security:
       - PatientPortalToken: []
       parameters:
@@ -1008,6 +1248,23 @@ paths:
                 unauthorized:
                   value:
                     error: Unauthorized
+        '403':
+          description: The patient's organization has not explicitly enabled clinical-data
+            sharing.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+              examples:
+                not_shared:
+                  value:
+                    error: Clinical data is not shared
         '404':
           description: The requested resource was not found or is outside the authorized
             patient scope.
@@ -1031,6 +1288,32 @@ paths:
       - Patient Portal
       operationId: listPatientPortalPersonConsultationSchedules
       summary: List authorized patient consultation schedules
+      description: 'Pagination defaults to page 1 and per_page 10. Values above 100
+        are accepted and clamped to 100 before limit, offset and total_pages; nonpositive
+        or nonnumeric page sizes use 10. Resolves the patient through the authenticated
+        patient token. Without scope=history (including unknown scope values), the
+        existing response is unchanged: kept schedules starting at Time.zone.yesterday
+        in the application timezone, ascending starts_at/id, or descending for state=unstarted.
+        Only scope=history adds recorded organization and current location address/contact
+        objects alongside the lifecycle fields and returns all past and future kept
+        schedules plus deleted rows explicitly marked cancellation_request_accepted,
+        ordered starts_at DESC, id DESC. Generic deletions remain hidden; this does
+        not reconstruct every staff cancellation. History state=unstarted excludes
+        only schedules with an authorized kept consultation through an owned, kept
+        encounter. Accepted cancellations with no linked consultation remain in history
+        when state=unstarted; default unstarted behavior remains unchanged. History
+        consultation status is started whenever a linked consultation exists (use
+        consultation_finished_at for completion), otherwise cancelled for accepted
+        cancellation, arrived for check-in, then the existing cancellation/confirmation/scheduled
+        presentation. Explicit cancellation, arrival and missed evidence remains independent;
+        no missing consultation or elapsed timestamp implies a no-show. Missing, foreign
+        or deleted encounter context yields null organization/location; inactive locations
+        and stored placeholder values remain available. History never offers confirm/cancel
+        for canceled, missed, checked-in or started rows; remaining action eligibility
+        retains existing notice, organization and payment restrictions. Clinical detail
+        uses consultation_id, never the schedule or encounter ID. Historical pages
+        can be loaded independently of the existing upcoming list. No writes or provider
+        delivery occur.'
       security:
       - PatientPortalToken: []
       parameters:
@@ -1051,6 +1334,9 @@ paths:
       - name: per_page
         in: query
         required: false
+        description: Requested page size; values above 100 are accepted and clamped
+          to 100 before limit, offset and total_pages calculations. Nonpositive handling
+          is operation-specific.
         schema:
           type: integer
           minimum: 1
@@ -1064,10 +1350,18 @@ paths:
           enum:
           - unstarted
         example: unstarted
+      - name: scope
+        in: query
+        required: false
+        description: The exact value history opts into complete schedules and lifecycle
+          fields. Omitted and all other values preserve the existing response.
+        schema:
+          type: string
+        example: history
       responses:
         '200':
-          description: Paginated non-deleted upcoming schedules ordered by starts_at
-            ascending, or descending for state=unstarted.
+          description: Existing recent schedules, or the extended complete history
+            projection only when scope=history is requested.
           content:
             application/json:
               schema:
@@ -1080,77 +1374,406 @@ paths:
                   consultation_schedules:
                     type: array
                     items:
-                      type: object
-                      required:
-                      - id
-                      - cause
-                      - starts_at
-                      - ends_at
-                      - doctor_name
-                      - doctor_image
-                      - organization_name
-                      - patient_name
-                      - schedule_type
-                      - status
-                      - can_confirm_schedule
-                      - can_cancel_schedule
-                      - doctor_speciality
-                      - doctor_speciality_es
-                      - doctor_speciality_en
-                      additionalProperties: false
-                      properties:
-                        id:
-                          type: integer
-                        cause:
-                          type:
-                          - string
-                          - 'null'
-                        starts_at:
-                          type:
-                          - string
-                          - 'null'
-                          format: date-time
-                        ends_at:
-                          type:
-                          - string
-                          - 'null'
-                          format: date-time
-                        doctor_name:
-                          type:
-                          - string
-                          - 'null'
-                        doctor_image:
-                          type: string
-                        organization_name:
-                          type:
-                          - string
-                          - 'null'
-                        patient_name:
-                          type: string
-                        schedule_type:
-                          type:
-                          - string
-                          - 'null'
-                        status:
-                          type:
-                          - string
-                          - 'null'
-                        can_confirm_schedule:
-                          type: boolean
-                        can_cancel_schedule:
-                          type: boolean
-                        doctor_speciality:
-                          type:
-                          - string
-                          - 'null'
-                        doctor_speciality_es:
-                          type:
-                          - string
-                          - 'null'
-                        doctor_speciality_en:
-                          type:
-                          - string
-                          - 'null'
+                      oneOf:
+                      - type: object
+                        required:
+                        - id
+                        - cause
+                        - starts_at
+                        - ends_at
+                        - doctor_name
+                        - doctor_image
+                        - organization_name
+                        - patient_name
+                        - schedule_type
+                        - status
+                        - can_confirm_schedule
+                        - can_cancel_schedule
+                        - doctor_speciality
+                        - doctor_speciality_es
+                        - doctor_speciality_en
+                        additionalProperties: false
+                        properties:
+                          id:
+                            type: integer
+                          cause:
+                            type:
+                            - string
+                            - 'null'
+                          starts_at:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                          ends_at:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                          doctor_name:
+                            type:
+                            - string
+                            - 'null'
+                          doctor_image:
+                            type: string
+                          organization_name:
+                            type:
+                            - string
+                            - 'null'
+                          patient_name:
+                            type: string
+                          schedule_type:
+                            type:
+                            - string
+                            - 'null'
+                          status:
+                            type:
+                            - string
+                            - 'null'
+                          can_confirm_schedule:
+                            type: boolean
+                          can_cancel_schedule:
+                            type: boolean
+                          doctor_speciality:
+                            type:
+                            - string
+                            - 'null'
+                          doctor_speciality_es:
+                            type:
+                            - string
+                            - 'null'
+                          doctor_speciality_en:
+                            type:
+                            - string
+                            - 'null'
+                      - type: object
+                        description: Opt-in scope=history projection of one scheduled
+                          encounter. Consultation identity is resolved through the
+                          authorized patient and a kept, owned encounter. A null consultation_id
+                          means no accessible kept consultation; it never establishes
+                          nonattendance. Private consultation causes are masked. No
+                          internal metadata or clinical detail is included. Specialties
+                          can be null when the schedule account is unavailable. Existing
+                          clients receive ConsultationSchedule.
+                        additionalProperties: false
+                        required:
+                        - id
+                        - cause
+                        - starts_at
+                        - ends_at
+                        - doctor_name
+                        - doctor_image
+                        - organization_name
+                        - patient_name
+                        - schedule_type
+                        - status
+                        - can_confirm_schedule
+                        - can_cancel_schedule
+                        - doctor_speciality
+                        - doctor_speciality_es
+                        - doctor_speciality_en
+                        - encounter_id
+                        - consultation_id
+                        - consultation_finished_at
+                        - arrival_at
+                        - missed_at
+                        - cancellation_status
+                        - cancelled_at
+                        - time_zone
+                        - organization
+                        - location
+                        properties:
+                          organization:
+                            type:
+                            - object
+                            - 'null'
+                            description: Organization of the recorded location on
+                              the same patient's kept encounter, independently of
+                              the physician account's current organization. Null when
+                              the encounter or location is absent or soft-deleted,
+                              or the organization cannot be resolved. Never inferred
+                              from a sole/default branch.
+                            required:
+                            - id
+                            - name
+                            additionalProperties: false
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type:
+                                - string
+                                - 'null'
+                            example:
+                              id: 101
+                              name: Example Clinic
+                          location:
+                            type:
+                            - object
+                            - 'null'
+                            description: Recorded encounter location with its current
+                              address and contact information. Uses the same resolution
+                              and historical-membership rules as the summary. Every
+                              documented field is present for an existing location.
+                              Address, city, postal code and telephone preserve stored
+                              strings, including empty strings and placeholders; numeric
+                              values are serialized as strings without inferring missing
+                              formatting or leading zeros. Missing, boolean, array
+                              and object field values are null. A non-object office
+                              store makes these four text fields null without hiding
+                              the location or its geography. No organization or physician
+                              address/contact fallback is applied.
+                            required:
+                            - id
+                            - name
+                            - active
+                            - address
+                            - city
+                            - postal_code
+                            - telephone
+                            - state
+                            - country
+                            additionalProperties: false
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type:
+                                - string
+                                - 'null'
+                              active:
+                                type:
+                                - boolean
+                                - 'null'
+                                description: Stored operational status; false does
+                                  not remove a historical location.
+                              address:
+                                type:
+                                - string
+                                - 'null'
+                                description: Branch address as text, without inferred
+                                  formatting or supplementation.
+                              city:
+                                type:
+                                - string
+                                - 'null'
+                              postal_code:
+                                type:
+                                - string
+                                - 'null'
+                              telephone:
+                                type:
+                                - string
+                                - 'null'
+                              state:
+                                type:
+                                - object
+                                - 'null'
+                                description: Location's state, or null when not configured
+                                  or no longer resolvable.
+                                required:
+                                - id
+                                - name
+                                additionalProperties: false
+                                properties:
+                                  id:
+                                    type: integer
+                                  name:
+                                    type:
+                                    - string
+                                    - 'null'
+                              country:
+                                type:
+                                - object
+                                - 'null'
+                                description: State's country, including inactive countries;
+                                  null when not resolvable.
+                                required:
+                                - id
+                                - name_es
+                                - name_en
+                                - code
+                                additionalProperties: false
+                                properties:
+                                  id:
+                                    type: integer
+                                  name_es:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  name_en:
+                                    type:
+                                    - string
+                                    - 'null'
+                                  code:
+                                    type:
+                                    - string
+                                    - 'null'
+                                    description: Stored country abbreviation, not
+                                      its telephone calling code.
+                            example:
+                              id: 202
+                              name: Central Branch
+                              active: true
+                              address: 123 Example Avenue
+                              city: Example City
+                              postal_code: '01000'
+                              telephone: ''
+                              state:
+                                id: 301
+                                name: Example State
+                              country:
+                                id: 401
+                                name_es: Mexico
+                                name_en: Mexico
+                                code: MX
+                          id:
+                            type: integer
+                          cause:
+                            type:
+                            - string
+                            - 'null'
+                          starts_at:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                          ends_at:
+                            type:
+                            - string
+                            - 'null'
+                            format: date-time
+                          doctor_name:
+                            type:
+                            - string
+                            - 'null'
+                          doctor_image:
+                            type: string
+                          organization_name:
+                            type:
+                            - string
+                            - 'null'
+                          patient_name:
+                            type: string
+                          schedule_type:
+                            type:
+                            - string
+                            - 'null'
+                          status:
+                            type:
+                            - string
+                            - 'null'
+                          can_confirm_schedule:
+                            type: boolean
+                          can_cancel_schedule:
+                            type: boolean
+                          doctor_speciality:
+                            type:
+                            - string
+                            - 'null'
+                          doctor_speciality_es:
+                            type:
+                            - string
+                            - 'null'
+                          doctor_speciality_en:
+                            type:
+                            - string
+                            - 'null'
+                          encounter_id:
+                            type:
+                            - integer
+                            - 'null'
+                            description: Owned, kept encounter identity; null for
+                              missing, deleted or foreign encounters. Never use this
+                              ID as a consultation-detail ID.
+                          consultation_id:
+                            type:
+                            - integer
+                            - 'null'
+                            description: Kept consultation owned by the authorized
+                              patient, linked through the kept encounter. Use this
+                              ID with the existing consultation-detail endpoint.
+                          consultation_finished_at:
+                            allOf:
+                            - type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            description: Explicit completion timestamp of the linked
+                              consultation; null while in progress or when no accessible
+                              consultation exists.
+                          arrival_at:
+                            allOf:
+                            - type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            description: Explicit patient check-in timestamp. Does
+                              not prove clinical completion.
+                          missed_at:
+                            allOf:
+                            - type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            description: Explicitly recorded nonattendance timestamp.
+                              An elapsed appointment or absent consultation never
+                              supplies this value.
+                          cancelled_at:
+                            allOf:
+                            - type:
+                              - string
+                              - 'null'
+                              format: date-time
+                            description: Soft-delete timestamp only for cancellation_request_accepted.
+                              Null for pending/rejected requests and accepted rows
+                              without a deletion timestamp.
+                          cancellation_status:
+                            type:
+                            - string
+                            - 'null'
+                            enum:
+                            - pending_cancellation
+                            - cancellation_request_rejected
+                            - cancellation_request_accepted
+                            -
+                            description: Explicit stored cancellation-request state,
+                              independent of the presentation status. Null for other
+                              stored states.
+                          time_zone:
+                            type: string
+                            description: IANA timezone from the schedule account's
+                              configuration.timezone, validated through ActiveSupport::TimeZone.
+                              Missing/invalid settings or a missing account fall back
+                              to America/Monterrey, matching the staff timezone default
+                              independently of the application timezone. Timestamps
+                              retain their absolute values; history retrieval applies
+                              no calendar-day cutoff.
+                            example: America/Monterrey
+                        example:
+                          id: 71001
+                          cause: Synthetic follow-up
+                          starts_at: '2026-06-24T15:00:00Z'
+                          ends_at: '2026-06-24T15:30:00Z'
+                          doctor_name: Example Doctor
+                          doctor_image: ''
+                          organization_name: Example Clinic
+                          patient_name: Example Patient
+                          schedule_type: appointment
+                          status: started
+                          can_confirm_schedule: false
+                          can_cancel_schedule: false
+                          doctor_speciality: Medicina general
+                          doctor_speciality_es: Medicina general
+                          doctor_speciality_en: General medicine
+                          encounter_id: 72001
+                          consultation_id: 73001
+                          consultation_finished_at: '2026-06-24T15:30:00Z'
+                          arrival_at: '2026-06-24T14:55:00Z'
+                          missed_at:
+                          cancellation_status:
+                          cancelled_at:
+                          time_zone: America/Monterrey
                   meta:
                     type: object
                     required:
