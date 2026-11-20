@@ -57,17 +57,17 @@ operation summaries and tags when reorganizing navigation to preserve URLs.
 The renderer trims accidental surrounding whitespace from historical path keys;
 the retained input inventory remains unchanged.
 
-- `scripts/contracts/` stores the imported inputs (39 generated and
+- `scripts/contracts/` stores the imported inputs (42 generated and
   85 existing operation entries). Repeated migration disclaimers have been
   removed from the existing inputs; endpoint descriptions are preserved by the
   renderer. These inputs are excluded from the Mintlify site.
 - `scripts/reference-policy.json` pins the reviewed source revision, approves
-  36 generated operations using recorded production availability and contract
+  39 generated operations using recorded production availability and contract
   evidence. The existing specialty and customer OTP definitions remain published.
 - `scripts/build-reference.rb` generates the six served OpenAPI files with
   customer-facing descriptions and no source/migration extensions. Explicit
   ownership resolves overlapping definitions, including ERP/billing copies.
-  Each normalized method/path has one published definition: 114 operations total.
+  Each normalized method/path has one published definition: 117 operations total.
 - ERP's consultation response schema and billing's report schema/filter details
   are retained instead of the less complete general copies. The original 83-operation
   input inventory remains unchanged; two sanitized patient authentication
@@ -76,8 +76,9 @@ the retained input inventory remains unchanged.
   Postman collection: 11 reviewed canonical reads and two sanitized existing OTP
   definitions. The customer OTP definitions include code-length negotiation.
   The canonical OTP definitions contain environment-specific behavior and remain
-  deferred. Additional first-party portal endpoints require a public-audience
-  review before import.
+  deferred. Consultation detail and the two vital-sign capture history reads
+  have a separate publication review, bringing the portal reference to 16
+  operations.
 - Documentation audience is independent of authentication, data sensitivity,
   and LLM eligibility. The complete historical patient spec and the internal
   bundle remain excluded; generated patient coverage comes only from the

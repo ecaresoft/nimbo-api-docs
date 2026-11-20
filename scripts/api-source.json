@@ -1,9 +1,9 @@
 {
   "repository": "ecaresoft/nimbo-api",
-  "revision": "2f79f15815aab2113410e7dfa1e4409702936578",
+  "revision": "3891c4974252743b071600e9611295adf7a7ff8b",
   "path": "docs/api/generated/openapi.public.yaml",
-  "sha256": "85e7cf36b3833bab1a130b570ab2c0a64b3c64fe256e116791d1d1ef1293b0bf",
-  "document_sha256": "999c99a219cc4fcb5c616ef41dca838fb39db55930e42a969c1e5ed6e47907ab",
+  "sha256": "32123783e2e401e32f50faffd8f3a8dc38be95d14a67ea41122a0d97b37c8ba1",
+  "document_sha256": "bb6728a42f2f0681562acb5e39d088f2cac59ec5be8ab4af15057b067f10c8eb",
   "operations": [
     {
       "method": "GET",
@@ -167,6 +167,11 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/patient_portal/people/{person_id}/vital_signs_history",
+      "operationId": "listPatientPortalPersonVitalSignsHistory"
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/patient_portal/people/{person_id}/lab_tests",
       "operationId": "showPatientPortalPersonLabTests"
     },
@@ -199,6 +204,16 @@
       "method": "GET",
       "path": "/api/v1/patient_portal/people/{person_id}/organization_portals",
       "operationId": "listPatientPortalPersonOrganizationPortals"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/consultations/{id}",
+      "operationId": "showPatientPortalConsultation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/patient_portal/consultations/{id}/vital_signs_history",
+      "operationId": "listPatientPortalConsultationVitalSignsHistory"
     }
   ]
 }

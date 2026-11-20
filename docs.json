@@ -180,7 +180,10 @@
                   "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/lab_tests",
                   "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/attachments",
                   "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/consultations",
-                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/prescriptions"
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/prescriptions",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/consultations/{id}",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/people/{person_id}/vital_signs_history",
+                  "openapi/nimbo_patient_portal.yml GET /api/v1/patient_portal/consultations/{id}/vital_signs_history"
                 ]
               },
               {
