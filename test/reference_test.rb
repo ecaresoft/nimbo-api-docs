@@ -16,10 +16,13 @@ class ReferenceTest < Minitest::Test
   def test_one_reference_preserves_existing_definitions_for_deferred_replacements
     outputs = ApiReference.render
     ids = outputs.values.flat_map { |raw| ApiDocsSync.operations(YAML.safe_load(raw)).map { |_, _, op| op['operationId'] } }
-    assert_equal 111, ids.size
+    assert_equal 114, ids.size
     assert_includes ids, 'legacy_nimbo_api_get__specialties_specialty_id'
-    assert_includes ids, 'legacy_nimbo_api_get__waiting_rooms_waiting_room_slug'
-    %w[getSpecialty showSiteAccount showPortalAgendaLocation showWaitingRoomBySlug].each { |id| refute_includes ids, id }
+    refute_includes ids, 'getSpecialty'
+    refute_includes ids, 'legacy_nimbo_api_get__waiting_rooms_waiting_room_slug'
+    %w[showSiteAccount listSiteOrganizationAccounts showPortalAgendaLocation showWaitingRoomBySlug].each do |id|
+      assert_includes ids, id
+    end
     assert_includes ids, 'listCountryStates'
     refute_includes ids, 'legacy_nimbo_api_get__countries_country_id_states'
   end
@@ -40,7 +43,11 @@ class ReferenceTest < Minitest::Test
     operations.each do |method, _, operation|
       assert_equal(method == 'get' ? [{'PatientPortalToken'=>[]}] : [], operation.fetch('security'))
     end
+    assert_equal ['PatientPortalToken'], portal.fetch('components').fetch('securitySchemes').keys
     assert_equal 'bearer', portal.dig('components', 'securitySchemes', 'PatientPortalToken', 'scheme')
+    otp = portal.fetch('paths').fetch('/api/v1/patient_portal/auth').fetch('post')
+    assert_equal 'boolean', otp.dig('requestBody', 'content', 'application/json', 'schema', 'properties', 'supports_six_digit_otp', 'type')
+    assert_equal [4, 6], otp.dig('responses', '200', 'content', 'application/json', 'schema', 'properties', 'code_length', 'enum')
     catalogs = YAML.safe_load(outputs.fetch('openapi/nimbo_public.yml'))
     refute catalogs.fetch('paths').keys.any? { |path| path.include?('/patient_portal/') }
     assert_match(/creates a new medical history/, operations.find { |_, _, op| op['operationId'] == 'showPatientPortalPersonMedicalHistory' }.last['description'])

@@ -7,16 +7,19 @@ Patient portal authentication is separate from integration OAuth. Use the API ho
 
 ## Request and validate a code
 
-Send [`POST /patient_portal/auth`](/api-reference/patient-portal-authentication/request-a-patient-portal-otp) with the phone's country calling code and number. These strings are placeholders, not a usable phone number.
+Send [`POST /patient_portal/auth`](/api-reference/patient-portal-authentication/request-a-patient-portal-otp) with the phone’s country calling code and number. If your client supports both four- and six-digit codes, send `supports_six_digit_otp` as a JSON boolean on the initial request and on resends. Replace the placeholders with your approved test phone details.
 
 ```json
 {
   "country_code": "<COUNTRY_CALLING_CODE>",
-  "phone": "<TEST_PHONE>"
+  "phone": "<TEST_PHONE>",
+  "supports_six_digit_otp": true
 }
 ```
 
-Collect the code received by the patient, then send [`POST /patient_portal/validate`](/api-reference/patient-portal-authentication/validate-a-patient-portal-otp) with the same phone details:
+Use `code_length` from the HTTP 200 JSON response to configure code entry. It can be `4` or `6`. Treat an empty HTTP 200 as a four-digit challenge. Clients that omit the opt-in receive an empty response and continue using four digits. After a successful resend, use the latest code and its reported length.
+
+Collect the code received by the patient, then send [`POST /patient_portal/validate`](/api-reference/patient-portal-authentication/validate-a-patient-portal-otp) with the same phone details. Keep `code` as a string so leading zeros are preserved.
 
 ```json
 {
@@ -37,16 +40,26 @@ Call `GET /patient_portal/people` with `Authorization: Bearer <PATIENT_PORTAL_TO
 | Need | Path after `/patient_portal/people/{person_id}` |
 | --- | --- |
 | Organization profile | `/organization` |
-| Clinical visits | `/consultations` (supports `page`) |
+| Clinical visits | `/consultations` |
 | Files, lab tests, prescriptions | `/attachments`, `/lab_tests`, `/prescriptions` |
 | Vital signs and history | `/vital_signs`, `/medical_history` |
 | Appointments and requests | `/consultation_schedules`, `/consultation_requests` |
 | Available booking portals | `/organization_portals` |
 
-Consult each response schema rather than assuming these endpoints return the same envelope. Booking links depend on the organization's subscription and visibility settings.
+Check each response schema for its JSON envelope. Booking links depend on the organization’s subscription and visibility settings.
+
+### Display visits and appointments
+
+- Use `/consultations` for visit summaries. Read the scheduled time from `appointment.starts_at` when `appointment` is present. The summary’s top-level `starts_at` is the clinical start time. Organization and location reflect the recorded visit branch when available. Add `include=encounter` when you also need the nullable `encounter_id`.
+- Use `/consultation_schedules` for the default schedule list. Add `scope=history` for past and future appointments, eligible cancellations, and lifecycle fields. An elapsed start time alone gives no evidence of a missed appointment.
+- Both lists accept `page` and `per_page`. The default is 10 results per page, with a maximum of 100.
+
+### Handle clinical sharing
+
+Medical history, vital signs, lab tests, and prescriptions return HTTP 403 when the patient’s organization has disabled medical-history sharing. With sharing enabled, `/medical_history` returns free-text allergies in `records.allergies` and catalogue entries in `medical_history_allergies`.
 
 <Note>
-  Reading `/medical_history` creates a medical-history record if no active record exists. Avoid speculative prefetching of that endpoint.
+  Reading `/medical_history` creates a record if no active history exists. Fetch it when the patient opens the medical history view.
 </Note>
 
-All 13 operations are grouped under **Patient portal** in the [Browse endpoints](/reference/overview) and the [patient portal specification](/openapi/nimbo_patient_portal.yml).
+See the [patient portal specification](/openapi/nimbo_patient_portal.yml) for request parameters, response fields, and errors.

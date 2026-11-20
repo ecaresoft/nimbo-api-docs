@@ -1,9 +1,9 @@
 {
   "repository": "ecaresoft/nimbo-api",
-  "revision": "34f84cd24473c8e0a120253266aee10ead32f789",
+  "revision": "2f79f15815aab2113410e7dfa1e4409702936578",
   "path": "docs/api/generated/openapi.public.yaml",
-  "sha256": "16b3cd1ff6a167f7372235301477ce4792ce5fc0fe48434386f431de73f6b6bf",
-  "document_sha256": "206521dcf32ca1f1d5c5a4e47fe2a3a92a06063ac1b4a7f4edf87811e769bfe3",
+  "sha256": "85e7cf36b3833bab1a130b570ab2c0a64b3c64fe256e116791d1d1ef1293b0bf",
+  "document_sha256": "999c99a219cc4fcb5c616ef41dca838fb39db55930e42a969c1e5ed6e47907ab",
   "operations": [
     {
       "method": "GET",
@@ -114,6 +114,11 @@
       "method": "GET",
       "path": "/api/v1/sites/organizations/{id}",
       "operationId": "showSiteOrganization"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sites/organizations/{id}/accounts",
+      "operationId": "listSiteOrganizationAccounts"
     },
     {
       "method": "GET",

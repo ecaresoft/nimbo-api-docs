@@ -11,7 +11,21 @@ paths:
       summary: Request a patient portal OTP
       responses:
         '200':
-          description: The request succeeded.
+          description: >-
+            The code was requested. A request with supports_six_digit_otp set
+            to true can return the issued code length as JSON. An empty success
+            indicates a four-digit code.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - code_length
+                properties:
+                  code_length:
+                    type: integer
+                    enum: [4, 6]
+                    description: Number of digits to enter for this request.
       requestBody:
         content:
           application/json:
@@ -22,12 +36,18 @@ paths:
                   type: string
                 phone:
                   type: string
+                supports_six_digit_otp:
+                  type: boolean
+                  default: false
+                  description: Send true on the initial request and on resends when your client accepts either code length.
       operationId: customerPatientPortalAuth
       tags:
       - Patient portal authentication
       security: []
-      description: Requests a one-time code for the patient phone number. Use the
-        country code and phone fields supplied for your integration.
+      description: >-
+        Requests a one-time code for the patient phone number. Requests that
+        omit supports_six_digit_otp use four digits and receive an empty success
+        response. A successful resend replaces the previous code for this phone.
   "/api/v1/patient_portal/validate":
     post:
       summary: Validate a patient portal OTP
@@ -49,6 +69,8 @@ paths:
               properties:
                 code:
                   type: string
+                  pattern: '^(?:[0-9]{4}|[1-9][0-9]{5})$'
+                  description: Enter the code at the issued length and preserve any leading zeros.
                 country_code:
                   type: string
                 phone:
